@@ -62,7 +62,7 @@ export const initialSiteConfig: SiteConfig = {
   navMenu1: '오아시스',
   navMenu2: '카지노 서비스',
   navMenu3: '투어 서비스',
-  headerLogo: oasisGoldLogo,
+  headerLogo: '',
 };
 
 export const initialBannerSlides: BannerSlide[] = [

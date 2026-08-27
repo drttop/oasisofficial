@@ -86,21 +86,21 @@ interface SiteContextType {
 const SiteContext = createContext<SiteContextType | undefined>(undefined);
 
 const STORAGE_KEYS = {
-  CONFIG: 'oasis_site_config_v6',
-  SLIDES: 'oasis_banner_slides_v6',
-  CASINOS: 'oasis_casinos_v6',
-  SPOTS: 'oasis_philippine_spots_v6',
-  POSTS: 'oasis_posts_v6',
-  LEADS: 'oasis_inquiry_leads_v6',
-  STEPS: 'oasis_service_steps_v6',
-  FAQS: 'oasis_faqs_v6',
+  CONFIG: 'oasis_site_config_v7',
+  SLIDES: 'oasis_banner_slides_v7',
+  CASINOS: 'oasis_casinos_v7',
+  SPOTS: 'oasis_philippine_spots_v7',
+  POSTS: 'oasis_posts_v7',
+  LEADS: 'oasis_inquiry_leads_v7',
+  STEPS: 'oasis_service_steps_v7',
+  FAQS: 'oasis_faqs_v7',
 };
 
 const sanitizeConfig = (cfg: Partial<SiteConfig>): SiteConfig => {
   const merged = { ...initialSiteConfig, ...cfg };
-  // If headerLogo is missing or empty, use the bundled official logo
-  if (!merged.headerLogo) {
-    merged.headerLogo = initialSiteConfig.headerLogo;
+  // If headerLogo is previous square jpg or broken, reset to default vector logo
+  if (merged.headerLogo && (merged.headerLogo.includes('oasis_gold_logo') || merged.headerLogo.includes('oasis_logo_official'))) {
+    merged.headerLogo = '';
   }
   return merged;
 };

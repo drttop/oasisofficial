@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useSite } from '../../context/SiteContext';
 import { PostItem, CasinoItem, BannerSlide, PhilippineTourSpot } from '../../types';
 import { initialSiteConfig } from '../../data/initialData';
+import { OasisLogoHorizontal } from '../OasisLogoHorizontal';
 import { PostEditorModal } from './PostEditorModal';
 import { CasinoEditorModal } from './CasinoEditorModal';
 import { PhilippineSpotEditorModal } from './PhilippineSpotEditorModal';
@@ -291,11 +292,11 @@ export const AdminDashboard: React.FC = () => {
                     <label className="block text-xs font-bold text-slate-700 mb-1">상단 좌측 메인 로고 (파일 업로드 또는 이미지 URL)</label>
                     <div className="space-y-3">
                       <div className="flex items-center gap-4">
-                        <div className="w-40 h-16 rounded-xl bg-slate-950 border border-slate-700 p-2 flex items-center justify-center overflow-hidden">
+                        <div className="w-48 h-16 rounded-xl bg-slate-950 border border-slate-700 p-2 flex items-center justify-center overflow-hidden">
                           {siteConfig.headerLogo ? (
                             <img src={siteConfig.headerLogo} alt="Logo Preview" className="max-w-full max-h-full object-contain" />
                           ) : (
-                            <span className="text-[11px] text-amber-400 font-bold tracking-wider">기본 골드 벡터 로고</span>
+                            <OasisLogoHorizontal className="w-full h-8" />
                           )}
                         </div>
                         <div className="flex-1 space-y-2">
@@ -326,7 +327,7 @@ export const AdminDashboard: React.FC = () => {
                         {siteConfig.headerLogo && (
                           <button
                             onClick={() => {
-                              updateSiteConfig({ headerLogo: initialSiteConfig.headerLogo });
+                              updateSiteConfig({ headerLogo: '' });
                               showToast('기본 공식 골드 로고로 복원되었습니다.');
                             }}
                             className="px-3 py-2 bg-red-50 text-red-500 rounded-lg text-xs font-bold hover:bg-red-100 transition-colors whitespace-nowrap"

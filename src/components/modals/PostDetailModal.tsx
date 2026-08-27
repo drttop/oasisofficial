@@ -1,6 +1,6 @@
 import React from 'react';
 import { useSite } from '../../context/SiteContext';
-import { X, Calendar, Eye, User, Tag, Share2, MessageCircle, Send, Pin } from 'lucide-react';
+import { X, Eye, User, Tag, Share2, MessageCircle, Send, Pin } from 'lucide-react';
 
 export const PostDetailModal: React.FC = () => {
   const { selectedPost, setSelectedPost, siteConfig } = useSite();
@@ -57,10 +57,6 @@ export const PostDetailModal: React.FC = () => {
               <div className="flex items-center gap-1">
                 <User className="w-3.5 h-3.5 text-slate-400" />
                 <span>{selectedPost.author}</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <Calendar className="w-3.5 h-3.5 text-slate-400" />
-                <span>{selectedPost.date}</span>
               </div>
               <div className="flex items-center gap-1">
                 <Eye className="w-3.5 h-3.5 text-slate-400" />

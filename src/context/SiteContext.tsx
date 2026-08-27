@@ -86,21 +86,21 @@ interface SiteContextType {
 const SiteContext = createContext<SiteContextType | undefined>(undefined);
 
 const STORAGE_KEYS = {
-  CONFIG: 'oasis_site_config_v5',
-  SLIDES: 'oasis_banner_slides_v5',
-  CASINOS: 'oasis_casinos_v5',
-  SPOTS: 'oasis_philippine_spots_v5',
-  POSTS: 'oasis_posts_v5',
-  LEADS: 'oasis_inquiry_leads_v5',
-  STEPS: 'oasis_service_steps_v5',
-  FAQS: 'oasis_faqs_v5',
+  CONFIG: 'oasis_site_config_v6',
+  SLIDES: 'oasis_banner_slides_v6',
+  CASINOS: 'oasis_casinos_v6',
+  SPOTS: 'oasis_philippine_spots_v6',
+  POSTS: 'oasis_posts_v6',
+  LEADS: 'oasis_inquiry_leads_v6',
+  STEPS: 'oasis_service_steps_v6',
+  FAQS: 'oasis_faqs_v6',
 };
 
 const sanitizeConfig = (cfg: Partial<SiteConfig>): SiteConfig => {
   const merged = { ...initialSiteConfig, ...cfg };
-  // If headerLogo contains corrupted/broken raw base64 string from previous session, clean it
-  if (merged.headerLogo && merged.headerLogo.length > 5000 && merged.headerLogo.includes('iVBORw0KGgoAAAANSUhEUgAABagAAAE0')) {
-    merged.headerLogo = '';
+  // If headerLogo is missing or empty, use the bundled official logo
+  if (!merged.headerLogo) {
+    merged.headerLogo = initialSiteConfig.headerLogo;
   }
   return merged;
 };
@@ -109,10 +109,10 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [siteConfig, setSiteConfigState] = useState<SiteConfig>(() => {
     const saved = localStorage.getItem(STORAGE_KEYS.CONFIG);
     if (!saved) {
-      const v4 = localStorage.getItem('oasis_site_config_v4');
-      if (v4) {
+      const v5 = localStorage.getItem('oasis_site_config_v5');
+      if (v5) {
         try {
-          return sanitizeConfig(JSON.parse(v4));
+          return sanitizeConfig(JSON.parse(v5));
         } catch {
           return initialSiteConfig;
         }

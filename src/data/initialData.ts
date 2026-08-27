@@ -2,6 +2,7 @@ import { SiteConfig, BannerSlide, CasinoItem, PhilippineTourSpot, ServiceStep, P
 import oasisHeroBg from '../assets/images/oasis_gold_hero_1787791853858.jpg';
 import casinoPanoramicBg from '../assets/images/casino_table_panoramic_1787791869633.jpg';
 import aboutAccreditationImg from '../assets/images/oasis_accreditation_about_1787793248317.jpg';
+import oasisGoldLogo from '../assets/images/oasis_gold_logo_1787791882547.jpg';
 
 export const initialSiteConfig: SiteConfig = {
   siteName: '오아시스 필리핀 공식 에이전트',
@@ -61,7 +62,7 @@ export const initialSiteConfig: SiteConfig = {
   navMenu1: '오아시스',
   navMenu2: '카지노 서비스',
   navMenu3: '투어 서비스',
-  headerLogo: '',
+  headerLogo: oasisGoldLogo,
 };
 
 export const initialBannerSlides: BannerSlide[] = [

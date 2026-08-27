@@ -5,7 +5,6 @@ import {
   FileText,
   Search,
   Pin,
-  Calendar,
   Eye,
   User,
   PlusCircle,
@@ -179,12 +178,8 @@ export const CommunitySection: React.FC = () => {
                   <div className="pt-3 border-t border-slate-200/80 flex items-center justify-between text-xs text-slate-500">
                     <div className="flex items-center gap-3">
                       <span className="flex items-center gap-1">
-                        <Calendar className="w-3.5 h-3.5 text-slate-400" />
-                        {post.date}
-                      </span>
-                      <span className="flex items-center gap-1">
                         <Eye className="w-3.5 h-3.5 text-slate-400" />
-                        {post.viewCount}
+                        조회 {post.viewCount}
                       </span>
                     </div>
 

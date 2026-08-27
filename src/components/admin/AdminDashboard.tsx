@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useSite } from '../../context/SiteContext';
 import { PostItem, CasinoItem, BannerSlide, PhilippineTourSpot } from '../../types';
+import { initialSiteConfig } from '../../data/initialData';
 import { PostEditorModal } from './PostEditorModal';
 import { CasinoEditorModal } from './CasinoEditorModal';
 import { PhilippineSpotEditorModal } from './PhilippineSpotEditorModal';
@@ -325,8 +326,8 @@ export const AdminDashboard: React.FC = () => {
                         {siteConfig.headerLogo && (
                           <button
                             onClick={() => {
-                              updateSiteConfig({ headerLogo: '' });
-                              showToast('기본 골드 로고로 초기화되었습니다.');
+                              updateSiteConfig({ headerLogo: initialSiteConfig.headerLogo });
+                              showToast('기본 공식 골드 로고로 복원되었습니다.');
                             }}
                             className="px-3 py-2 bg-red-50 text-red-500 rounded-lg text-xs font-bold hover:bg-red-100 transition-colors whitespace-nowrap"
                           >
@@ -334,8 +335,8 @@ export const AdminDashboard: React.FC = () => {
                           </button>
                         )}
                       </div>
-                      <p className="text-[11px] text-slate-500">
-                        * 투명 배경의 가로형 PNG/SVG 이미지를 권장합니다. 미등록 또는 초기화 시 기본 프리미엄 오아시스 골드 벡터 로고가 고화질로 자동 노출됩니다.
+                      <p className="text-[11px] text-slate-500 leading-relaxed">
+                        * 투명 배경의 가로형 PNG/SVG 이미지를 권장합니다. 로컬 파일 업로드 또는 이미지 URL(https://...)을 입력하시면 즉시 적용됩니다.
                       </p>
                     </div>
                   </div>

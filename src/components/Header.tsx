@@ -7,6 +7,11 @@ export const Header: React.FC = () => {
   const { siteConfig } = useSite();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [imgError, setImgError] = useState(false);
+
+  useEffect(() => {
+    setImgError(false);
+  }, [siteConfig.headerLogo]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -61,10 +66,15 @@ export const Header: React.FC = () => {
             className="flex items-center group transition-transform hover:scale-105"
             id="brand-logo-link"
           >
-            {siteConfig.headerLogo ? (
-              <img src={siteConfig.headerLogo} alt="Logo" className="h-8 sm:h-10 w-auto object-contain" />
+            {siteConfig.headerLogo && !imgError ? (
+              <img
+                src={siteConfig.headerLogo}
+                alt={siteConfig.siteName || "OASIS VIP"}
+                onError={() => setImgError(true)}
+                className="h-8 sm:h-10 w-auto max-w-[220px] object-contain"
+              />
             ) : (
-              <OasisLogoHorizontal className="h-8 sm:h-10 w-auto" />
+              <OasisLogoHorizontal className="h-8 sm:h-10 w-auto max-w-[220px]" />
             )}
           </a>
 

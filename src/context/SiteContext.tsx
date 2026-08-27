@@ -86,25 +86,33 @@ interface SiteContextType {
 const SiteContext = createContext<SiteContextType | undefined>(undefined);
 
 const STORAGE_KEYS = {
-  CONFIG: 'oasis_site_config_v4',
-  SLIDES: 'oasis_banner_slides_v4',
-  CASINOS: 'oasis_casinos_v4',
-  SPOTS: 'oasis_philippine_spots_v4',
-  POSTS: 'oasis_posts_v4',
-  LEADS: 'oasis_inquiry_leads_v4',
-  STEPS: 'oasis_service_steps_v4',
-  FAQS: 'oasis_faqs_v4',
+  CONFIG: 'oasis_site_config_v5',
+  SLIDES: 'oasis_banner_slides_v5',
+  CASINOS: 'oasis_casinos_v5',
+  SPOTS: 'oasis_philippine_spots_v5',
+  POSTS: 'oasis_posts_v5',
+  LEADS: 'oasis_inquiry_leads_v5',
+  STEPS: 'oasis_service_steps_v5',
+  FAQS: 'oasis_faqs_v5',
+};
+
+const sanitizeConfig = (cfg: Partial<SiteConfig>): SiteConfig => {
+  const merged = { ...initialSiteConfig, ...cfg };
+  // If headerLogo contains corrupted/broken raw base64 string from previous session, clean it
+  if (merged.headerLogo && merged.headerLogo.length > 5000 && merged.headerLogo.includes('iVBORw0KGgoAAAANSUhEUgAABagAAAE0')) {
+    merged.headerLogo = '';
+  }
+  return merged;
 };
 
 export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [siteConfig, setSiteConfigState] = useState<SiteConfig>(() => {
     const saved = localStorage.getItem(STORAGE_KEYS.CONFIG);
     if (!saved) {
-      // check if v1 exists and merge
-      const v1 = localStorage.getItem('oasis_site_config_v1');
-      if (v1) {
+      const v4 = localStorage.getItem('oasis_site_config_v4');
+      if (v4) {
         try {
-          return { ...initialSiteConfig, ...JSON.parse(v1) };
+          return sanitizeConfig(JSON.parse(v4));
         } catch {
           return initialSiteConfig;
         }
@@ -112,7 +120,7 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return initialSiteConfig;
     }
     try {
-      return { ...initialSiteConfig, ...JSON.parse(saved) };
+      return sanitizeConfig(JSON.parse(saved));
     } catch {
       return initialSiteConfig;
     }

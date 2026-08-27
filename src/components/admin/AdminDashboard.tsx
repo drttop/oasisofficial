@@ -287,37 +287,56 @@ export const AdminDashboard: React.FC = () => {
 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">상단 좌측 메인 로고 (이미지 업로드)</label>
-                    <div className="flex items-center gap-4">
-                      {siteConfig.headerLogo && (
-                        <div className="w-20 h-20 rounded bg-slate-900 border border-slate-200 p-2 flex items-center justify-center">
-                          <img src={siteConfig.headerLogo} alt="Logo Preview" className="max-w-full max-h-full object-contain" />
+                    <label className="block text-xs font-bold text-slate-700 mb-1">상단 좌측 메인 로고 (파일 업로드 또는 이미지 URL)</label>
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-4">
+                        <div className="w-40 h-16 rounded-xl bg-slate-950 border border-slate-700 p-2 flex items-center justify-center overflow-hidden">
+                          {siteConfig.headerLogo ? (
+                            <img src={siteConfig.headerLogo} alt="Logo Preview" className="max-w-full max-h-full object-contain" />
+                          ) : (
+                            <span className="text-[11px] text-amber-400 font-bold tracking-wider">기본 골드 벡터 로고</span>
+                          )}
                         </div>
-                      )}
-                      <div className="flex-1">
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) {
-                              const reader = new FileReader();
-                              reader.onloadend = () => updateSiteConfig({ headerLogo: reader.result as string });
-                              reader.readAsDataURL(file);
-                            }
-                          }}
-                          className="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-[#30308A] file:text-white hover:file:bg-[#25256e] cursor-pointer"
-                        />
-                        <p className="mt-1 text-[11px] text-slate-500">투명 배경의 PNG 이미지를 권장합니다. (미등록 시 기본 텍스트/SVG 로고 노출)</p>
+                        <div className="flex-1 space-y-2">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                const reader = new FileReader();
+                                reader.onloadend = () => {
+                                  updateSiteConfig({ headerLogo: reader.result as string });
+                                  showToast('로고 이미지가 성공적으로 적용되었습니다.');
+                                };
+                                reader.readAsDataURL(file);
+                              }
+                            }}
+                            className="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-[#30308A] file:text-white hover:file:bg-[#25256e] cursor-pointer"
+                          />
+                          <input
+                            type="text"
+                            placeholder="또는 이미지 URL 직접 입력 (https://...)"
+                            value={siteConfig.headerLogo?.startsWith('data:') ? '' : (siteConfig.headerLogo || '')}
+                            onChange={(e) => updateSiteConfig({ headerLogo: e.target.value })}
+                            className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded focus:ring-2 focus:ring-[#30308A]"
+                          />
+                        </div>
+                        {siteConfig.headerLogo && (
+                          <button
+                            onClick={() => {
+                              updateSiteConfig({ headerLogo: '' });
+                              showToast('기본 골드 로고로 초기화되었습니다.');
+                            }}
+                            className="px-3 py-2 bg-red-50 text-red-500 rounded-lg text-xs font-bold hover:bg-red-100 transition-colors whitespace-nowrap"
+                          >
+                            기본 로고로 복원
+                          </button>
+                        )}
                       </div>
-                      {siteConfig.headerLogo && (
-                        <button
-                          onClick={() => updateSiteConfig({ headerLogo: '' })}
-                          className="px-3 py-2 bg-red-50 text-red-500 rounded-lg text-xs font-bold hover:bg-red-100 transition-colors whitespace-nowrap"
-                        >
-                          로고 초기화
-                        </button>
-                      )}
+                      <p className="text-[11px] text-slate-500">
+                        * 투명 배경의 가로형 PNG/SVG 이미지를 권장합니다. 미등록 또는 초기화 시 기본 프리미엄 오아시스 골드 벡터 로고가 고화질로 자동 노출됩니다.
+                      </p>
                     </div>
                   </div>
 

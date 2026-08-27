@@ -79,20 +79,21 @@ interface SiteContextType {
   
   resetToDefaults: () => void;
   exportDataJSON: () => void;
+  getExportJSONString: () => string;
   importDataJSON: (jsonString: string) => boolean;
 }
 
 const SiteContext = createContext<SiteContextType | undefined>(undefined);
 
 const STORAGE_KEYS = {
-  CONFIG: 'oasis_site_config_v2',
-  SLIDES: 'oasis_banner_slides_v3',
-  CASINOS: 'oasis_casinos_v2',
-  SPOTS: 'oasis_philippine_spots_v1',
-  POSTS: 'oasis_posts_v1',
-  LEADS: 'oasis_inquiry_leads_v1',
-  STEPS: 'oasis_service_steps_v1',
-  FAQS: 'oasis_faqs_v1',
+  CONFIG: 'oasis_site_config_v4',
+  SLIDES: 'oasis_banner_slides_v4',
+  CASINOS: 'oasis_casinos_v4',
+  SPOTS: 'oasis_philippine_spots_v4',
+  POSTS: 'oasis_posts_v4',
+  LEADS: 'oasis_inquiry_leads_v4',
+  STEPS: 'oasis_service_steps_v4',
+  FAQS: 'oasis_faqs_v4',
 };
 
 export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -363,7 +364,7 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.removeItem(STORAGE_KEYS.FAQS);
   };
 
-  const exportDataJSON = () => {
+  const getExportJSONString = (): string => {
     const exportObject = {
       siteConfig,
       bannerSlides,
@@ -375,7 +376,12 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
       faqs,
       exportedAt: new Date().toISOString(),
     };
-    const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(exportObject, null, 2));
+    return JSON.stringify(exportObject, null, 2);
+  };
+
+  const exportDataJSON = () => {
+    const jsonStr = getExportJSONString();
+    const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(jsonStr);
     const downloadAnchor = document.createElement('a');
     downloadAnchor.setAttribute('href', dataStr);
     downloadAnchor.setAttribute('download', `oasis_agent_backup_${Date.now()}.json`);
@@ -450,6 +456,7 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setActiveSection,
         resetToDefaults,
         exportDataJSON,
+        getExportJSONString,
         importDataJSON,
       }}
     >

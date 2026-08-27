@@ -38,7 +38,7 @@ export const ProcessSection: React.FC = () => {
           <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
             {siteConfig.processTitle || '오아시스 VIP 의전 서비스 이용절차'}
           </h2>
-          <p className="text-sm sm:text-base text-slate-600 leading-relaxed text-balance">
+          <p className="text-sm sm:text-base text-slate-600 leading-relaxed text-balance whitespace-pre-line">
             {siteConfig.processSubtitle || '첫 상담부터 호텔 예약, 공항 패스트트랙, 현지 1:1 케어 및 출국 정산까지 빈틈없는 5단계 원스톱 VIP 프로세스로 모십니다.'}
           </p>
         </div>

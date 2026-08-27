@@ -32,6 +32,8 @@ import {
   Compass,
   MapPin,
   HelpCircle,
+  Copy,
+  Check,
 } from 'lucide-react';
 
 export const AdminDashboard: React.FC = () => {
@@ -61,6 +63,7 @@ export const AdminDashboard: React.FC = () => {
     deleteInquiry,
     resetToDefaults,
     exportDataJSON,
+    getExportJSONString,
     importDataJSON,
   } = useSite();
 
@@ -1589,6 +1592,49 @@ export const AdminDashboard: React.FC = () => {
                 <p className="text-xs text-slate-600 leading-relaxed">
                   모든 사이트 설정, 카지노 목록, 공지사항 게시글, 상담 신청 내역을 JSON 파일로 안전하게 백업하거나 다른 기기에서 복원할 수 있습니다.
                 </p>
+
+                {/* Permanent Source Code Sync Box */}
+                <div className="p-4 rounded-xl bg-amber-50/80 border-2 border-amber-200/80 space-y-3">
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <span className="text-xs font-extrabold text-amber-900 flex items-center gap-1.5">
+                        <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+                        현재 모든 수정한 내용을 소스코드 파일(ZIP/Netlify)에 영구 고정하기
+                      </span>
+                      <p className="text-[11px] text-amber-800/90 mt-1 leading-relaxed">
+                        아래 <strong>[설정 텍스트 복사]</strong> 버튼을 누른 뒤, AI 채팅창에 그대로 붙여넣어 주시면 
+                        제가 소스코드 파일(<code className="bg-amber-100 px-1 py-0.5 rounded text-amber-900 font-mono">initialData.ts</code>)에 영구 고정해 드립니다. 
+                        이렇게 하면 ZIP 다운로드나 Netlify 배포 시에도 수정한 내용이 100% 동일하게 유지됩니다.
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => {
+                        const jsonStr = getExportJSONString();
+                        navigator.clipboard.writeText(jsonStr).then(() => {
+                          showToast('클립보드에 복사되었습니다! 채팅창에 붙여넣어 주세요.');
+                        }).catch(() => {
+                          showToast('텍스트 영역의 내용을 복사해 주세요.');
+                        });
+                      }}
+                      className="px-3.5 py-2 bg-[#30308A] hover:bg-[#202060] text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shrink-0 shadow-sm transition-all"
+                    >
+                      <Copy className="w-3.5 h-3.5" />
+                      설정 텍스트 복사
+                    </button>
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] font-bold text-amber-800 mb-1">
+                      설정 데이터 텍스트 (직접 복사 가능)
+                    </label>
+                    <textarea
+                      readOnly
+                      value={getExportJSONString()}
+                      onClick={(e) => (e.target as HTMLTextAreaElement).select()}
+                      className="w-full h-24 p-2 text-[10px] font-mono bg-white border border-amber-200 rounded-lg text-slate-700 select-all"
+                    />
+                  </div>
+                </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
                   <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">

@@ -1,0 +1,6 @@
+{
+  "name": "오아시스 공식 에이전트",
+  "description": "오아시스 공식 에이전트(Oasis Official Agent) 공식 웹사이트 - 필리핀 마닐라 및 클락 카지노 VIP 에이전시, 호텔/골프/의전 투어 서비스 및 실시간 상담",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

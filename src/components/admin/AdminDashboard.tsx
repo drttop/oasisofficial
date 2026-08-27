@@ -959,11 +959,21 @@ export const AdminDashboard: React.FC = () => {
                     </div>
 
                     <div>
-                      <label className="block text-xs font-bold text-slate-700 mb-1">배경 이미지 URL</label>
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="block text-xs font-bold text-slate-700">배경 이미지 URL</label>
+                        <button
+                          type="button"
+                          onClick={() => updateBannerSlide(slide.id, { bgImage: sIdx === 0 ? '/images/hero_bg.jpg' : '/images/casino_table.jpg' })}
+                          className="text-[10px] text-[#30308A] hover:underline font-bold"
+                        >
+                          기본 고화질 카지노 배경으로 리셋
+                        </button>
+                      </div>
                       <input
-                        type="url"
+                        type="text"
                         value={slide.bgImage}
                         onChange={(e) => updateBannerSlide(slide.id, { bgImage: e.target.value })}
+                        placeholder="/images/hero_bg.jpg 또는 이미지 URL"
                         className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded-lg"
                       />
                     </div>

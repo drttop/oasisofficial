@@ -1,12 +1,21 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useSite } from '../../context/SiteContext';
 import { Crown } from 'lucide-react';
 
+const FALLBACK_HERO_IMAGE = 'https://images.unsplash.com/photo-1518609878373-06d740f60d8b?auto=format&fit=crop&w=2000&q=80';
+
 export const HeroSection: React.FC = () => {
   const { bannerSlides } = useSite();
+  const [imgSrc, setImgSrc] = useState<string>('');
   
   // Use only the 1st slide
   const slide = bannerSlides && bannerSlides.length > 0 ? bannerSlides[0] : null;
+
+  const currentBg = imgSrc || (slide?.bgImage ? (
+    slide.bgImage.includes('/assets/') || slide.bgImage.includes('oasis_gold_hero') 
+      ? '/images/hero_bg.jpg' 
+      : slide.bgImage
+  ) : '/images/hero_bg.jpg');
 
   if (!slide) return null;
 
@@ -18,9 +27,16 @@ export const HeroSection: React.FC = () => {
       {/* Background Image */}
       <div className="absolute inset-0">
         <img
-          src={slide.bgImage}
+          src={currentBg}
           alt={slide.title}
-          className="w-full h-full object-cover object-center transform scale-105"
+          onError={() => {
+            if (currentBg !== '/images/hero_bg.jpg') {
+              setImgSrc('/images/hero_bg.jpg');
+            } else {
+              setImgSrc(FALLBACK_HERO_IMAGE);
+            }
+          }}
+          className="w-full h-full object-cover object-center transform scale-105 transition-opacity duration-700"
           referrerPolicy="no-referrer"
         />
         {/* Subtle contrast dark gradient for luxury table atmosphere and crisp legibility */}

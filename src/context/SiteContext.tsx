@@ -116,6 +116,16 @@ const sanitizeConfig = (cfg: Partial<SiteConfig>): SiteConfig => {
   return merged;
 };
 
+const sanitizeSlides = (slides: BannerSlide[]): BannerSlide[] => {
+  return slides.map((slide, idx) => {
+    let bg = slide.bgImage;
+    if (!bg || bg.includes('/assets/') || bg.includes('oasis_gold_hero') || bg.includes('casino_table_panoramic')) {
+      bg = idx === 0 ? '/images/hero_bg.jpg' : '/images/casino_table.jpg';
+    }
+    return { ...slide, bgImage: bg };
+  });
+};
+
 export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [siteConfig, setSiteConfigState] = useState<SiteConfig>(() => {
     const saved = localStorage.getItem(STORAGE_KEYS.CONFIG);
@@ -129,7 +139,7 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const [bannerSlides, setBannerSlidesState] = useState<BannerSlide[]>(() => {
     const saved = localStorage.getItem(STORAGE_KEYS.SLIDES);
-    return saved ? JSON.parse(saved) : initialBannerSlides;
+    return saved ? sanitizeSlides(JSON.parse(saved)) : initialBannerSlides;
   });
 
   const [casinos, setCasinosState] = useState<CasinoItem[]>(() => {
@@ -271,8 +281,17 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const slidesColRef = collection(db, 'banner_slides');
       unsubscribeSlides = onSnapshot(slidesColRef, async (snap) => {
         if (!snap.empty) {
-          const items = snap.docs.map((d) => ({ ...d.data(), id: d.id } as BannerSlide));
-          setBannerSlidesState(items);
+          const rawItems = snap.docs.map((d) => ({ ...d.data(), id: d.id } as BannerSlide));
+          const cleanedItems = sanitizeSlides(rawItems);
+          setBannerSlidesState(cleanedItems);
+          
+          // Check if any item had an old hashed path and update Firestore with clean static path
+          rawItems.forEach(async (item, idx) => {
+            if (item.bgImage && (item.bgImage.includes('/assets/') || item.bgImage.includes('oasis_gold_hero'))) {
+              const cleanBg = idx === 0 ? '/images/hero_bg.jpg' : '/images/casino_table.jpg';
+              await setDoc(doc(db, 'banner_slides', item.id), { bgImage: cleanBg }, { merge: true }).catch(console.warn);
+            }
+          });
         } else {
           const batch = writeBatch(db);
           initialBannerSlides.forEach((slide) => {

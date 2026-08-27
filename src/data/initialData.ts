@@ -1,8 +1,4 @@
 import { SiteConfig, BannerSlide, CasinoItem, PhilippineTourSpot, ServiceStep, PostItem, FAQItem, InquiryLead } from '../types';
-import oasisHeroBg from '../assets/images/oasis_gold_hero_1787791853858.jpg';
-import casinoPanoramicBg from '../assets/images/casino_table_panoramic_1787791869633.jpg';
-import aboutAccreditationImg from '../assets/images/oasis_accreditation_about_1787793248317.jpg';
-import oasisGoldLogo from '../assets/images/oasis_gold_logo_1787791882547.jpg';
 
 export const initialSiteConfig: SiteConfig = {
   siteName: '오아시스 필리핀 공식 에이전트',
@@ -71,14 +67,14 @@ export const initialBannerSlides: BannerSlide[] = [
     title: '필리핀 카지노 공식 VIP 에이전트',
     subtitle: '오카다 · 솔레어 · COD · 클락 한 카지노 공식파트너 \n차원이 다른 프리미엄 혜택과 투명한 정산 보증',
     badge: 'PAGCOR OFFICIAL CERTIFIED VIP AGENCY',
-    bgImage: oasisHeroBg,
+    bgImage: '/images/hero_bg.jpg',
   },
   {
     id: 'slide-2',
     title: '24시간 퍼스트클래스 전담 케어',
     subtitle: '공항 VIP 패스트트랙 입국, 최고급 전용 리무진 픽업, 5성급 호텔 전액 지원',
     badge: '24/7 DEDICATED PRIVATE CONCIERGE',
-    bgImage: casinoPanoramicBg,
+    bgImage: '/images/casino_table.jpg',
   },
 ];
 

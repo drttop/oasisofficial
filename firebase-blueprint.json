@@ -1,0 +1,66 @@
+{
+  "entities": {
+    "site_config": {
+      "title": "Site Configuration",
+      "description": "Global website configuration including contact information, notices, and styling",
+      "type": "object",
+      "properties": {
+        "siteName": { "type": "string" },
+        "siteSubtitle": { "type": "string" },
+        "mainPhone": { "type": "string" },
+        "mainTelegram": { "type": "string" },
+        "mainKakao": { "type": "string" },
+        "headerLogo": { "type": "string" },
+        "bannerNotice": { "type": "string" }
+      }
+    },
+    "posts": {
+      "title": "Community Posts",
+      "description": "Board articles, casino reviews, announcements, and travel guides",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "category": { "type": "string" },
+        "content": { "type": "string" },
+        "author": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "views": { "type": "number" },
+        "isPinned": { "type": "boolean" },
+        "thumbnail": { "type": "string" }
+      },
+      "required": ["title", "category", "content", "author", "createdAt"]
+    },
+    "inquiries": {
+      "title": "Consultation Inquiries",
+      "description": "Customer consultation and reservation inquiries",
+      "type": "object",
+      "properties": {
+        "customerName": { "type": "string" },
+        "contactType": { "type": "string" },
+        "contactValue": { "type": "string" },
+        "serviceType": { "type": "string" },
+        "message": { "type": "string" },
+        "status": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["customerName", "contactValue", "createdAt"]
+    },
+    "casinos": {
+      "title": "Casinos",
+      "description": "List of partner hotels and VIP junket casinos",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "rating": { "type": "number" },
+        "location": { "type": "string" },
+        "description": { "type": "string" },
+        "tags": { "type": "array", "items": { "type": "string" } },
+        "features": { "type": "array", "items": { "type": "string" } },
+        "image": { "type": "string" },
+        "status": { "type": "string" }
+      },
+      "required": ["name", "location"]
+    }
+  },
+  "firestoreRules": "firestore.rules"
+}

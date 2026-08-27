@@ -1,0 +1,40 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Site configuration (public read, write for admin/app)
+    match /site_config/{docId} {
+      allow read: if true;
+      allow write: if true;
+    }
+    
+    // Community & News Posts (public read, public write/create/edit)
+    match /posts/{postId} {
+      allow read: if true;
+      allow create, update, delete: if true;
+    }
+    
+    // Consultation Inquiry Leads (public create, read/update for inquiries)
+    match /inquiries/{inquiryId} {
+      allow read, write: if true;
+    }
+    
+    // Partner Casinos
+    match /casinos/{casinoId} {
+      allow read: if true;
+      allow write: if true;
+    }
+    
+    // Main Banner Slides
+    match /banner_slides/{slideId} {
+      allow read: if true;
+      allow write: if true;
+    }
+    
+    // Philippine Tour Spots
+    match /philippine_spots/{spotId} {
+      allow read: if true;
+      allow write: if true;
+    }
+  }
+}

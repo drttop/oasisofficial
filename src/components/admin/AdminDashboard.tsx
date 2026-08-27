@@ -132,9 +132,13 @@ export const AdminDashboard: React.FC = () => {
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#E5B54F] text-slate-950">
                   ADMIN LIVE
                 </span>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                  Firebase 클라우드 실시간 동기화
+                </span>
               </div>
               <p className="text-xs text-slate-400">
-                실시간 사이트 설정, 텍스트/테마 색상 변경, 카지노 및 커뮤니티 게시글 통합 관리
+                수정 및 작성하신 모든 내용이 클라우드 DB에 즉시 저장되어 넷플리파이 및 모든 방문자에게 실시간 반영됩니다.
               </p>
             </div>
           </div>

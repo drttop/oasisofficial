@@ -7,14 +7,13 @@ import {
   Pin,
   Eye,
   User,
-  PlusCircle,
   ChevronRight,
   Sparkles,
   ArrowUpRight,
 } from 'lucide-react';
 
 export const CommunitySection: React.FC = () => {
-  const { posts, setSelectedPost, incrementPostView, setIsAdminOpen, siteConfig } = useSite();
+  const { posts, setSelectedPost, incrementPostView, siteConfig } = useSite();
   const [selectedCategory, setSelectedCategory] = useState<string>('전체');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
@@ -54,20 +53,9 @@ export const CommunitySection: React.FC = () => {
           <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
             {siteConfig.communityTitle || '오아시스 공식 커뮤니티 & VIP 소식'}
           </h2>
-          <p className="text-sm text-slate-600 leading-relaxed text-balance mx-auto mb-4">
+          <p className="text-sm text-slate-600 leading-relaxed text-balance mx-auto">
             {siteConfig.communitySubtitle || '최신 카지노 프로모션, 특급 호텔 이벤트, 마닐라/클락 VIP 여행 팁 및 공식 공지사항을 확인하세요.'}
           </p>
-
-          {/* Admin Fast Post Trigger */}
-          <div className="flex justify-center mt-6">
-            <button
-              onClick={() => setIsAdminOpen(true)}
-              className="px-4 py-2.5 rounded-xl border border-slate-300 hover:border-[#30308A] text-slate-700 hover:text-[#30308A] text-xs font-bold transition-all bg-slate-50 hover:bg-slate-100 flex items-center gap-2 cursor-pointer shadow-sm"
-            >
-              <PlusCircle className="w-4 h-4 text-[#30308A]" />
-              <span>게시글 관리 및 작성 (관리자)</span>
-            </button>
-          </div>
         </div>
 
         {/* Filter & Search Bar */}

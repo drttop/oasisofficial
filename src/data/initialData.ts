@@ -21,6 +21,7 @@ export const initialSiteConfig: SiteConfig = {
   companyAddress: 'OASIS TOWER 18F, Entertainment City, Parañaque, Metro Manila, Philippines',
   representative: '강태진 대표 디렉터',
   licenseNumber: 'PAGCOR Certified Official Agency No. 2018-0914-MNL',
+  adminPassword: 'oasis1234!',
 
   // About Oasis Section Config
   aboutBadge: 'ABOUT OASIS',

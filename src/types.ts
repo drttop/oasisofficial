@@ -27,6 +27,7 @@ export interface SiteConfig {
   companyAddress: string;
   representative: string;
   licenseNumber: string;
+  adminPassword?: string;
 
   // About Oasis Section Config
   aboutBadge?: string;

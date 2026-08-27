@@ -36,6 +36,12 @@ import {
   HelpCircle,
   Copy,
   Check,
+  Lock,
+  Unlock,
+  KeyRound,
+  Eye,
+  EyeOff,
+  LogOut,
 } from 'lucide-react';
 
 export const AdminDashboard: React.FC = () => {
@@ -69,6 +75,15 @@ export const AdminDashboard: React.FC = () => {
     importDataJSON,
   } = useSite();
 
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
+    return sessionStorage.getItem('oasis_admin_auth') === 'true';
+  });
+  const [passwordInput, setPasswordInput] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [passwordError, setPasswordError] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [showNewPassword, setShowNewPassword] = useState(false);
+
   const [activeTab, setActiveTab] = useState<'general' | 'about' | 'seo' | 'banners' | 'casinos' | 'philippines' | 'process' | 'posts' | 'leads' | 'backup'>('general');
 
   // Modals state
@@ -89,6 +104,121 @@ export const AdminDashboard: React.FC = () => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3000);
   };
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    const correctPassword = siteConfig.adminPassword || 'oasis1234!';
+    if (passwordInput === correctPassword) {
+      setIsAuthenticated(true);
+      sessionStorage.setItem('oasis_admin_auth', 'true');
+      setPasswordError('');
+      setPasswordInput('');
+      showToast('관리자 인증에 성공하였습니다.');
+    } else {
+      setPasswordError('비밀번호가 일치하지 않습니다. 다시 확인해 주세요.');
+    }
+  };
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    sessionStorage.removeItem('oasis_admin_auth');
+    setIsAdminOpen(false);
+  };
+
+  // 1. If not authenticated, render secure authentication modal
+  if (!isAuthenticated) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-in fade-in duration-200">
+        <div className="bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl max-w-md w-full p-6 sm:p-8 text-white relative overflow-hidden">
+          {/* Top Decorative bar */}
+          <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#30308A] via-[#E5B54F] to-[#30308A]" />
+          
+          <button
+            onClick={() => setIsAdminOpen(false)}
+            className="absolute top-4 right-4 p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors"
+            title="닫기"
+          >
+            <X className="w-5 h-5" />
+          </button>
+
+          <div className="text-center mb-6">
+            <div className="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-br from-[#30308A] to-slate-900 border border-[#E5B54F]/40 flex items-center justify-center shadow-lg shadow-black/40 mb-4">
+              <Lock className="w-7 h-7 text-[#E5B54F]" />
+            </div>
+            <h3 className="text-lg sm:text-xl font-bold tracking-tight text-white">
+              오아시스 관리자 보안 인증
+            </h3>
+            <p className="text-xs text-slate-400 mt-1.5 leading-relaxed">
+              본 시스템은 인가된 총괄 관리자 전용 CMS입니다.<br />
+              접속을 위해 관리자 암호를 입력해 주십시오.
+            </p>
+          </div>
+
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div>
+              <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                관리자 비밀번호
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                  <KeyRound className="w-4 h-4" />
+                </div>
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={passwordInput}
+                  onChange={(e) => {
+                    setPasswordInput(e.target.value);
+                    setPasswordError('');
+                  }}
+                  placeholder="관리자 암호 입력 (초기: oasis1234!)"
+                  autoFocus
+                  className="w-full pl-10 pr-10 py-3 bg-slate-950 border border-slate-700 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#E5B54F] focus:border-transparent transition-all"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-white"
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+              {passwordError && (
+                <p className="text-xs text-rose-400 font-medium mt-2 flex items-center gap-1.5 animate-in fade-in">
+                  <span className="w-1.5 h-1.5 rounded-full bg-rose-400"></span>
+                  {passwordError}
+                </p>
+              )}
+            </div>
+
+            <div className="pt-2 flex flex-col gap-2">
+              <button
+                type="submit"
+                className="w-full py-3 bg-gradient-to-r from-[#30308A] to-[#25256e] hover:from-[#3b3bb0] hover:to-[#30308A] text-white font-bold text-sm rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer border border-[#E5B54F]/30"
+              >
+                <Unlock className="w-4 h-4 text-[#E5B54F]" />
+                <span>관리자 로그인</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsAdminOpen(false)}
+                className="w-full py-2.5 bg-slate-800/80 hover:bg-slate-800 text-slate-300 font-medium text-xs rounded-xl transition-all"
+              >
+                취소하고 사이트로 돌아가기
+              </button>
+            </div>
+          </form>
+
+          <div className="mt-6 pt-4 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-500">
+            <span className="flex items-center gap-1">
+              <Shield className="w-3.5 h-3.5 text-emerald-400" />
+              SSL 256-bit Security
+            </span>
+            <span>초기 기본 암호: oasis1234!</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -149,9 +279,17 @@ export const AdminDashboard: React.FC = () => {
                 showToast('설정이 실시간으로 반영되었습니다.');
                 setIsAdminOpen(false);
               }}
-              className="px-4 py-2 rounded-xl bg-[#30308A] hover:bg-[#25256e] text-white text-xs font-bold transition-all shadow"
+              className="px-3.5 py-2 rounded-xl bg-[#30308A] hover:bg-[#25256e] text-white text-xs font-bold transition-all shadow cursor-pointer"
             >
               적용 후 사이트 보기
+            </button>
+            <button
+              onClick={handleLogout}
+              className="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer border border-slate-700"
+              title="관리자 로그아웃"
+            >
+              <LogOut className="w-3.5 h-3.5 text-rose-400" />
+              <span>로그아웃</span>
             </button>
             <button
               onClick={() => setIsAdminOpen(false)}
@@ -283,6 +421,81 @@ export const AdminDashboard: React.FC = () => {
               {/* TAB 1: General & Theme Settings */}
           {activeTab === 'general' && (
             <div className="max-w-4xl mx-auto space-y-6">
+              
+              {/* Security & Password Settings Card */}
+              <div className="bg-gradient-to-br from-slate-900 to-slate-950 text-white p-6 rounded-2xl border border-slate-800 shadow-md space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-3">
+                  <h3 className="text-base font-bold text-white flex items-center gap-2">
+                    <Shield className="w-4 h-4 text-[#E5B54F]" />
+                    관리자 접속 보안 및 암호(비밀번호) 설정
+                  </h3>
+                  <span className="text-[11px] text-emerald-400 bg-emerald-950/80 border border-emerald-800/60 px-2.5 py-0.5 rounded-full flex items-center gap-1 w-fit">
+                    <CheckCircle2 className="w-3 h-3" />
+                    보안 잠금 활성화됨
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
+                  <div>
+                    <span className="text-xs font-semibold text-slate-300 block mb-1">
+                      현재 등록된 비밀번호
+                    </span>
+                    <div className="flex items-center gap-2 bg-slate-950 px-3.5 py-2 rounded-xl border border-slate-800 text-xs font-mono text-[#E5B54F]">
+                      <KeyRound className="w-3.5 h-3.5 text-slate-400" />
+                      <span>{siteConfig.adminPassword || 'oasis1234!'}</span>
+                      <span className="text-[10px] text-slate-500 font-sans ml-auto">
+                        (초기: oasis1234!)
+                      </span>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-300 mb-1">
+                      새 관리자 비밀번호로 변경
+                    </label>
+                    <div className="flex items-center gap-2">
+                      <div className="relative flex-1">
+                        <input
+                          type={showNewPassword ? 'text' : 'password'}
+                          value={newPassword}
+                          onChange={(e) => setNewPassword(e.target.value)}
+                          placeholder="새 비밀번호 입력"
+                          className="w-full px-3 py-2 pr-8 text-xs bg-slate-950 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:ring-2 focus:ring-[#E5B54F]"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowNewPassword(!showNewPassword)}
+                          className="absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-400 hover:text-white"
+                        >
+                          {showNewPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                        </button>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (!newPassword.trim()) {
+                            showToast('새 비밀번호를 입력해 주세요.');
+                            return;
+                          }
+                          if (newPassword.trim().length < 4) {
+                            showToast('비밀번호는 최소 4자 이상이어야 합니다.');
+                            return;
+                          }
+                          updateSiteConfig({ adminPassword: newPassword.trim() });
+                          setNewPassword('');
+                          showToast('관리자 접속 비밀번호가 성공적으로 변경 및 저장되었습니다.');
+                        }}
+                        className="px-3.5 py-2 bg-[#E5B54F] hover:bg-[#d6a53f] text-slate-950 font-bold text-xs rounded-xl transition-all whitespace-nowrap cursor-pointer shadow"
+                      >
+                        암호 변경
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <p className="text-[11px] text-slate-400">
+                  * 암호를 변경하시면 Firebase 클라우드 DB에 즉시 저장되며, 이후 관리자 모드 접속 시 변경된 암호로만 로그인할 수 있습니다.
+                </p>
+              </div>
               
               {/* Header Logo & Navigation */}
               <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">

@@ -1,11 +1,34 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useSite } from '../../context/SiteContext';
-import { X, Eye, User, Tag, Share2, MessageCircle, Send, Pin } from 'lucide-react';
+import { X, Eye, User, Tag, MessageCircle, Send, Pin, Share2, Check, Copy, Link as LinkIcon } from 'lucide-react';
+import { getPostUrl } from '../../utils/seo';
 
 export const PostDetailModal: React.FC = () => {
   const { selectedPost, setSelectedPost, siteConfig } = useSite();
+  const [copied, setCopied] = useState(false);
 
   if (!selectedPost) return null;
+
+  const postUrl = getPostUrl(selectedPost.id);
+
+  const handleCopyUrl = async () => {
+    try {
+      if (navigator.clipboard) {
+        await navigator.clipboard.writeText(postUrl);
+      } else {
+        const input = document.createElement('input');
+        input.value = postUrl;
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand('copy');
+        document.body.removeChild(input);
+      }
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    } catch (err) {
+      console.error('Failed to copy URL', err);
+    }
+  };
 
   const categoryColorMap: Record<string, string> = {
     공지사항: 'bg-red-50 text-red-600 border-red-200',
@@ -37,12 +60,37 @@ export const PostDetailModal: React.FC = () => {
             )}
           </div>
 
-          <button
-            onClick={() => setSelectedPost(null)}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200 transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
+          <div className="flex items-center gap-2">
+            {/* Share / Copy URL Button */}
+            <button
+              onClick={handleCopyUrl}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer border ${
+                copied
+                  ? 'bg-emerald-50 text-emerald-600 border-emerald-200 shadow-sm'
+                  : 'bg-white hover:bg-slate-100 text-slate-700 border-slate-200 hover:border-slate-300'
+              }`}
+              title="게시글 고유 주소(URL) 복사"
+            >
+              {copied ? (
+                <>
+                  <Check className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>URL 복사됨</span>
+                </>
+              ) : (
+                <>
+                  <Share2 className="w-3.5 h-3.5 text-slate-500" />
+                  <span>공유 / URL 복사</span>
+                </>
+              )}
+            </button>
+
+            <button
+              onClick={() => setSelectedPost(null)}
+              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200 transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
         {/* Scrollable Content */}
@@ -53,14 +101,27 @@ export const PostDetailModal: React.FC = () => {
               {selectedPost.title}
             </h2>
             
-            <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500 mt-3 pt-3 border-t border-slate-100">
-              <div className="flex items-center gap-1">
-                <User className="w-3.5 h-3.5 text-slate-400" />
-                <span>{selectedPost.author}</span>
+            <div className="flex flex-wrap items-center justify-between gap-4 text-xs text-slate-500 mt-3 pt-3 border-t border-slate-100">
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-1">
+                  <User className="w-3.5 h-3.5 text-slate-400" />
+                  <span>{selectedPost.author}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Eye className="w-3.5 h-3.5 text-slate-400" />
+                  <span>조회 {selectedPost.viewCount}</span>
+                </div>
               </div>
-              <div className="flex items-center gap-1">
-                <Eye className="w-3.5 h-3.5 text-slate-400" />
-                <span>조회 {selectedPost.viewCount}</span>
+
+              {/* Dynamic Canonical URL preview badge */}
+              <div
+                onClick={handleCopyUrl}
+                className="hidden sm:flex items-center gap-1.5 text-[11px] text-[#30308A] bg-[#30308A]/5 hover:bg-[#30308A]/10 px-2.5 py-1 rounded-md cursor-pointer transition-colors"
+                title="클릭하여 고유 URL 복사"
+              >
+                <LinkIcon className="w-3 h-3 text-[#30308A]" />
+                <span className="font-mono truncate max-w-[200px]">?post={selectedPost.id}</span>
+                <Copy className="w-2.5 h-2.5 text-slate-400" />
               </div>
             </div>
           </div>
@@ -138,7 +199,15 @@ export const PostDetailModal: React.FC = () => {
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-3.5 bg-slate-50 border-t border-slate-100 flex justify-end">
+        <div className="px-6 py-3.5 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
+          <button
+            onClick={handleCopyUrl}
+            className="text-xs text-slate-600 hover:text-[#30308A] font-semibold flex items-center gap-1.5"
+          >
+            {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Share2 className="w-3.5 h-3.5" />}
+            <span>{copied ? '고유 주소가 복사되었습니다' : '게시글 링크 공유'}</span>
+          </button>
+          
           <button
             onClick={() => setSelectedPost(null)}
             className="px-5 py-2 rounded-lg bg-slate-800 text-white text-xs font-bold hover:bg-slate-900"
@@ -151,3 +220,4 @@ export const PostDetailModal: React.FC = () => {
     </div>
   );
 };
+

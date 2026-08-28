@@ -12,6 +12,7 @@ import { BottomFloatingBar } from './components/BottomFloatingBar';
 import { PostDetailModal } from './components/modals/PostDetailModal';
 import { CasinoDetailModal } from './components/modals/CasinoDetailModal';
 import { AdminDashboard } from './components/admin/AdminDashboard';
+import { SEOManager } from './components/SEOManager';
 import { Settings, ShieldCheck, Sparkles } from 'lucide-react';
 
 const MainAppContent: React.FC = () => {
@@ -19,6 +20,9 @@ const MainAppContent: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-white text-slate-900 flex flex-col relative selection:bg-[#30308A] selection:text-white">
+      {/* Dynamic SEO & URL Route Manager */}
+      <SEOManager />
+
       {/* Top Header */}
       <Header />
 

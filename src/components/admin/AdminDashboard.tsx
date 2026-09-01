@@ -1159,6 +1159,86 @@ export const AdminDashboard: React.FC = () => {
                   </div>
                 </div>
               </div>
+
+              {/* Robots.txt & Sitemap.xml Status Card */}
+              <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                  <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                    <Globe className="w-4 h-4 text-[#30308A]" />
+                    검색 엔진 수집 로봇 & 사이트맵 (robots.txt & sitemap.xml)
+                  </h3>
+                  <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    정상 설정 완료
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* robots.txt */}
+                  <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-slate-800">1. robots.txt</span>
+                      <a
+                        href="/robots.txt"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-[11px] text-[#30308A] hover:underline font-semibold flex items-center gap-1"
+                      >
+                        <span>새 탭 열기</span>
+                        <ExternalLink className="w-3 h-3" />
+                      </a>
+                    </div>
+                    <p className="text-[11px] text-slate-500">
+                      구글 봇의 모든 페이지 크롤링을 허용하고 sitemap.xml 경로를 안내합니다.
+                    </p>
+                    <pre className="p-2.5 bg-slate-900 text-slate-200 rounded-lg text-[10px] font-mono whitespace-pre-wrap">
+{`User-agent: *
+Allow: /
+Sitemap: https://oasis46.com/sitemap.xml`}
+                    </pre>
+                  </div>
+
+                  {/* sitemap.xml */}
+                  <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-slate-800">2. sitemap.xml</span>
+                      <a
+                        href="/sitemap.xml"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-[11px] text-[#30308A] hover:underline font-semibold flex items-center gap-1"
+                      >
+                        <span>새 탭 열기</span>
+                        <ExternalLink className="w-3 h-3" />
+                      </a>
+                    </div>
+                    <p className="text-[11px] text-slate-500">
+                      메인 홈 및 개별 게시글 dynamic URL이 포함된 사이트맵입니다.
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        readOnly
+                        value="https://oasis46.com/sitemap.xml"
+                        className="w-full px-2.5 py-1.5 text-[11px] font-mono bg-white border border-slate-300 rounded-lg text-slate-700"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (navigator.clipboard) {
+                            navigator.clipboard.writeText('https://oasis46.com/sitemap.xml');
+                          }
+                          showToast('sitemap.xml 주소가 복사되었습니다.');
+                        }}
+                        className="px-2.5 py-1.5 bg-[#30308A] text-white rounded-lg text-[11px] font-bold shrink-0 hover:bg-[#25256e] cursor-pointer flex items-center gap-1"
+                      >
+                        <Copy className="w-3 h-3" />
+                        <span>복사</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
 

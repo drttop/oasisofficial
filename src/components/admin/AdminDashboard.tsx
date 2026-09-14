@@ -1239,6 +1239,72 @@ Sitemap: https://oasis46.com/sitemap.xml`}
                   </div>
                 </div>
               </div>
+
+              {/* Search Engine Ownership Verification Card (Google & Naver) */}
+              <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                  <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                    <Shield className="w-4 h-4 text-emerald-600" />
+                    검색엔진 사이트 소유권 확인 (Google & Naver)
+                  </h3>
+                  <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    인증 파일 및 메타태그 등록됨
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Google Search Console */}
+                  <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                        <span className="text-xs font-bold text-slate-800">구글 서치 콘솔 (Google)</span>
+                      </div>
+                      <a
+                        href="/google0a5b1c5b114c2a44.html"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-[11px] text-[#30308A] hover:underline font-semibold flex items-center gap-1"
+                      >
+                        <span>인증파일 열기</span>
+                        <ExternalLink className="w-3 h-3" />
+                      </a>
+                    </div>
+                    <p className="text-[11px] text-slate-500">
+                      HTML 파일 업로드 및 메타 태그 인증이 모두 적용되어 있습니다.
+                    </p>
+                    <div className="p-2 bg-slate-900 text-slate-200 rounded-lg text-[10px] font-mono break-all">
+                      google0a5b1c5b114c2a44.html
+                    </div>
+                  </div>
+
+                  {/* Naver Search Advisor */}
+                  <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                        <span className="text-xs font-bold text-slate-800">네이버 서치어드바이저 (Naver)</span>
+                      </div>
+                      <a
+                        href="/naver768b575e5a46ce5f8205f8ec6a081d0d.html"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-[11px] text-[#30308A] hover:underline font-semibold flex items-center gap-1"
+                      >
+                        <span>인증파일 열기</span>
+                        <ExternalLink className="w-3 h-3" />
+                      </a>
+                    </div>
+                    <p className="text-[11px] text-slate-500">
+                      HTML 파일 업로드 및 메타 태그 인증이 모두 적용되어 있습니다.
+                    </p>
+                    <div className="p-2 bg-slate-900 text-slate-200 rounded-lg text-[10px] font-mono break-all">
+                      naver768b575e5a46ce5f8205f8ec6a081d0d.html
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
 

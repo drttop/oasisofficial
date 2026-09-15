@@ -42,6 +42,8 @@ import {
   Eye,
   EyeOff,
   LogOut,
+  ChevronUp,
+  ChevronDown,
 } from 'lucide-react';
 
 export const AdminDashboard: React.FC = () => {
@@ -53,6 +55,7 @@ export const AdminDashboard: React.FC = () => {
     bannerSlides,
     updateBannerSlide,
     casinos,
+    reorderCasinos,
     deleteCasino,
     philippineSpots,
     addPhilippineSpot,
@@ -1473,20 +1476,28 @@ Sitemap: https://oasis46.com/sitemap.xml`}
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {casinos.map((casino) => (
+                {casinos.map((casino, idx) => (
                   <div
                     key={casino.id}
                     className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex gap-4"
                   >
-                    <img
-                      src={casino.image}
-                      alt={casino.name}
-                      className="w-24 h-24 rounded-xl object-cover shrink-0"
-                      referrerPolicy="no-referrer"
-                    />
+                    <div className="relative shrink-0">
+                      <img
+                        src={casino.image}
+                        alt={casino.name}
+                        className="w-24 h-24 rounded-xl object-cover shrink-0"
+                        referrerPolicy="no-referrer"
+                      />
+                      <span className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded bg-slate-900/80 text-[#E5B54F] font-mono text-[10px] font-black backdrop-blur-sm">
+                        {String(idx + 1).padStart(2, '0')}
+                      </span>
+                    </div>
                     <div className="flex-1 flex flex-col justify-between">
                       <div>
                         <div className="flex items-center gap-1.5">
+                          <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#30308A]/10 text-[#30308A]">
+                            순서 {idx + 1}
+                          </span>
                           <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700">
                             {casino.region === 'manila' ? '마닐라' : '클락'}
                           </span>
@@ -1502,29 +1513,67 @@ Sitemap: https://oasis46.com/sitemap.xml`}
                         </p>
                       </div>
 
-                      <div className="flex items-center gap-2 pt-2 border-t border-slate-100">
-                        <button
-                          onClick={() => {
-                            setEditingCasino(casino);
-                            setCasinoModalOpen(true);
-                          }}
-                          className="px-3 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold flex items-center gap-1"
-                        >
-                          <Edit2 className="w-3 h-3" />
-                          수정
-                        </button>
-                        <button
-                          onClick={() => {
-                            if (confirm(`'${casino.name}' 카지노를 삭제하시겠습니까?`)) {
-                              deleteCasino(casino.id);
-                              showToast('카지노가 삭제되었습니다.');
-                            }
-                          }}
-                          className="px-3 py-1 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg text-xs font-bold flex items-center gap-1"
-                        >
-                          <Trash2 className="w-3 h-3" />
-                          삭제
-                        </button>
+                      <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+                        {/* Order adjustment buttons */}
+                        <div className="flex items-center gap-1">
+                          <button
+                            type="button"
+                            disabled={idx === 0}
+                            onClick={async () => {
+                              if (idx === 0) return;
+                              const updated = [...casinos];
+                              const [moved] = updated.splice(idx, 1);
+                              updated.splice(idx - 1, 0, moved);
+                              await reorderCasinos(updated);
+                              showToast(`'${casino.name}' 순서를 위로 올렸습니다.`);
+                            }}
+                            className="p-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-600 disabled:opacity-30 disabled:cursor-not-allowed"
+                            title="위로 이동"
+                          >
+                            <ChevronUp className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            disabled={idx === casinos.length - 1}
+                            onClick={async () => {
+                              if (idx === casinos.length - 1) return;
+                              const updated = [...casinos];
+                              const [moved] = updated.splice(idx, 1);
+                              updated.splice(idx + 1, 0, moved);
+                              await reorderCasinos(updated);
+                              showToast(`'${casino.name}' 순서를 아래로 내렸습니다.`);
+                            }}
+                            className="p-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-600 disabled:opacity-30 disabled:cursor-not-allowed"
+                            title="아래로 이동"
+                          >
+                            <ChevronDown className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            onClick={() => {
+                              setEditingCasino(casino);
+                              setCasinoModalOpen(true);
+                            }}
+                            className="px-3 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold flex items-center gap-1"
+                          >
+                            <Edit2 className="w-3 h-3" />
+                            수정
+                          </button>
+                          <button
+                            onClick={() => {
+                              if (confirm(`'${casino.name}' 카지노를 삭제하시겠습니까?`)) {
+                                deleteCasino(casino.id);
+                                showToast('카지노가 삭제되었습니다.');
+                              }
+                            }}
+                            className="px-3 py-1 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg text-xs font-bold flex items-center gap-1"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                            삭제
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>

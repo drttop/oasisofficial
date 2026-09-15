@@ -97,6 +97,7 @@ export interface CasinoItem {
   hotelRating: string;
   highlights: string;
   isFeatured?: boolean;
+  order?: number;
 }
 
 export interface PhilippineTourSpot {
@@ -121,7 +122,7 @@ export interface ServiceStep {
 
 export interface PostItem {
   id: string;
-  category: '공지사항' | '프로모션' | 'VIP매거진';
+  category: '공지사항' | '프로모션' | 'VIP매거진' | '커뮤니티' | string;
   title: string;
   author: string;
   date: string;
@@ -130,6 +131,7 @@ export interface PostItem {
   summary: string;
   content: string;
   thumbnail?: string;
+  images?: string[]; // 최대 2장 직접 업로드 사진
   tags?: string[];
 }
 

@@ -9,13 +9,86 @@
     <meta property="og:description" content="필리핀 카지노 VIP 의전 에이전시. 24시간 실시간 카카오톡 & 텔레그램 VIP 고객 상담센터 운영." />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
+    
+    <!-- Search Engine Indexing & Bot Directives (Google & Naver) -->
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+    <meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+    <meta name="yeti" content="index, follow" />
+    <meta name="naverbot" content="index, follow" />
+    <meta name="daumoa" content="index, follow" />
+
     <!-- Search Console Verifications (Google & Naver) -->
     <meta name="google-site-verification" content="google0a5b1c5b114c2a44" />
     <meta name="naver-site-verification" content="768b575e5a46ce5f8205f8ec6a081d0d" />
-    <!-- Favicon & Apple Touch Icon -->
+    <meta name="naver-site-verification" content="32899ff6f2d59dbe39f85c14ff184950" />
+    
+    <link rel="canonical" id="canonical-url" href="https://oasis46.com/" />
+    <script>
+      (function() {
+        try {
+          var params = new URLSearchParams(window.location.search);
+          var postId = params.get('post') || params.get('postId') || params.get('p');
+          if (postId) {
+            var fullUrl = 'https://oasis46.com/?post=' + encodeURIComponent(postId);
+            var canonicalLink = document.getElementById('canonical-url');
+            if (canonicalLink) canonicalLink.setAttribute('href', fullUrl);
+            
+            var postMap = {
+              'post-1': {
+                title: '[필독] 오아시스 공식 에이전트 2026년 VIP 멤버십 혜택 & 안전 이용 수칙 안내 | 오아시스',
+                desc: '오아시스 공식 에이전트를 이용해 주시는 VIP 고객님들을 위한 2026년 특급 호텔 무료 숙박 및 전용 의전 지원 기준 안내입니다.'
+              },
+              'post-2': {
+                title: '2026 가을시즌 마닐라 오카다 & 솔레어 스위트룸 3박 무료 바우처 특별 프로모션 | 오아시스',
+                desc: '사전 예약 고객 대상 마닐라 대표 5성급 리조트 오카다 마닐라 오션뷰 스위트룸 3박 무료 지원 및 웰컴 다이닝 크레딧 이벤트.'
+              },
+              'post-3': {
+                title: '클락 한 카지노 리조트(Hann Casino) 신규 VIP 프라이빗 살롱 확장 오픈 안내 | 오아시스',
+                desc: '클락 최고의 5성급 한 카지노에 최신식 프라이빗 하이리밋 바카라 테이블과 한국인 전용 VIP 라운지가 확장 오픈하였습니다.'
+              },
+              'post-4': {
+                title: '2026년 최신 필리핀 입국 가이드: e-Travel 사전 등록 및 여권 유효기간 체크리스트 | 오아시스',
+                desc: '필리핀 방문 전 반드시 확인해야 할 전자입국신고서(e-Travel) 작성법, 세관 규정, 무비자 30일 입국 요건 완벽 정리.'
+              },
+              'post-5': {
+                title: '마닐라 BGC(보니파시오) 최고급 파인다이닝 & 루프탑 라운지 BEST 5 | 오아시스',
+                desc: '필리핀의 맨해튼이라 불리는 BGC 보니파시오의 최상급 스테이크하우스, 미슐랭 파인다이닝, 야경 루프탑 바 가이드.'
+              },
+              'post-6': {
+                title: '마닐라 & 클락 공항 24시간 VIP 의전 픽업 및 전용 리무진 서비스 안내 | 오아시스',
+                desc: '공항 도착 즉시 대기 시간 없는 VIP 패스트트랙 입국부터 최고급 알파드 리무진 단독 배차, 안전하고 편안한 특급 호텔 이동 서비스를 안내합니다.'
+              }
+            };
+            
+            if (postMap[postId]) {
+              document.title = postMap[postId].title;
+              var metaDesc = document.querySelector('meta[name="description"]');
+              if (metaDesc) metaDesc.setAttribute('content', postMap[postId].desc);
+              var ogTitle = document.querySelector('meta[property="og:title"]');
+              if (ogTitle) ogTitle.setAttribute('content', postMap[postId].title);
+              var ogDesc = document.querySelector('meta[property="og:description"]');
+              if (ogDesc) ogDesc.setAttribute('content', postMap[postId].desc);
+              var ogUrl = document.querySelector('meta[property="og:url"]');
+              if (ogUrl) ogUrl.setAttribute('content', fullUrl);
+            } else {
+              // Generic fallback for any newly added post ID
+              var fallbackTitle = '오아시스 VIP 공식 커뮤니티 게시글 | 오아시스';
+              document.title = fallbackTitle;
+              var ogUrlFallback = document.querySelector('meta[property="og:url"]');
+              if (ogUrlFallback) ogUrlFallback.setAttribute('content', fullUrl);
+            }
+          }
+        } catch(e) {}
+      })();
+    </script>
+    <!-- Favicon & Search Engine Compliant Icons (Google 48x48 multiple requirement) -->
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png" />
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="alternate icon" href="/favicon.svg" />
-    <link rel="apple-touch-icon" href="/favicon.svg" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
     <!-- Pretendard Font CDN -->
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -24,6 +97,43 @@
   </head>
   <body class="font-sans antialiased bg-white text-slate-900 selection:bg-[#30308A] selection:text-white">
     <div id="root"></div>
+    <!-- Static Crawlable Fallback for Search Engines (Googlebot, Naver Yeti, Daumoa) -->
+    <noscript>
+      <main style="padding: 20px; font-family: sans-serif; max-width: 900px; margin: 0 auto;">
+        <h1>오아시스 VIP 에이전시 (OASIS VIP AGENCY) 공식 커뮤니티 및 가이드</h1>
+        <p>필리핀 마닐라 & 클락 최고급 카지노 VIP 정킷 에이전시 오아시스의 공식 안내, 멤버십 혜택, 호텔 프로모션 및 여행 가이드입니다.</p>
+        
+        <article style="margin-bottom: 24px;">
+          <h2><a href="https://oasis46.com/?post=post-1">[필독] 오아시스 공식 에이전트 2026년 VIP 멤버십 혜택 & 안전 이용 수칙 안내</a></h2>
+          <p>필리핀 정부 정식 인가 PAGCOR 공인 에이전시 오아시스의 5성급 호텔 무료 숙박 지원, 공항 VIP 패스트트랙, 최고급 알파드 리무진 전용 의전 서비스 총정리.</p>
+        </article>
+
+        <article style="margin-bottom: 24px;">
+          <h2><a href="https://oasis46.com/?post=post-2">2026 가을시즌 마닐라 오카다 & 솔레어 스위트룸 3박 무료 바우처 특별 프로모션</a></h2>
+          <p>사전 예약 고객 대상 마닐라 대표 5성급 리조트 오카다 마닐라 오션뷰 스위트룸 3박 무료 지원 및 솔레어 20,000 PHP 다이닝 크레딧 특별 프로모션.</p>
+        </article>
+
+        <article style="margin-bottom: 24px;">
+          <h2><a href="https://oasis46.com/?post=post-3">클락 한 카지노 리조트(Hann Casino) 신규 VIP 프라이빗 살롱 확장 오픈 안내</a></h2>
+          <p>클락 최고의 5성급 복합 리조트 한 카지노 3층 VIP High-Limit Salon 확장 개장. 프라이빗 테이블, 1:1 전담 딜러, 스위소텔 & 메리어트 직통 엘리베이터 연결.</p>
+        </article>
+
+        <article style="margin-bottom: 24px;">
+          <h2><a href="https://oasis46.com/?post=post-4">2026년 최신 필리핀 입국 가이드: e-Travel 사전 등록 및 여권 유효기간 체크리스트</a></h2>
+          <p>필리핀 여행 및 출장 전 필수 체크사항. 여권 6개월 이상 유효기간, e-Travel 무료 등록 지원, 무비자 30일 체류 요건, 외화 반입 규정 완벽 가이드.</p>
+        </article>
+
+        <article style="margin-bottom: 24px;">
+          <h2><a href="https://oasis46.com/?post=post-5">마닐라 BGC(보니파시오) 최고급 파인다이닝 & 루프탑 라운지 BEST 5</a></h2>
+          <p>울프강 스테이크하우스, 메차우마 오마카세, 그랜드 하얏트 60층 더 피크 루프탑 등 마닐라 최고 부촌 BGC의 럭셔리 미식 및 야경 명소 추천 가이드.</p>
+        </article>
+
+        <article style="margin-bottom: 24px;">
+          <h2><a href="https://oasis46.com/?post=post-6">마닐라 & 클락 공항 24시간 VIP 의전 픽업 및 전용 리무진 서비스 안내</a></h2>
+          <p>마닐라(NAIA) 및 클락(CRK) 공항 도착 즉시 대기 시간 없는 VIP 패스트트랙 입국부터 최고급 알파드 리무진 단독 배차, 24시간 한국인 전담 실장 밀착 케어.</p>
+        </article>
+      </main>
+    </noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

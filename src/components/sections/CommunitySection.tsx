@@ -9,15 +9,16 @@ import {
   User,
   ChevronRight,
   Sparkles,
-  ArrowUpRight,
+  Camera,
 } from 'lucide-react';
+import { getPostUrl } from '../../utils/seo';
 
 export const CommunitySection: React.FC = () => {
   const { posts, setSelectedPost, incrementPostView, siteConfig } = useSite();
   const [selectedCategory, setSelectedCategory] = useState<string>('전체');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
-  const categories = ['전체', '공지사항', '프로모션', 'VIP매거진'];
+  const categories = ['전체', '커뮤니티', '공지사항', '프로모션', 'VIP매거진'];
 
   const filteredPosts = posts.filter((post) => {
     const matchCategory = selectedCategory === '전체' || post.category === selectedCategory;
@@ -35,6 +36,7 @@ export const CommunitySection: React.FC = () => {
   };
 
   const categoryColorMap: Record<string, string> = {
+    커뮤니티: 'bg-blue-50 text-blue-600 border-blue-200',
     공지사항: 'bg-red-50 text-red-600 border-red-200',
     프로모션: 'bg-amber-50 text-amber-600 border-amber-200',
     VIP매거진: 'bg-purple-50 text-purple-600 border-purple-200',
@@ -59,14 +61,14 @@ export const CommunitySection: React.FC = () => {
         </div>
 
         {/* Filter & Search Bar */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8 pb-4 border-b border-slate-100">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 mb-8 pb-4 border-b border-slate-100">
           {/* Categories */}
-          <div className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto pb-2 sm:pb-0">
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-2 sm:pb-0 scrollbar-none">
             {categories.map((cat) => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-3.5 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all ${
+                className={`px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
                   selectedCategory === cat
                     ? 'bg-[#30308A] text-white shadow-sm'
                     : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
@@ -99,44 +101,31 @@ export const CommunitySection: React.FC = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredPosts.map((post) => (
-              <div
-                key={post.id}
-                onClick={() => handleOpenPost(post)}
-                className="bg-slate-50 hover:bg-white rounded-2xl border border-slate-200/80 hover:border-[#30308A]/40 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col cursor-pointer group"
-              >
-                {/* Thumbnail if present */}
-                {post.thumbnail && (
-                  <div className="relative h-48 w-full overflow-hidden bg-slate-900">
-                    <img
-                      src={post.thumbnail}
-                      alt={post.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      referrerPolicy="no-referrer"
-                    />
-                    <div className="absolute top-3 left-3 flex gap-1.5">
-                      <span
-                        className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${
-                          categoryColorMap[post.category] || 'bg-slate-100 text-slate-700'
-                        }`}
-                      >
-                        {post.category}
-                      </span>
-                      {post.isPinned && (
-                        <span className="inline-flex items-center gap-1 text-[11px] font-bold text-white bg-red-600 px-2 py-0.5 rounded-full shadow">
-                          <Pin className="w-3 h-3" />
-                          중요
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                )}
+            {filteredPosts.map((post) => {
+              const cardImage = (post.images && post.images.length > 0) ? post.images[0] : post.thumbnail;
+              const hasMultiplePhotos = (post.images && post.images.length > 1);
 
-                {/* Card Content */}
-                <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
-                  <div className="space-y-2">
-                    {!post.thumbnail && (
-                      <div className="flex items-center gap-1.5 mb-2">
+              return (
+                <a
+                  key={post.id}
+                  href={getPostUrl(post.id)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleOpenPost(post);
+                  }}
+                  className="bg-slate-50 hover:bg-white rounded-2xl border border-slate-200/80 hover:border-[#30308A]/40 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col cursor-pointer group no-underline text-inherit block"
+                  title={`${post.title} 자세히 보기`}
+                >
+                  {/* Thumbnail if present */}
+                  {cardImage && (
+                    <div className="relative h-48 w-full overflow-hidden bg-slate-900">
+                      <img
+                        src={cardImage}
+                        alt={post.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        referrerPolicy="no-referrer"
+                      />
+                      <div className="absolute top-3 left-3 flex items-center gap-1.5">
                         <span
                           className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${
                             categoryColorMap[post.category] || 'bg-slate-100 text-slate-700'
@@ -145,40 +134,77 @@ export const CommunitySection: React.FC = () => {
                           {post.category}
                         </span>
                         {post.isPinned && (
-                          <span className="inline-flex items-center gap-1 text-[11px] font-bold text-red-600 bg-red-50 px-2 py-0.5 rounded-full border border-red-100">
+                          <span className="inline-flex items-center gap-1 text-[11px] font-bold text-white bg-red-600 px-2 py-0.5 rounded-full shadow">
                             <Pin className="w-3 h-3" />
                             중요
                           </span>
                         )}
                       </div>
-                    )}
 
-                    <h3 className="text-base sm:text-lg font-bold text-slate-900 group-hover:text-[#30308A] transition-colors leading-snug line-clamp-2">
-                      {post.title}
-                    </h3>
+                      {/* Multiple Photos Indicator Badge */}
+                      {hasMultiplePhotos && (
+                        <div className="absolute bottom-3 right-3">
+                          <span className="inline-flex items-center gap-1 text-[10px] font-bold text-white bg-slate-900/80 backdrop-blur-sm px-2 py-0.5 rounded-full shadow">
+                            <Camera className="w-3 h-3 text-[#E5B54F]" />
+                            <span>사진 2장</span>
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  )}
 
-                    <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">
-                      {post.summary || post.content}
-                    </p>
-                  </div>
+                  {/* Card Content */}
+                  <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
+                    <div className="space-y-2">
+                      {!cardImage && (
+                        <div className="flex items-center gap-1.5 mb-2">
+                          <span
+                            className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${
+                              categoryColorMap[post.category] || 'bg-slate-100 text-slate-700'
+                            }`}
+                          >
+                            {post.category}
+                          </span>
+                          {post.isPinned && (
+                            <span className="inline-flex items-center gap-1 text-[11px] font-bold text-red-600 bg-red-50 px-2 py-0.5 rounded-full border border-red-100">
+                              <Pin className="w-3 h-3" />
+                              중요
+                            </span>
+                          )}
+                        </div>
+                      )}
 
-                  {/* Meta footer */}
-                  <div className="pt-3 border-t border-slate-200/80 flex items-center justify-between text-xs text-slate-500">
-                    <div className="flex items-center gap-3">
-                      <span className="flex items-center gap-1">
-                        <Eye className="w-3.5 h-3.5 text-slate-400" />
-                        조회 {post.viewCount}
-                      </span>
+                      <h3 className="text-base sm:text-lg font-bold text-slate-900 group-hover:text-[#30308A] transition-colors leading-snug line-clamp-2">
+                        {post.title}
+                      </h3>
+
+                      <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">
+                        {post.summary || post.content}
+                      </p>
                     </div>
 
-                    <span className="text-[#30308A] font-bold flex items-center gap-0.5 group-hover:translate-x-1 transition-transform">
-                      읽기
-                      <ChevronRight className="w-3.5 h-3.5" />
-                    </span>
+                    {/* Meta footer */}
+                    <div className="pt-3 border-t border-slate-200/80 flex items-center justify-between text-xs text-slate-500">
+                      <div className="flex items-center gap-3">
+                        <span className="flex items-center gap-1">
+                          <User className="w-3.5 h-3.5 text-slate-400" />
+                          <span className="truncate max-w-[90px]">{post.author}</span>
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Eye className="w-3.5 h-3.5 text-slate-400" />
+                          조회 {post.viewCount}
+                        </span>
+                      </div>
+
+                      <span className="text-[#30308A] font-bold flex items-center gap-0.5 group-hover:translate-x-1 transition-transform">
+                        읽기
+                        <ChevronRight className="w-3.5 h-3.5" />
+                      </span>
+                    </div>
                   </div>
-                </div>
-              </div>
-            ))}
+                </a>
+              );
+            })}
           </div>
         )}
 
@@ -186,3 +212,4 @@ export const CommunitySection: React.FC = () => {
     </section>
   );
 };
+

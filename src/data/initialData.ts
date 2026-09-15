@@ -94,21 +94,7 @@ export const initialCasinos: CasinoItem[] = [
     hotelRating: '5성급 럭셔리 호텔 (Forbes 5-Star)',
     highlights: 'VIP 회원 전용 스위트룸 무료 업그레이드 및 롤링 보너스 제공',
     isFeatured: true,
-  },
-  {
-    id: 'solaire-resort',
-    name: '솔레어 리조트 & 카지노',
-    englishName: 'Solaire Resort & Casino Manila',
-    region: 'manila',
-    regionLabel: '마닐라 엔터테인먼트 시티',
-    image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1200&q=80',
-    description: '마닐라 베이의 아름다운 일몰을 조망하는 필리핀 최초의 통합 럭셔리 리조트로, 최상의 보안과 격조 높은 VIP 서비스를 자랑합니다.',
-    features: ['마닐라 베이 오션뷰 파노라마 전경', '포브스 8년 연속 5성급 획득', '명품 부티크 거리(루이비통, 구찌 등) 입점', '세계 최고 권위의 셰프 레스토랑'],
-    tableGames: '바카라, 폰툰, 텍사스 홀덤 등 (400+ 테이블)',
-    vipRooms: '솔레어 클럽 전용 하이리밋 룸 및 단독 VIP 룸',
-    hotelRating: '5성급 특급 호텔 (Forbes 5-Star Travel Guide)',
-    highlights: '공항 10분 거리 전용 픽업 의전 및 맞춤형 VIP 다이닝 크레딧 제공',
-    isFeatured: true,
+    order: 1,
   },
   {
     id: 'city-of-dreams',
@@ -124,6 +110,23 @@ export const initialCasinos: CasinoItem[] = [
     hotelRating: '5성급 (Nüwa, Nobu, Hyatt Regency)',
     highlights: '오아시스 고객 전담 캐셔 패스트트랙 및 식음료 무제한 바우처',
     isFeatured: false,
+    order: 2,
+  },
+  {
+    id: 'solaire-resort',
+    name: '솔레어 리조트 & 카지노',
+    englishName: 'Solaire Resort & Casino Manila',
+    region: 'manila',
+    regionLabel: '마닐라 엔터테인먼트 시티',
+    image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1200&q=80',
+    description: '마닐라 베이의 아름다운 일몰을 조망하는 필리핀 최초의 통합 럭셔리 리조트로, 최상의 보안과 격조 높은 VIP 서비스를 자랑합니다.',
+    features: ['마닐라 베이 오션뷰 파노라마 전경', '포브스 8년 연속 5성급 획득', '명품 부티크 거리(루이비통, 구찌 등) 입점', '세계 최고 권위의 셰프 레스토랑'],
+    tableGames: '바카라, 폰툰, 텍사스 홀덤 등 (400+ 테이블)',
+    vipRooms: '솔레어 클럽 전용 하이리밋 룸 및 단독 VIP 룸',
+    hotelRating: '5성급 특급 호텔 (Forbes 5-Star Travel Guide)',
+    highlights: '공항 10분 거리 전용 픽업 의전 및 맞춤형 VIP 다이닝 크레딧 제공',
+    isFeatured: true,
+    order: 3,
   },
   {
     id: 'newport-world-resorts',
@@ -139,6 +142,7 @@ export const initialCasinos: CasinoItem[] = [
     hotelRating: '5성급 복합 (Marriott, Sheraton, Hilton, Okura)',
     highlights: '단기 체류 고객을 위한 초고속 공항 픽업/샌딩 최적화',
     isFeatured: false,
+    order: 4,
   },
   {
     id: 'hann-casino-clark',
@@ -154,6 +158,7 @@ export const initialCasinos: CasinoItem[] = [
     hotelRating: '5성급 럭셔리 (Swissôtel / Marriott)',
     highlights: '클락 골프투어 패키지 연계 및 스위트룸 무료 숙박 지원',
     isFeatured: true,
+    order: 5,
   },
   {
     id: 'dheights-clark',
@@ -169,6 +174,7 @@ export const initialCasinos: CasinoItem[] = [
     hotelRating: '5성급 힐튼 리조트 (Hilton Clark Sun Valley)',
     highlights: '골프 라운딩 + VIP 의전 결합 올인원 서비스',
     isFeatured: false,
+    order: 6,
   },
 ];
 
@@ -378,6 +384,35 @@ export const initialPosts: PostItem[] = [
 오아시스 전담 실장이 프라이빗 룸 사전 예약 및 차량 의전을 함께 도와드립니다.`,
     thumbnail: 'https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?auto=format&fit=crop&w=800&q=80',
     tags: ['BGC', '파인다이닝', '미식투어', '마닐라야경'],
+  },
+  {
+    id: 'post-6',
+    category: 'VIP매거진',
+    title: '마닐라 & 클락 공항 24시간 VIP 의전 픽업 및 전용 리무진 서비스 안내',
+    author: '오아시스 의전팀',
+    date: '2026-07-28',
+    viewCount: 1150,
+    isPinned: false,
+    summary: '공항 도착 즉시 대기 시간 없는 VIP 패스트트랙 입국부터 최고급 알파드 리무진 단독 배차, 안전하고 편안한 특급 호텔 이동 서비스를 안내합니다.',
+    content: `오아시스 VIP 에이전시의 프리미엄 의전 서비스는 고객님의 필리핀 도착 순간부터 출국까지 24시간 완벽하게 동행합니다.
+
+■ 1. 공항 VIP 패스트트랙 입국 에스코트
+- 마닐라(NAIA Terminal 1, 2, 3) 및 클락(CRK) 국제공항 도착 시 전담 의전팀이 대기합니다.
+- 복잡한 입국 심사 대기 줄 없이 VIP 전용 패스트트랙 라인으로 신속하게 통과를 지원합니다.
+- 수하물 픽업 및 세관 통과까지 1:1로 안전하게 안내해 드립니다.
+
+■ 2. 최고급 리무진 전용 단독 배차
+- 전 차량 최고급 토요타 알파드(Toyota Alphard) 및 현대 스타리아 리무진 신형 모델을 운용합니다.
+- 장시간 비행의 피로를 풀어드릴 수 있는 리클라이너 시트, 차량 내 무료 초고속 와이파이, 시원한 프리미엄 생수 및 음료가 상시 준비되어 있습니다.
+- 현지 지리에 정통한 베테랑 전문 기사가 안전하고 쾌적하게 5성급 호텔 목적지까지 모십니다.
+
+■ 3. 24시간 한국인 전담 실장 밀착 지원
+- 공항 픽업부터 호텔 체크인, 정켓 살롱 룸 배정까지 한국인 실장이 1:1로 소통하며 완벽한 편의를 제공합니다.
+- 일정 중 발생할 수 있는 모든 요구사항과 골프 투어, 식사 예약 등을 즉각 처리해 드립니다.
+
+안전하고 품격 있는 VIP 여행의 시작, 오아시스가 가장 완벽하게 책임지겠습니다.`,
+    thumbnail: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=800&q=80',
+    tags: ['공항의전', 'VIP픽업', '알파드리무진', '패스트트랙', '안심여행'],
   },
 ];
 

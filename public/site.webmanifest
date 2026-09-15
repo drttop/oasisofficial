@@ -1,0 +1,19 @@
+{
+  "name": "오아시스 공식 에이전트 | OASIS VIP AGENCY",
+  "short_name": "오아시스",
+  "icons": [
+    {
+      "src": "/favicon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "theme_color": "#03071e",
+  "background_color": "#03071e",
+  "display": "standalone"
+}

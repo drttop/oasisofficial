@@ -1,11 +1,27 @@
 import React, { useState } from 'react';
 import { useSite } from '../../context/SiteContext';
-import { X, Eye, User, Tag, MessageCircle, Send, Pin, Share2, Check, Copy, Link as LinkIcon } from 'lucide-react';
+import {
+  X,
+  Eye,
+  User,
+  Tag,
+  MessageCircle,
+  Send,
+  Pin,
+  Share2,
+  Check,
+  Copy,
+  Link as LinkIcon,
+  Maximize2,
+  Image as ImageIcon,
+} from 'lucide-react';
 import { getPostUrl } from '../../utils/seo';
+import { parsePostContent } from '../../utils/postContent';
 
 export const PostDetailModal: React.FC = () => {
   const { selectedPost, setSelectedPost, siteConfig } = useSite();
   const [copied, setCopied] = useState(false);
+  const [zoomedImage, setZoomedImage] = useState<string | null>(null);
 
   if (!selectedPost) return null;
 
@@ -33,10 +49,33 @@ export const PostDetailModal: React.FC = () => {
   const categoryColorMap: Record<string, string> = {
     공지사항: 'bg-red-50 text-red-600 border-red-200',
     프로모션: 'bg-amber-50 text-amber-600 border-amber-200',
+    VIP매거진: 'bg-purple-50 text-purple-600 border-purple-200',
+    커뮤니티: 'bg-blue-50 text-blue-600 border-blue-200',
     카지노소식: 'bg-indigo-50 text-indigo-600 border-indigo-200',
     여행정보: 'bg-emerald-50 text-emerald-600 border-emerald-200',
-    VIP매거진: 'bg-purple-50 text-purple-600 border-purple-200',
   };
+
+  // Determine images to show (prefer images array, fallback to thumbnail)
+  const displayImages: string[] =
+    selectedPost.images && selectedPost.images.length > 0
+      ? selectedPost.images.slice(0, 2)
+      : selectedPost.thumbnail
+      ? [selectedPost.thumbnail]
+      : [];
+
+  // Parse body content for inline photos like [사진1], [사진2]
+  const contentSegments = parsePostContent(selectedPost.content, displayImages);
+  const inlineImageIndices = new Set(
+    contentSegments
+      .filter((s) => s.type === 'image' && s.imageIndex !== undefined)
+      .map((s) => s.imageIndex as number)
+  );
+
+  // If NO photos were placed in the body with tags, show the top gallery
+  const showTopGallery = inlineImageIndices.size === 0 && displayImages.length > 0;
+
+  // Unplaced photos (uploaded but not tagged in body)
+  const unplacedImages = displayImages.filter((_, idx) => !inlineImageIndices.has(idx));
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-200">
@@ -126,15 +165,56 @@ export const PostDetailModal: React.FC = () => {
             </div>
           </div>
 
-          {/* Thumbnail if present */}
-          {selectedPost.thumbnail && (
-            <div className="rounded-xl overflow-hidden shadow-sm border border-slate-100 max-h-72">
-              <img
-                src={selectedPost.thumbnail}
-                alt={selectedPost.title}
-                className="w-full h-full object-cover"
-                referrerPolicy="no-referrer"
-              />
+          {/* Uploaded Photos Top Gallery (Shown only when photos are not placed inline in the body) */}
+          {showTopGallery && (
+            <div className="space-y-2">
+              {displayImages.length === 1 ? (
+                // 1 Single Photo Banner
+                <div
+                  onClick={() => setZoomedImage(displayImages[0])}
+                  className="group relative rounded-2xl overflow-hidden shadow-sm border border-slate-200 bg-slate-900 cursor-zoom-in max-h-80"
+                >
+                  <img
+                    src={displayImages[0]}
+                    alt={selectedPost.title}
+                    className="w-full h-full max-h-80 object-cover group-hover:scale-102 transition-transform duration-300"
+                    referrerPolicy="no-referrer"
+                  />
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                    <span className="opacity-0 group-hover:opacity-100 transition-opacity px-3 py-1.5 rounded-lg bg-black/60 text-white text-xs font-bold flex items-center gap-1.5 backdrop-blur-sm shadow">
+                      <Maximize2 className="w-3.5 h-3.5" />
+                      클릭하여 크게 보기
+                    </span>
+                  </div>
+                </div>
+              ) : (
+                // 2 Photos Side-by-Side or Stacked
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {displayImages.map((imgSrc, idx) => (
+                    <div
+                      key={idx}
+                      onClick={() => setZoomedImage(imgSrc)}
+                      className="group relative rounded-2xl overflow-hidden shadow-sm border border-slate-200 bg-slate-900 cursor-zoom-in h-48 sm:h-56"
+                    >
+                      <img
+                        src={imgSrc}
+                        alt={`${selectedPost.title} - 사진 ${idx + 1}`}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        referrerPolicy="no-referrer"
+                      />
+                      <span className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-md bg-slate-900/80 backdrop-blur-sm text-white text-[10px] font-bold">
+                        사진 {idx + 1}
+                      </span>
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/25 transition-colors flex items-center justify-center">
+                        <span className="opacity-0 group-hover:opacity-100 transition-opacity px-3 py-1.5 rounded-lg bg-black/70 text-white text-xs font-bold flex items-center gap-1.5 backdrop-blur-sm shadow">
+                          <Maximize2 className="w-3.5 h-3.5" />
+                          확대 보기
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
@@ -145,10 +225,81 @@ export const PostDetailModal: React.FC = () => {
             </div>
           )}
 
-          {/* Body Content */}
-          <div className="text-slate-800 text-sm leading-relaxed whitespace-pre-line space-y-4">
-            {selectedPost.content}
+          {/* Body Content with Inline Photos Support */}
+          <div className="text-slate-800 text-sm sm:text-[15px] leading-relaxed space-y-4">
+            {contentSegments.map((segment, idx) => {
+              if (segment.type === 'text') {
+                return (
+                  <div key={idx} className="whitespace-pre-line leading-relaxed">
+                    {segment.text}
+                  </div>
+                );
+              }
+
+              if (segment.type === 'image' && segment.imageUrl) {
+                return (
+                  <div
+                    key={idx}
+                    onClick={() => setZoomedImage(segment.imageUrl!)}
+                    className="my-5 group relative rounded-2xl overflow-hidden shadow-sm hover:shadow-md border border-slate-200 bg-slate-950 cursor-zoom-in transition-all"
+                  >
+                    <img
+                      src={segment.imageUrl}
+                      alt={`${selectedPost.title} - ${segment.imageLabel || '본문 사진'}`}
+                      className="w-full max-h-[440px] object-cover sm:object-contain bg-slate-950 group-hover:scale-[1.01] transition-transform duration-300"
+                      referrerPolicy="no-referrer"
+                    />
+                    <div className="absolute top-3 left-3 flex items-center gap-1.5">
+                      <span className="px-2.5 py-1 rounded-lg bg-slate-900/85 backdrop-blur-sm text-white text-xs font-bold flex items-center gap-1.5 shadow border border-white/10">
+                        <ImageIcon className="w-3.5 h-3.5 text-[#E5B54F]" />
+                        {segment.imageLabel || '사진'}
+                      </span>
+                    </div>
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/25 transition-colors flex items-center justify-center">
+                      <span className="opacity-0 group-hover:opacity-100 transition-opacity px-3.5 py-2 rounded-xl bg-black/75 text-white text-xs font-bold flex items-center gap-2 backdrop-blur-sm shadow-lg border border-white/20">
+                        <Maximize2 className="w-4 h-4 text-[#E5B54F]" />
+                        클릭하여 사진 확대
+                      </span>
+                    </div>
+                  </div>
+                );
+              }
+
+              return null;
+            })}
           </div>
+
+          {/* Unplaced Photos (Uploaded by admin but not inserted into text body) */}
+          {unplacedImages.length > 0 && !showTopGallery && (
+            <div className="pt-4 border-t border-slate-100 space-y-2">
+              <span className="text-xs font-bold text-slate-500 flex items-center gap-1.5">
+                <ImageIcon className="w-3.5 h-3.5 text-[#30308A]" />
+                첨부 사진
+              </span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {unplacedImages.map((imgSrc, idx) => (
+                  <div
+                    key={idx}
+                    onClick={() => setZoomedImage(imgSrc)}
+                    className="group relative rounded-xl overflow-hidden shadow-sm border border-slate-200 bg-slate-900 cursor-zoom-in h-40 sm:h-48"
+                  >
+                    <img
+                      src={imgSrc}
+                      alt="첨부 사진"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      referrerPolicy="no-referrer"
+                    />
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/25 transition-colors flex items-center justify-center">
+                      <span className="opacity-0 group-hover:opacity-100 transition-opacity px-3 py-1.5 rounded-lg bg-black/70 text-white text-xs font-bold flex items-center gap-1.5 backdrop-blur-sm shadow">
+                        <Maximize2 className="w-3.5 h-3.5" />
+                        확대 보기
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Tags */}
           {selectedPost.tags && selectedPost.tags.length > 0 && (
@@ -210,13 +361,37 @@ export const PostDetailModal: React.FC = () => {
           
           <button
             onClick={() => setSelectedPost(null)}
-            className="px-5 py-2 rounded-lg bg-slate-800 text-white text-xs font-bold hover:bg-slate-900"
+            className="px-5 py-2 rounded-lg bg-slate-800 text-white text-xs font-bold hover:bg-slate-900 cursor-pointer"
           >
             닫기
           </button>
         </div>
 
       </div>
+
+      {/* Full-Screen Image Lightbox Modal */}
+      {zoomedImage && (
+        <div
+          onClick={() => setZoomedImage(null)}
+          className="fixed inset-0 z-[70] bg-black/90 backdrop-blur-md flex items-center justify-center p-4 cursor-zoom-out animate-in fade-in duration-150"
+        >
+          <div className="relative max-w-5xl max-h-[90vh] flex items-center justify-center">
+            <img
+              src={zoomedImage}
+              alt="확대 사진"
+              className="max-w-full max-h-[85vh] object-contain rounded-xl shadow-2xl"
+              referrerPolicy="no-referrer"
+            />
+            <button
+              onClick={() => setZoomedImage(null)}
+              className="absolute -top-10 right-0 text-white/80 hover:text-white p-2 rounded-full bg-slate-800/80 hover:bg-slate-800 flex items-center gap-1 text-xs font-bold"
+            >
+              <X className="w-4 h-4" />
+              <span>닫기</span>
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

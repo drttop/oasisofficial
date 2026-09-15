@@ -42,6 +42,7 @@ interface SiteContextType {
   
   casinos: CasinoItem[];
   setCasinos: (casinos: CasinoItem[]) => void;
+  reorderCasinos: (casinos: CasinoItem[]) => Promise<void> | void;
   addCasino: (casino: Omit<CasinoItem, 'id'>) => Promise<void> | void;
   updateCasino: (id: string, casino: Partial<CasinoItem>) => Promise<void> | void;
   deleteCasino: (id: string) => Promise<void> | void;
@@ -126,6 +127,23 @@ const sanitizeSlides = (slides: BannerSlide[]): BannerSlide[] => {
   });
 };
 
+export const DEFAULT_CASINO_ORDER: Record<string, number> = {
+  'okada-manila': 1,
+  'city-of-dreams': 2,
+  'solaire-resort': 3,
+  'newport-world-resorts': 4,
+  'hann-casino-clark': 5,
+  'dheights-clark': 6,
+};
+
+export const sortCasinos = (items: CasinoItem[]): CasinoItem[] => {
+  return [...items].sort((a, b) => {
+    const orderA = a.order ?? DEFAULT_CASINO_ORDER[a.id] ?? 99;
+    const orderB = b.order ?? DEFAULT_CASINO_ORDER[b.id] ?? 99;
+    return orderA - orderB;
+  });
+};
+
 export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [siteConfig, setSiteConfigState] = useState<SiteConfig>(() => {
     const saved = localStorage.getItem(STORAGE_KEYS.CONFIG);
@@ -144,7 +162,12 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const [casinos, setCasinosState] = useState<CasinoItem[]>(() => {
     const saved = localStorage.getItem(STORAGE_KEYS.CASINOS);
-    return saved ? JSON.parse(saved) : initialCasinos;
+    if (!saved) return sortCasinos(initialCasinos);
+    try {
+      return sortCasinos(JSON.parse(saved));
+    } catch {
+      return sortCasinos(initialCasinos);
+    }
   });
 
   const [philippineSpots, setPhilippineSpotsState] = useState<PhilippineTourSpot[]>(() => {
@@ -174,7 +197,21 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [isInquiryModalOpen, setIsInquiryModalOpen] = useState(false);
-  const [selectedPost, setSelectedPost] = useState<PostItem | null>(null);
+  const [selectedPost, setSelectedPost] = useState<PostItem | null>(() => {
+    if (typeof window === 'undefined') return null;
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const targetPostId = params.get('post') || params.get('postId') || params.get('p') || (window.location.hash.startsWith('#post-') ? window.location.hash.replace('#post-', '') : null);
+      if (targetPostId) {
+        const saved = localStorage.getItem(STORAGE_KEYS.POSTS);
+        const postsList: PostItem[] = saved ? JSON.parse(saved) : initialPosts;
+        return postsList.find((p) => String(p.id) === String(targetPostId)) || null;
+      }
+    } catch {
+      // fallback
+    }
+    return null;
+  });
   const [selectedCasino, setSelectedCasino] = useState<CasinoItem | null>(null);
   const [activeSection, setActiveSection] = useState('home');
   const [isCloudSynced, setIsCloudSynced] = useState(false);
@@ -249,11 +286,20 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const casinosColRef = collection(db, 'casinos');
       unsubscribeCasinos = onSnapshot(casinosColRef, async (snap) => {
         if (!snap.empty) {
-          const items = snap.docs.map((d) => ({ ...d.data(), id: d.id } as CasinoItem));
-          setCasinosState(items);
+          const rawItems = snap.docs.map((d) => ({ ...d.data(), id: d.id } as CasinoItem));
+          const sorted = sortCasinos(rawItems);
+          setCasinosState(sorted);
+
+          // Update any items in Firestore that lack correct order
+          rawItems.forEach(async (item) => {
+            const expected = DEFAULT_CASINO_ORDER[item.id];
+            if (expected && item.order !== expected) {
+              await setDoc(doc(db, 'casinos', item.id), { order: expected }, { merge: true }).catch(console.warn);
+            }
+          });
         } else {
           const batch = writeBatch(db);
-          initialCasinos.forEach((c) => {
+          sortCasinos(initialCasinos).forEach((c) => {
             const ref = doc(db, 'casinos', c.id);
             batch.set(ref, c);
           });
@@ -414,7 +460,21 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const setCasinos = (newCasinos: CasinoItem[]) => {
-    setCasinosState(newCasinos);
+    setCasinosState(sortCasinos(newCasinos));
+  };
+
+  const reorderCasinos = async (orderedList: CasinoItem[]) => {
+    const updated = orderedList.map((c, idx) => ({ ...c, order: idx + 1 }));
+    setCasinosState(updated);
+    try {
+      const batch = writeBatch(db);
+      updated.forEach((c) => {
+        batch.set(doc(db, 'casinos', c.id), { order: c.order }, { merge: true });
+      });
+      await batch.commit();
+    } catch (err) {
+      console.error('Failed to update casino order in Firestore:', err);
+    }
   };
 
   const addCasino = async (casino: Omit<CasinoItem, 'id'>) => {
@@ -458,7 +518,20 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const addPost = async (post: Omit<PostItem, 'id' | 'viewCount' | 'date'>) => {
     const now = new Date();
     const dateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-    const newId = `post-${Date.now()}`;
+    
+    // Generate clean incremental ID like post-7, post-8 if possible
+    let nextNum = 1;
+    posts.forEach((p) => {
+      const match = p.id.match(/^post-(\d+)$/);
+      if (match) {
+        const n = parseInt(match[1], 10);
+        if (n >= nextNum && n < 100000) {
+          nextNum = n + 1;
+        }
+      }
+    });
+    const newId = `post-${nextNum}`;
+
     const newPost: PostItem = {
       ...post,
       id: newId,
@@ -764,6 +837,7 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
         updateBannerSlide,
         casinos,
         setCasinos,
+        reorderCasinos,
         addCasino,
         updateCasino,
         deleteCasino,

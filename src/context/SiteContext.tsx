@@ -574,8 +574,17 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
 
     try {
+      const cleanDoc: Record<string, any> = {};
+      Object.entries(newPost).forEach(([k, v]) => {
+        if (v !== undefined) {
+          cleanDoc[k] = v;
+        }
+      });
       const docRef = doc(db, 'posts', newId);
-      await setDoc(docRef, newPost);
+      await Promise.race([
+        setDoc(docRef, cleanDoc),
+        new Promise((resolve) => setTimeout(resolve, 2500)),
+      ]);
       console.log('Post successfully saved to Firestore:', newId);
     } catch (err) {
       console.error('Failed to add post to Firestore:', err);
@@ -587,8 +596,18 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
       prev.map((item) => (item.id === id ? { ...item, ...partial } : item))
     );
     try {
+      const cleanPartial: Record<string, any> = {};
+      Object.entries(partial).forEach(([k, v]) => {
+        if (v !== undefined) {
+          cleanPartial[k] = v;
+        }
+      });
       const docRef = doc(db, 'posts', id);
-      await setDoc(docRef, partial, { merge: true });
+      await Promise.race([
+        setDoc(docRef, cleanPartial, { merge: true }),
+        new Promise((resolve) => setTimeout(resolve, 2500)),
+      ]);
+      console.log('Post successfully updated in Firestore:', id);
     } catch (err) {
       console.error('Failed to update post in Firestore:', err);
     }

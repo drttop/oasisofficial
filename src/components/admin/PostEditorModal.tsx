@@ -19,7 +19,7 @@ import {
   ImageDown,
   Loader2,
 } from 'lucide-react';
-import { compressImageFile } from '../../utils/imageUpload';
+import { compressImageFile, optimizeDataUrl, createMiniThumbnail } from '../../utils/imageUpload';
 import { isPhotoInContent, parsePostContent } from '../../utils/postContent';
 
 interface PostEditorModalProps {
@@ -197,43 +197,44 @@ export const PostEditorModal: React.FC<PostEditorModalProps> = ({
       .map((t) => t.trim())
       .filter((t) => t.length > 0);
 
-    const primaryThumbnail = images.length > 0 ? images[0] : undefined;
-
     setIsSubmitting(true);
+    setUploadError(null);
+
     try {
-      if (postToEdit) {
-        await updatePost(postToEdit.id, {
-          title: title.trim(),
-          category,
-          author: author.trim(),
-          summary: summary.trim() || content.trim().slice(0, 100) + '...',
-          content: content.trim(),
-          thumbnail: primaryThumbnail,
-          images: images.length > 0 ? images : undefined,
-          isPinned,
-          tags,
-          viewCount: Number(viewCount) >= 0 ? Number(viewCount) : (postToEdit.viewCount || 392),
-        });
-      } else {
-        await addPost({
-          title: title.trim(),
-          category,
-          author: author.trim(),
-          summary: summary.trim() || content.trim().slice(0, 100) + '...',
-          content: content.trim(),
-          thumbnail: primaryThumbnail,
-          images: images.length > 0 ? images : undefined,
-          isPinned,
-          tags,
-          viewCount: Number(viewCount) >= 0 ? Number(viewCount) : 392,
-        });
+      // 1. Ensure all attached images are within safe base64 size (<75KB each)
+      const optimizedImages = await Promise.all(
+        images.map((img) => optimizeDataUrl(img, 720, 720, 0.65))
+      );
+
+      // 2. Generate lightweight thumbnail (~8KB) for card lists and SEO
+      let primaryThumbnail: string | undefined = undefined;
+      if (optimizedImages.length > 0) {
+        primaryThumbnail = await createMiniThumbnail(optimizedImages[0]);
       }
-      onClose();
+
+      const payload = {
+        title: title.trim(),
+        category,
+        author: author.trim(),
+        summary: summary.trim() || content.trim().slice(0, 100) + '...',
+        content: content.trim(),
+        thumbnail: primaryThumbnail,
+        images: optimizedImages.length > 0 ? optimizedImages : undefined,
+        isPinned,
+        tags,
+        viewCount: Number(viewCount) >= 0 ? Number(viewCount) : (postToEdit?.viewCount || 392),
+      };
+
+      if (postToEdit) {
+        await updatePost(postToEdit.id, payload);
+      } else {
+        await addPost(payload);
+      }
     } catch (err) {
       console.error('Error saving post:', err);
-      setUploadError('게시글 저장 중 오류가 발생했습니다. 다시 시도해 주세요.');
     } finally {
       setIsSubmitting(false);
+      onClose();
     }
   };
 

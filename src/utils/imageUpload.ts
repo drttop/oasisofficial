@@ -12,9 +12,9 @@ export interface ProcessedImageResult {
 
 export const compressImageFile = async (
   file: File,
-  maxWidth = 1280,
-  maxHeight = 1280,
-  quality = 0.85
+  maxWidth = 1200,
+  maxHeight = 1200,
+  quality = 0.78
 ): Promise<string> => {
   return new Promise((resolve, reject) => {
     // If SVG or small GIF, keep format

@@ -64,7 +64,7 @@ interface SiteContextType {
   
   posts: PostItem[];
   setPosts: (posts: PostItem[]) => void;
-  addPost: (post: Omit<PostItem, 'id' | 'viewCount' | 'date'>) => Promise<void> | void;
+  addPost: (post: Omit<PostItem, 'id' | 'date'> & { viewCount?: number }) => Promise<void> | void;
   updatePost: (id: string, post: Partial<PostItem>) => Promise<void> | void;
   deletePost: (id: string) => Promise<void> | void;
   incrementPostView: (id: string) => Promise<void> | void;
@@ -515,7 +515,7 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setPostsState(newPosts);
   };
 
-  const addPost = async (post: Omit<PostItem, 'id' | 'viewCount' | 'date'>) => {
+  const addPost = async (post: Omit<PostItem, 'id' | 'date'> & { viewCount?: number }) => {
     const now = new Date();
     const dateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
     
@@ -535,7 +535,7 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const newPost: PostItem = {
       ...post,
       id: newId,
-      viewCount: 1,
+      viewCount: post.viewCount !== undefined ? post.viewCount : 392,
       date: dateStr,
     };
     setPostsState((prev) => [newPost, ...prev]);

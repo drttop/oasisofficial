@@ -37,6 +37,7 @@ export const PostEditorModal: React.FC<PostEditorModalProps> = ({
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState<PostItem['category']>(defaultCategory);
   const [author, setAuthor] = useState('오아시스 총괄운영팀');
+  const [viewCount, setViewCount] = useState<number>(392);
   const [summary, setSummary] = useState('');
   const [content, setContent] = useState('');
   const [images, setImages] = useState<string[]>([]);
@@ -63,11 +64,12 @@ export const PostEditorModal: React.FC<PostEditorModalProps> = ({
       setSummary(postToEdit.summary);
       setContent(postToEdit.content);
       setIsPinned(postToEdit.isPinned);
+      setViewCount(postToEdit.viewCount !== undefined ? postToEdit.viewCount : 392);
       setTagsInput(postToEdit.tags ? postToEdit.tags.join(', ') : '');
 
-      // Initialize images (up to 2)
+      // Initialize images (up to 6)
       if (postToEdit.images && postToEdit.images.length > 0) {
-        setImages(postToEdit.images.slice(0, 2));
+        setImages(postToEdit.images.slice(0, 6));
       } else if (postToEdit.thumbnail) {
         setImages([postToEdit.thumbnail]);
       } else {
@@ -77,6 +79,7 @@ export const PostEditorModal: React.FC<PostEditorModalProps> = ({
       setTitle('');
       setCategory(defaultCategory);
       setAuthor('오아시스 총괄운영팀');
+      setViewCount(392);
       setSummary('');
       setContent('');
       setImages([]);
@@ -95,22 +98,22 @@ export const PostEditorModal: React.FC<PostEditorModalProps> = ({
       return;
     }
 
-    const remainingSlots = 2 - images.length;
+    const remainingSlots = 6 - images.length;
     if (remainingSlots <= 0) {
-      setUploadError('사진은 최대 2장까지만 첨부할 수 있습니다.');
+      setUploadError('사진은 최대 6장까지만 첨부할 수 있습니다.');
       return;
     }
 
     const filesToProcess = fileArray.slice(0, remainingSlots);
     if (fileArray.length > remainingSlots) {
-      setUploadError(`사진은 최대 2장까지 가능하여 ${remainingSlots}장만 추가되었습니다.`);
+      setUploadError(`사진은 최대 6장까지 가능하여 ${remainingSlots}장만 추가되었습니다.`);
     }
 
     setIsUploading(true);
     try {
       const processedPromises = filesToProcess.map((file) => compressImageFile(file));
       const newImages = await Promise.all(processedPromises);
-      setImages((prev) => [...prev, ...newImages].slice(0, 2));
+      setImages((prev) => [...prev, ...newImages].slice(0, 6));
     } catch (err) {
       console.error('Failed to process image:', err);
       setUploadError('이미지 처리 중 오류가 발생했습니다. 다시 시도해 주세요.');
@@ -150,11 +153,11 @@ export const PostEditorModal: React.FC<PostEditorModalProps> = ({
 
   const handleAddManualUrl = () => {
     if (!manualUrl.trim()) return;
-    if (images.length >= 2) {
-      setUploadError('사진은 최대 2장까지만 등록 가능합니다.');
+    if (images.length >= 6) {
+      setUploadError('사진은 최대 6장까지만 등록 가능합니다.');
       return;
     }
-    setImages((prev) => [...prev, manualUrl.trim()].slice(0, 2));
+    setImages((prev) => [...prev, manualUrl.trim()].slice(0, 6));
     setManualUrl('');
     setShowUrlInput(false);
   };
@@ -205,6 +208,7 @@ export const PostEditorModal: React.FC<PostEditorModalProps> = ({
         images: images.length > 0 ? images : undefined,
         isPinned,
         tags,
+        viewCount: Number(viewCount) >= 0 ? Number(viewCount) : (postToEdit.viewCount || 392),
       });
     } else {
       addPost({
@@ -217,6 +221,7 @@ export const PostEditorModal: React.FC<PostEditorModalProps> = ({
         images: images.length > 0 ? images : undefined,
         isPinned,
         tags,
+        viewCount: Number(viewCount) >= 0 ? Number(viewCount) : 392,
       });
     }
 
@@ -259,8 +264,8 @@ export const PostEditorModal: React.FC<PostEditorModalProps> = ({
             />
           </div>
 
-          {/* Category & Author & Pinned */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {/* Category & Author & Initial ViewCount & Pinned */}
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1">카테고리</label>
               <select
@@ -268,7 +273,6 @@ export const PostEditorModal: React.FC<PostEditorModalProps> = ({
                 onChange={(e) => setCategory(e.target.value as any)}
                 className="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30308A] bg-white font-medium"
               >
-                <option value="커뮤니티">커뮤니티 (일반/후기)</option>
                 <option value="공지사항">공지사항</option>
                 <option value="프로모션">프로모션</option>
                 <option value="VIP매거진">VIP매거진</option>
@@ -283,6 +287,21 @@ export const PostEditorModal: React.FC<PostEditorModalProps> = ({
                 value={author}
                 onChange={(e) => setAuthor(e.target.value)}
                 className="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30308A]"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1 flex items-center gap-1">
+                <Eye className="w-3.5 h-3.5 text-slate-500" />
+                <span>기본 조회수</span>
+              </label>
+              <input
+                type="number"
+                min="0"
+                value={viewCount}
+                onChange={(e) => setViewCount(Math.max(0, parseInt(e.target.value, 10) || 0))}
+                className="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30308A] font-mono"
+                placeholder="392"
               />
             </div>
 
@@ -302,24 +321,24 @@ export const PostEditorModal: React.FC<PostEditorModalProps> = ({
             </div>
           </div>
 
-          {/* DIRECT IMAGE UPLOAD SECTION (Max 2 photos, Drag & Drop + Click to upload) */}
+          {/* DIRECT IMAGE UPLOAD SECTION (Max 6 photos, Drag & Drop + Click to upload) */}
           <div className="space-y-2 pt-1">
             <div className="flex items-center justify-between">
               <label className="block text-xs font-bold text-slate-700 flex items-center gap-1.5">
                 <ImageIcon className="w-3.5 h-3.5 text-[#30308A]" />
-                <span>사진 첨부 (직접 업로드, 최대 2장)</span>
+                <span>사진 첨부 (직접 업로드, 최대 6장)</span>
               </label>
               <div className="flex items-center gap-2">
                 <span
                   className={`text-[11px] font-bold px-2 py-0.5 rounded-full font-mono ${
-                    images.length === 2
+                    images.length >= 6
                       ? 'bg-emerald-100 text-emerald-800'
                       : 'bg-slate-100 text-slate-600'
                   }`}
                 >
-                  {images.length} / 2장
+                  {images.length} / 6장
                 </span>
-                {!showUrlInput && images.length < 2 && (
+                {!showUrlInput && images.length < 6 && (
                   <button
                     type="button"
                     onClick={() => setShowUrlInput(true)}
@@ -356,9 +375,9 @@ export const PostEditorModal: React.FC<PostEditorModalProps> = ({
 
             {/* Upload Area / Gallery Grid */}
             <div className="space-y-3">
-              {/* Photo preview cards */}
+              {/* Photo preview cards (grid of up to 6 photos) */}
               {images.length > 0 && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                   {images.map((imgSrc, idx) => {
                     const isInserted = isPhotoInContent(content, idx);
                     return (
@@ -366,7 +385,7 @@ export const PostEditorModal: React.FC<PostEditorModalProps> = ({
                         key={idx}
                         className="rounded-xl overflow-hidden border border-slate-200 bg-slate-900 shadow-sm flex flex-col justify-between"
                       >
-                        <div className="relative h-32 w-full overflow-hidden group">
+                        <div className="relative h-28 sm:h-32 w-full overflow-hidden group">
                           <img
                             src={imgSrc}
                             alt={`업로드 사진 ${idx + 1}`}
@@ -378,7 +397,7 @@ export const PostEditorModal: React.FC<PostEditorModalProps> = ({
                           <div className="absolute top-2 left-2">
                             <span className="px-2 py-0.5 rounded-md bg-slate-900/80 backdrop-blur-sm text-white text-[10px] font-bold flex items-center gap-1">
                               <CheckCircle2 className="w-3 h-3 text-[#E5B54F]" />
-                              {idx === 0 ? '사진 1 (대표 썸네일)' : '사진 2'}
+                              {idx === 0 ? '사진 1 (대표 썸네일)' : `사진 ${idx + 1}`}
                             </span>
                           </div>
 
@@ -419,28 +438,28 @@ export const PostEditorModal: React.FC<PostEditorModalProps> = ({
                             }`}
                           >
                             <ImageDown className="w-3.5 h-3.5 text-[#E5B54F]" />
-                            <span>{isInserted ? `본문 커서 위치에 [사진${idx + 1}] 다시 넣기` : `본문 커서 위치에 [사진${idx + 1}] 넣기`}</span>
+                            <span>{isInserted ? `[사진${idx + 1}] 다시 넣기` : `본문에 [사진${idx + 1}] 넣기`}</span>
                           </button>
                         </div>
                       </div>
                     );
                   })}
 
-                  {/* Add second photo slot if only 1 image exists */}
-                  {images.length === 1 && (
+                  {/* Add additional photo slot if less than 6 images exist */}
+                  {images.length < 6 && (
                     <div
                       onClick={() => fileInputRef.current?.click()}
                       onDragOver={handleDragOver}
                       onDragLeave={handleDragLeave}
                       onDrop={handleDrop}
-                      className={`h-40 rounded-xl border-2 border-dashed flex flex-col items-center justify-center p-4 text-center cursor-pointer transition-all ${
+                      className={`h-36 sm:h-40 rounded-xl border-2 border-dashed flex flex-col items-center justify-center p-3 text-center cursor-pointer transition-all ${
                         isDragging
                           ? 'border-[#30308A] bg-[#30308A]/5'
                           : 'border-slate-300 hover:border-[#30308A] hover:bg-slate-50'
                       }`}
                     >
-                      <Plus className="w-6 h-6 text-[#30308A] mb-1.5" />
-                      <p className="text-xs font-bold text-slate-700">2번째 사진 추가하기</p>
+                      <Plus className="w-6 h-6 text-[#30308A] mb-1" />
+                      <p className="text-xs font-bold text-slate-700">사진 추가하기 ({images.length + 1}/6)</p>
                       <p className="text-[10px] text-slate-400 mt-0.5">클릭 또는 파일 드래그</p>
                     </div>
                   )}
@@ -464,7 +483,7 @@ export const PostEditorModal: React.FC<PostEditorModalProps> = ({
                     <UploadCloud className="w-5 h-5" />
                   </div>
                   <p className="text-xs sm:text-sm font-bold text-slate-800">
-                    클릭하여 사진 선택 또는 여기에 드래그 (최대 2장)
+                    클릭하여 사진 선택 또는 여기에 드래그 (최대 6장)
                   </p>
                   <p className="text-[11px] text-slate-500 mt-1">
                     스마트폰 카메라 사진, 갤러리 이미지, 캡처 화면 모두 즉시 첨부 가능합니다 (JPG, PNG, WEBP)
@@ -478,7 +497,7 @@ export const PostEditorModal: React.FC<PostEditorModalProps> = ({
               )}
 
               {/* Optional Manual URL Input Fallback */}
-              {showUrlInput && images.length < 2 && (
+              {showUrlInput && images.length < 6 && (
                 <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-slate-700">이미지 웹 URL 직접 입력</span>
@@ -561,7 +580,7 @@ export const PostEditorModal: React.FC<PostEditorModalProps> = ({
               </div>
             </div>
 
-            {/* Quick Photo Insert Bar (when photos are uploaded) */}
+            {/* Quick Photo Insert Bar (when photos are uploaded, up to 6) */}
             {images.length > 0 && (
               <div className="p-2.5 bg-gradient-to-r from-blue-50/70 to-slate-50 rounded-xl border border-blue-100 flex flex-wrap items-center justify-between gap-2">
                 <div className="flex items-center gap-1.5 flex-wrap">
@@ -569,35 +588,28 @@ export const PostEditorModal: React.FC<PostEditorModalProps> = ({
                     <ImageIcon className="w-3.5 h-3.5 text-[#30308A]" />
                     본문 사진 삽입 도구:
                   </span>
-                  <button
-                    type="button"
-                    onClick={() => handleInsertPhoto(1)}
-                    className="px-2.5 py-1 bg-white hover:bg-slate-50 text-slate-800 text-xs font-bold rounded-lg border border-slate-200 shadow-xs flex items-center gap-1 cursor-pointer transition-all hover:border-[#30308A]"
-                  >
-                    <ImageDown className="w-3 h-3 text-[#30308A]" />
-                    <span>+ [사진1] 삽입</span>
-                    {isPhotoInContent(content, 0) && (
-                      <span className="text-[10px] text-emerald-600 font-bold ml-0.5">✓</span>
-                    )}
-                  </button>
-
-                  {images.length >= 2 && (
-                    <button
-                      type="button"
-                      onClick={() => handleInsertPhoto(2)}
-                      className="px-2.5 py-1 bg-white hover:bg-slate-50 text-slate-800 text-xs font-bold rounded-lg border border-slate-200 shadow-xs flex items-center gap-1 cursor-pointer transition-all hover:border-[#30308A]"
-                    >
-                      <ImageDown className="w-3 h-3 text-[#30308A]" />
-                      <span>+ [사진2] 삽입</span>
-                      {isPhotoInContent(content, 1) && (
-                        <span className="text-[10px] text-emerald-600 font-bold ml-0.5">✓</span>
-                      )}
-                    </button>
-                  )}
+                  {images.map((_, idx) => {
+                    const photoNum = idx + 1;
+                    const inserted = isPhotoInContent(content, idx);
+                    return (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => handleInsertPhoto(photoNum)}
+                        className="px-2.5 py-1 bg-white hover:bg-slate-50 text-slate-800 text-xs font-bold rounded-lg border border-slate-200 shadow-xs flex items-center gap-1 cursor-pointer transition-all hover:border-[#30308A]"
+                      >
+                        <ImageDown className="w-3 h-3 text-[#30308A]" />
+                        <span>+ [사진{photoNum}]</span>
+                        {inserted && (
+                          <span className="text-[10px] text-emerald-600 font-bold ml-0.5">✓</span>
+                        )}
+                      </button>
+                    );
+                  })}
                 </div>
 
                 <span className="text-[10px] text-slate-500 hidden sm:inline">
-                  본문 원하는 위치에 커서를 두고 버튼을 누르세요
+                  본문 원하는 위치에 커서를 두고 버튼을 누르세요 (최대 6장)
                 </span>
               </div>
             )}
@@ -608,13 +620,13 @@ export const PostEditorModal: React.FC<PostEditorModalProps> = ({
                   ref={contentRef}
                   required
                   rows={8}
-                  placeholder="자유롭게 커뮤니티 글을 작성해 보세요...&#10;&#10;💡 사진을 원하는 위치에 넣고 싶을 때는 위 [+ [사진1] 삽입] 버튼을 누르거나, 본문에 직접 [사진1] 또는 [사진2] 라고 적으시면 해당 위치에 사진이 크게 삽입됩니다."
+                  placeholder="자유롭게 커뮤니티 글을 작성해 보세요...&#10;&#10;💡 사진을 원하는 위치에 넣고 싶을 때는 위 [+ [사진1]~[사진6]] 버튼을 누르거나, 본문에 직접 [사진1], [사진2], [사진3]... 라고 적으시면 해당 위치에 사진이 크게 삽입됩니다."
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
                   className="w-full px-3.5 py-2.5 text-xs sm:text-sm border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#30308A] resize-y min-h-[190px] font-sans leading-relaxed bg-white"
                 />
                 <div className="flex items-center justify-between text-[11px] text-slate-400 mt-1 px-1">
-                  <span>지원 태그: [사진1], [사진2] (대소문자/띄어쓰기 무관)</span>
+                  <span>지원 태그: [사진1] ~ [사진6] (대소문자/띄어쓰기 무관)</span>
                   <span>{content.length}자 작성</span>
                 </div>
               </div>
@@ -686,7 +698,7 @@ export const PostEditorModal: React.FC<PostEditorModalProps> = ({
           {/* Footer Controls */}
           <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
             <div className="text-[11px] text-slate-500">
-              사진 첨부: <span className="font-bold text-slate-800">{images.length}/2장</span>
+              사진 첨부: <span className="font-bold text-slate-800">{images.length}/6장</span>
             </div>
             <div className="flex gap-2">
               <button

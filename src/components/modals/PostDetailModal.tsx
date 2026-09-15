@@ -58,7 +58,7 @@ export const PostDetailModal: React.FC = () => {
   // Determine images to show (prefer images array, fallback to thumbnail)
   const displayImages: string[] =
     selectedPost.images && selectedPost.images.length > 0
-      ? selectedPost.images.slice(0, 2)
+      ? selectedPost.images.slice(0, 6)
       : selectedPost.thumbnail
       ? [selectedPost.thumbnail]
       : [];
@@ -188,13 +188,15 @@ export const PostDetailModal: React.FC = () => {
                   </div>
                 </div>
               ) : (
-                // 2 Photos Side-by-Side or Stacked
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                // 2 to 6 Photos Grid
+                <div className={`grid gap-3 ${
+                  displayImages.length === 2 ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3'
+                }`}>
                   {displayImages.map((imgSrc, idx) => (
                     <div
                       key={idx}
                       onClick={() => setZoomedImage(imgSrc)}
-                      className="group relative rounded-2xl overflow-hidden shadow-sm border border-slate-200 bg-slate-900 cursor-zoom-in h-48 sm:h-56"
+                      className="group relative rounded-2xl overflow-hidden shadow-sm border border-slate-200 bg-slate-900 cursor-zoom-in h-44 sm:h-52"
                     >
                       <img
                         src={imgSrc}
@@ -276,12 +278,14 @@ export const PostDetailModal: React.FC = () => {
                 <ImageIcon className="w-3.5 h-3.5 text-[#30308A]" />
                 첨부 사진
               </span>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className={`grid gap-3 ${
+                unplacedImages.length === 2 ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3'
+              }`}>
                 {unplacedImages.map((imgSrc, idx) => (
                   <div
                     key={idx}
                     onClick={() => setZoomedImage(imgSrc)}
-                    className="group relative rounded-xl overflow-hidden shadow-sm border border-slate-200 bg-slate-900 cursor-zoom-in h-40 sm:h-48"
+                    className="group relative rounded-xl overflow-hidden shadow-sm border border-slate-200 bg-slate-900 cursor-zoom-in h-36 sm:h-44"
                   >
                     <img
                       src={imgSrc}

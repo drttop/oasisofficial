@@ -18,7 +18,7 @@ export const CommunitySection: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('전체');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
-  const categories = ['전체', '커뮤니티', '공지사항', '프로모션', 'VIP매거진'];
+  const categories = ['전체', '공지사항', '프로모션', 'VIP매거진'];
 
   const filteredPosts = posts.filter((post) => {
     const matchCategory = selectedCategory === '전체' || post.category === selectedCategory;
@@ -146,7 +146,7 @@ export const CommunitySection: React.FC = () => {
                         <div className="absolute bottom-3 right-3">
                           <span className="inline-flex items-center gap-1 text-[10px] font-bold text-white bg-slate-900/80 backdrop-blur-sm px-2 py-0.5 rounded-full shadow">
                             <Camera className="w-3 h-3 text-[#E5B54F]" />
-                            <span>사진 2장</span>
+                            <span>사진 {post.images!.length}장</span>
                           </span>
                         </div>
                       )}

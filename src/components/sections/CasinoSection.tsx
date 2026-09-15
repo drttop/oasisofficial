@@ -1,11 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useSite, sortCasinos } from '../../context/SiteContext';
-import { Crown, Sparkles, Eye, LayoutGrid } from 'lucide-react';
-import { CasinoItem } from '../../types';
+import { Crown, Sparkles, Eye } from 'lucide-react';
 
 export const CasinoSection: React.FC = () => {
   const { casinos, setSelectedCasino, siteConfig } = useSite();
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
   const casinoBadge = siteConfig.casinoBadge || 'MAJOR CASINO & VIP RESORTS';
   const casinoTitle = siteConfig.casinoTitle || '필리핀 메이저 카지노 공식 제휴 라인업';
@@ -14,36 +12,12 @@ export const CasinoSection: React.FC = () => {
   // Guaranteed order: 1. 오카다 마닐라, 2. 시티오브 드림즈, 3. 솔레어 리조트, 4. 뉴포트월드 리조트, 5. 한카지노, 6. 디하이츠리조트
   const orderedCasinos = sortCasinos(casinos);
 
-  const getCategoryShortName = (casino: CasinoItem): string => {
-    switch (casino.id) {
-      case 'okada-manila':
-        return '오카다 마닐라';
-      case 'city-of-dreams':
-        return '시티오브 드림즈';
-      case 'solaire-resort':
-        return '솔레어 리조트';
-      case 'newport-world-resorts':
-        return '뉴포트월드 리조트';
-      case 'hann-casino-clark':
-        return '한카지노';
-      case 'dheights-clark':
-        return '디하이츠리조트';
-      default:
-        return casino.name;
-    }
-  };
-
-  const displayedCasinos =
-    selectedCategory === 'all'
-      ? orderedCasinos
-      : orderedCasinos.filter((c) => c.id === selectedCategory);
-
   return (
     <section id="casino" className="py-20 sm:py-28 bg-slate-50 text-slate-900 scroll-mt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto space-y-3 mb-10">
+        <div className="text-center max-w-3xl mx-auto space-y-3 mb-12 sm:mb-16">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold tracking-wider text-[#30308A] bg-[#30308A]/10 uppercase font-montserrat">
             <Crown className="w-3.5 h-3.5" />
             <span>{casinoBadge}</span>
@@ -56,61 +30,9 @@ export const CasinoSection: React.FC = () => {
           </p>
         </div>
 
-        {/* Casino Service Category Tabs (Mobile & Desktop in Exact Order) */}
-        <div className="flex items-center justify-start sm:justify-center overflow-x-auto pb-3 mb-10 gap-2 scrollbar-none px-1">
-          <button
-            type="button"
-            onClick={() => setSelectedCategory('all')}
-            className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all cursor-pointer min-h-[44px] flex items-center gap-1.5 shrink-0 ${
-              selectedCategory === 'all'
-                ? 'bg-[#30308A] text-white shadow-md shadow-[#30308A]/20 ring-2 ring-[#30308A]/20'
-                : 'bg-white text-slate-700 hover:bg-slate-100 hover:text-slate-900 border border-slate-200/90'
-            }`}
-          >
-            <LayoutGrid className="w-3.5 h-3.5" />
-            <span>전체 라인업</span>
-            <span
-              className={`text-[11px] px-1.5 py-0.5 rounded-full font-mono ${
-                selectedCategory === 'all'
-                  ? 'bg-white/20 text-white'
-                  : 'bg-slate-100 text-slate-600'
-              }`}
-            >
-              {orderedCasinos.length}
-            </span>
-          </button>
-
-          {orderedCasinos.map((casino, idx) => {
-            const isSelected = selectedCategory === casino.id;
-            return (
-              <button
-                key={casino.id}
-                type="button"
-                onClick={() => setSelectedCategory(isSelected ? 'all' : casino.id)}
-                className={`px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all cursor-pointer min-h-[44px] flex items-center gap-2 shrink-0 ${
-                  isSelected
-                    ? 'bg-[#30308A] text-white shadow-md shadow-[#30308A]/20 ring-2 ring-[#30308A]/20'
-                    : 'bg-white text-slate-700 hover:bg-slate-100 hover:text-slate-900 border border-slate-200/90'
-                }`}
-              >
-                <span
-                  className={`text-[10px] font-mono px-1.5 py-0.5 rounded font-bold ${
-                    isSelected
-                      ? 'bg-white/25 text-white'
-                      : 'bg-slate-100 text-[#30308A]'
-                  }`}
-                >
-                  {String(idx + 1).padStart(2, '0')}
-                </span>
-                <span>{getCategoryShortName(casino)}</span>
-              </button>
-            );
-          })}
-        </div>
-
         {/* Casino Cards Grid (Sequential Order on both Mobile & Desktop) */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {displayedCasinos.map((casino) => {
+          {orderedCasinos.map((casino) => {
             // Find global sequential index (1 to 6)
             const globalIndex = orderedCasinos.findIndex((c) => c.id === casino.id) + 1;
             const formattedIndex = String(globalIndex).padStart(2, '0');

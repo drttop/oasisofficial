@@ -5,22 +5,22 @@ import { applySEO, getPostUrl } from '../utils/seo';
 export const SEOManager: React.FC = () => {
   const { selectedPost, setSelectedPost, posts, incrementPostView, siteConfig } = useSite();
   const initialUrlCheckedRef = useRef(false);
+  const handledPostIdRef = useRef<string | null>(null);
+  const userClosedRef = useRef(false);
 
-  // 1. Initial page load: Check URL query parameters for dynamic post URL (e.g. ?post=post-1)
+  // 1. Initial page load and whenever posts update: Check URL query parameters for dynamic post URL (e.g. ?post=post-1789388853696)
   useEffect(() => {
     if (posts.length === 0) return;
 
-    if (!initialUrlCheckedRef.current) {
-      initialUrlCheckedRef.current = true;
-      const params = new URLSearchParams(window.location.search);
-      const targetPostId = params.get('post') || params.get('postId') || params.get('p') || (window.location.hash.startsWith('#post-') ? window.location.hash.replace('#post-', '') : null);
+    const params = new URLSearchParams(window.location.search);
+    const targetPostId = params.get('post') || params.get('postId') || params.get('p') || (window.location.hash.startsWith('#post-') ? window.location.hash.replace('#post-', '') : null);
 
-      if (targetPostId) {
-        const found = posts.find((p) => String(p.id) === String(targetPostId));
-        if (found) {
-          setSelectedPost(found);
-          incrementPostView(found.id);
-        }
+    if (targetPostId && targetPostId !== handledPostIdRef.current && !userClosedRef.current) {
+      const found = posts.find((p) => String(p.id) === String(targetPostId));
+      if (found) {
+        handledPostIdRef.current = found.id;
+        setSelectedPost(found);
+        incrementPostView(found.id);
       }
     }
   }, [posts, setSelectedPost, incrementPostView]);
@@ -33,6 +33,8 @@ export const SEOManager: React.FC = () => {
     const currentPostParam = currentParams.get('post');
 
     if (selectedPost) {
+      userClosedRef.current = false;
+      handledPostIdRef.current = selectedPost.id;
       // If modal is opened and URL doesn't have this post query, update URL without reload
       if (currentPostParam !== selectedPost.id) {
         const newUrl = getPostUrl(selectedPost.id);
@@ -41,6 +43,7 @@ export const SEOManager: React.FC = () => {
     } else {
       // If modal is closed and URL has ?post=, remove it cleanly
       if (currentPostParam) {
+        userClosedRef.current = true;
         currentParams.delete('post');
         currentParams.delete('postId');
         currentParams.delete('p');
@@ -57,16 +60,19 @@ export const SEOManager: React.FC = () => {
   // 3. Handle Browser Back & Forward buttons (popstate)
   useEffect(() => {
     const handlePopState = () => {
+      userClosedRef.current = false;
       const params = new URLSearchParams(window.location.search);
       const postId = params.get('post') || params.get('postId') || params.get('p');
 
       if (postId) {
         const target = posts.find((p) => String(p.id) === String(postId));
         if (target) {
+          handledPostIdRef.current = target.id;
           setSelectedPost(target);
           return;
         }
       }
+      handledPostIdRef.current = null;
       setSelectedPost(null);
     };
 

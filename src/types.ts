@@ -131,7 +131,7 @@ export interface PostItem {
   summary: string;
   content: string;
   thumbnail?: string;
-  images?: string[]; // 최대 2장 직접 업로드 사진
+  images?: string[]; // 최대 6장 직접 업로드 사진
   tags?: string[];
 }
 

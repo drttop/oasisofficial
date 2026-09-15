@@ -1093,12 +1093,31 @@ export const AdminDashboard: React.FC = () => {
                       {siteConfig.seoTitle || siteConfig.siteName}
                     </p>
                     <p className="text-xs text-emerald-700 truncate">
-                      {typeof window !== 'undefined' ? window.location.origin : 'https://oasis-agent.com'}
+                      {typeof window !== 'undefined' ? window.location.origin : 'https://oasis46.com'}
                     </p>
                     <p className="text-xs text-slate-600 line-clamp-2 mt-0.5">
                       {siteConfig.seoDescription || siteConfig.subTitle}
                     </p>
                   </div>
+                </div>
+
+                {/* Google Search Engine Indexing Guide */}
+                <div className="p-4 rounded-xl bg-amber-50/70 border border-amber-200/80 text-xs text-amber-900 space-y-2">
+                  <div className="flex items-center gap-1.5 font-bold text-amber-950">
+                    <Info className="w-4 h-4 text-amber-600 shrink-0" />
+                    <span>구글 검색 결과 반영 및 파비콘 노출 안내</span>
+                  </div>
+                  <ul className="list-disc pl-4 space-y-1 text-[11px] text-amber-800 leading-relaxed">
+                    <li>
+                      <strong>SEO 타이틀 변경 시</strong>: 관리자 페이지에서 변경한 내용은 즉시 저장되지만, 구글 검색 결과는 구글봇(Googlebot)이 사이트를 다시 방문(크롤링)하여 캐시를 갱신할 때 반영됩니다.
+                    </li>
+                    <li>
+                      <strong>즉시 갱신 요청</strong>: 구글 서치 콘솔(Google Search Console)의 [URL 검사]에 도메인(<code className="font-mono bg-white px-1 py-0.5 rounded border border-amber-200">https://oasis46.com/</code> 또는 해당 게시글 URL)을 입력하고 <strong>[색인 생성 요청]</strong>을 클릭하시면 우선적으로 갱신됩니다.
+                    </li>
+                    <li>
+                      <strong>파비콘(Favicon) 노출</strong>: 구글 검색 결과의 파비콘은 별도의 전용 로봇(<code className="font-mono bg-white px-1 py-0.5 rounded border border-amber-200">Googlebot-Favicon</code>)이 별도 주기로 수집합니다. 최초 색인 시 지구본 아이콘으로 뜨다가 수집 완료 후 골드 로고로 자동 교체됩니다.
+                    </li>
+                  </ul>
                 </div>
               </div>
 
@@ -1943,6 +1962,7 @@ Sitemap: https://oasis46.com/sitemap.xml`}
                       <th className="p-3.5 font-bold">구분</th>
                       <th className="p-3.5 font-bold">제목</th>
                       <th className="p-3.5 font-bold hidden sm:table-cell">작성자</th>
+                      <th className="p-3.5 font-bold hidden sm:table-cell">조회수</th>
                       <th className="p-3.5 font-bold hidden md:table-cell">날짜</th>
                       <th className="p-3.5 font-bold text-right">관리</th>
                     </tr>
@@ -1965,6 +1985,9 @@ Sitemap: https://oasis46.com/sitemap.xml`}
                         </td>
                         <td className="p-3.5 text-slate-500 hidden sm:table-cell">
                           {post.author}
+                        </td>
+                        <td className="p-3.5 text-slate-600 hidden sm:table-cell font-mono">
+                          {(post.viewCount || 0).toLocaleString()}회
                         </td>
                         <td className="p-3.5 text-slate-500 hidden md:table-cell">
                           {post.date}

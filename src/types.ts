@@ -133,6 +133,7 @@ export interface PostItem {
   thumbnail?: string;
   images?: string[]; // 최대 6장 직접 업로드 사진
   tags?: string[];
+  createdAt?: number;
 }
 
 export interface InquiryLead {

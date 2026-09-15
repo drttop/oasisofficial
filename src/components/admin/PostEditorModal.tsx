@@ -17,6 +17,7 @@ import {
   Eye,
   Edit3,
   ImageDown,
+  Loader2,
 } from 'lucide-react';
 import { compressImageFile } from '../../utils/imageUpload';
 import { isPhotoInContent, parsePostContent } from '../../utils/postContent';
@@ -51,6 +52,7 @@ export const PostEditorModal: React.FC<PostEditorModalProps> = ({
   // Upload UI state
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [showUrlInput, setShowUrlInput] = useState(false);
   const [manualUrl, setManualUrl] = useState('');
@@ -186,7 +188,7 @@ export const PostEditorModal: React.FC<PostEditorModalProps> = ({
     }, 20);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim() || !content.trim()) return;
 
@@ -197,35 +199,42 @@ export const PostEditorModal: React.FC<PostEditorModalProps> = ({
 
     const primaryThumbnail = images.length > 0 ? images[0] : undefined;
 
-    if (postToEdit) {
-      updatePost(postToEdit.id, {
-        title: title.trim(),
-        category,
-        author: author.trim(),
-        summary: summary.trim() || content.trim().slice(0, 100) + '...',
-        content: content.trim(),
-        thumbnail: primaryThumbnail,
-        images: images.length > 0 ? images : undefined,
-        isPinned,
-        tags,
-        viewCount: Number(viewCount) >= 0 ? Number(viewCount) : (postToEdit.viewCount || 392),
-      });
-    } else {
-      addPost({
-        title: title.trim(),
-        category,
-        author: author.trim(),
-        summary: summary.trim() || content.trim().slice(0, 100) + '...',
-        content: content.trim(),
-        thumbnail: primaryThumbnail,
-        images: images.length > 0 ? images : undefined,
-        isPinned,
-        tags,
-        viewCount: Number(viewCount) >= 0 ? Number(viewCount) : 392,
-      });
+    setIsSubmitting(true);
+    try {
+      if (postToEdit) {
+        await updatePost(postToEdit.id, {
+          title: title.trim(),
+          category,
+          author: author.trim(),
+          summary: summary.trim() || content.trim().slice(0, 100) + '...',
+          content: content.trim(),
+          thumbnail: primaryThumbnail,
+          images: images.length > 0 ? images : undefined,
+          isPinned,
+          tags,
+          viewCount: Number(viewCount) >= 0 ? Number(viewCount) : (postToEdit.viewCount || 392),
+        });
+      } else {
+        await addPost({
+          title: title.trim(),
+          category,
+          author: author.trim(),
+          summary: summary.trim() || content.trim().slice(0, 100) + '...',
+          content: content.trim(),
+          thumbnail: primaryThumbnail,
+          images: images.length > 0 ? images : undefined,
+          isPinned,
+          tags,
+          viewCount: Number(viewCount) >= 0 ? Number(viewCount) : 392,
+        });
+      }
+      onClose();
+    } catch (err) {
+      console.error('Error saving post:', err);
+      setUploadError('게시글 저장 중 오류가 발생했습니다. 다시 시도해 주세요.');
+    } finally {
+      setIsSubmitting(false);
     }
-
-    onClose();
   };
 
   return (
@@ -710,11 +719,20 @@ export const PostEditorModal: React.FC<PostEditorModalProps> = ({
               </button>
               <button
                 type="submit"
-                disabled={isUploading}
+                disabled={isUploading || isSubmitting}
                 className="px-6 py-2 text-xs font-bold text-white bg-[#30308A] hover:bg-[#25256e] rounded-lg shadow flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
               >
-                <Save className="w-3.5 h-3.5" />
-                <span>{postToEdit ? '수정 완료' : '게시글 등록하기'}</span>
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <span>저장 중...</span>
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-3.5 h-3.5" />
+                    <span>{postToEdit ? '수정 완료' : '게시글 등록하기'}</span>
+                  </>
+                )}
               </button>
             </div>
           </div>

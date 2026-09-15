@@ -245,21 +245,34 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const postsColRef = collection(db, 'posts');
       unsubscribePosts = onSnapshot(postsColRef, async (snap) => {
         if (!snap.empty) {
-          const items = snap.docs.map((d) => ({ ...d.data(), id: d.id } as PostItem));
-          // Sort pinned first, then by date descending
+          const items = snap.docs.map((d) => {
+            const data = d.data();
+            return {
+              ...data,
+              id: d.id,
+              viewCount: typeof data.viewCount === 'number' && !isNaN(data.viewCount) ? data.viewCount : 392,
+            } as PostItem;
+          });
+          // Sort pinned first, then by date descending, then by createdAt descending
           items.sort((a, b) => {
             if (a.isPinned && !b.isPinned) return -1;
             if (!a.isPinned && b.isPinned) return 1;
-            return (b.date || '').localeCompare(a.date || '');
+            const dateComp = (b.date || '').localeCompare(a.date || '');
+            if (dateComp !== 0) return dateComp;
+            return (b.createdAt || 0) - (a.createdAt || 0);
           });
           setPostsState(items);
           setIsCloudSynced(true);
         } else {
           // Seed initial posts
           const batch = writeBatch(db);
-          initialPosts.forEach((post) => {
+          initialPosts.forEach((post, idx) => {
             const ref = doc(db, 'posts', post.id);
-            batch.set(ref, post);
+            batch.set(ref, {
+              ...post,
+              viewCount: post.viewCount || 392,
+              createdAt: Date.now() - (initialPosts.length - idx) * 86400000,
+            });
           });
           await batch.commit().catch(console.error);
         }
@@ -518,8 +531,9 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const addPost = async (post: Omit<PostItem, 'id' | 'date'> & { viewCount?: number }) => {
     const now = new Date();
     const dateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    const timestamp = Date.now();
     
-    // Generate clean incremental ID like post-7, post-8 if possible
+    // Find next safe unique ID
     let nextNum = 1;
     posts.forEach((p) => {
       const match = p.id.match(/^post-(\d+)$/);
@@ -530,18 +544,39 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       }
     });
-    const newId = `post-${nextNum}`;
+    // Ensure ID doesn't clash with any existing document
+    const candidateId = `post-${nextNum}`;
+    const newId = posts.some((p) => p.id === candidateId) ? `post-${timestamp}` : candidateId;
+
+    const initialViews = typeof post.viewCount === 'number' && !isNaN(post.viewCount) && post.viewCount >= 0
+      ? post.viewCount
+      : 392;
 
     const newPost: PostItem = {
       ...post,
       id: newId,
-      viewCount: post.viewCount !== undefined ? post.viewCount : 392,
+      viewCount: initialViews,
       date: dateStr,
+      createdAt: timestamp,
     };
-    setPostsState((prev) => [newPost, ...prev]);
+
+    // Immediate local update with proper sorting (pinned first, then date / createdAt desc)
+    setPostsState((prev) => {
+      const updated = [newPost, ...prev.filter((p) => p.id !== newId)];
+      updated.sort((a, b) => {
+        if (a.isPinned && !b.isPinned) return -1;
+        if (!a.isPinned && b.isPinned) return 1;
+        const dateComp = (b.date || '').localeCompare(a.date || '');
+        if (dateComp !== 0) return dateComp;
+        return (b.createdAt || 0) - (a.createdAt || 0);
+      });
+      return updated;
+    });
+
     try {
       const docRef = doc(db, 'posts', newId);
       await setDoc(docRef, newPost);
+      console.log('Post successfully saved to Firestore:', newId);
     } catch (err) {
       console.error('Failed to add post to Firestore:', err);
     }

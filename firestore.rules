@@ -36,5 +36,11 @@ service cloud.firestore {
       allow read: if true;
       allow write: if true;
     }
+
+    // FAQs
+    match /faqs/{faqId} {
+      allow read: if true;
+      allow write: if true;
+    }
   }
 }

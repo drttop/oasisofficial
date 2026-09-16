@@ -228,24 +228,21 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
     let unsubscribeFaqs = () => {};
 
     try {
-      // 1) Listen to Site Config
+      // 1) Listen to Site Config (pure read)
       const configDocRef = doc(db, 'site_config', 'main');
       unsubscribeConfig = onSnapshot(configDocRef, (snap) => {
         if (snap.exists()) {
           const data = snap.data() as Partial<SiteConfig>;
           setSiteConfigState(sanitizeConfig(data));
           setIsCloudSynced(true);
-        } else {
-          // Seed initial config to Firestore
-          setDoc(configDocRef, initialSiteConfig, { merge: true }).catch(console.error);
         }
       }, (err) => console.warn('Firestore config listener error:', err));
 
-      // 2) Listen to Posts
+      // 2) Listen to Posts (pure read)
       const postsColRef = collection(db, 'posts');
-      unsubscribePosts = onSnapshot(postsColRef, async (snap) => {
+      unsubscribePosts = onSnapshot(postsColRef, (snap) => {
         if (!snap.empty) {
-          const items = snap.docs.map((d) => {
+          const remoteItems = snap.docs.map((d) => {
             const data = d.data();
             return {
               ...data,
@@ -253,131 +250,79 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
               viewCount: typeof data.viewCount === 'number' && !isNaN(data.viewCount) ? data.viewCount : 392,
             } as PostItem;
           });
-          // Sort pinned first, then by date descending, then by createdAt descending
-          items.sort((a, b) => {
-            if (a.isPinned && !b.isPinned) return -1;
-            if (!a.isPinned && b.isPinned) return 1;
-            const dateComp = (b.date || '').localeCompare(a.date || '');
-            if (dateComp !== 0) return dateComp;
-            return (b.createdAt || 0) - (a.createdAt || 0);
-          });
-          setPostsState(items);
-          setIsCloudSynced(true);
-        } else {
-          // Seed initial posts
-          const batch = writeBatch(db);
-          initialPosts.forEach((post, idx) => {
-            const ref = doc(db, 'posts', post.id);
-            batch.set(ref, {
-              ...post,
-              viewCount: post.viewCount || 392,
-              createdAt: Date.now() - (initialPosts.length - idx) * 86400000,
+
+          // Merge with any freshly created local posts that might not have synced yet or are in local cache
+          setPostsState((prev) => {
+            const remoteMap = new Map(remoteItems.map((p) => [p.id, p]));
+            // Keep local posts if they were just created and not in remoteMap yet
+            const merged = [...remoteItems];
+            prev.forEach((localPost) => {
+              if (!remoteMap.has(localPost.id)) {
+                merged.push(localPost);
+              }
             });
+            merged.sort((a, b) => {
+              if (a.isPinned && !b.isPinned) return -1;
+              if (!a.isPinned && b.isPinned) return 1;
+              const dateComp = (b.date || '').localeCompare(a.date || '');
+              if (dateComp !== 0) return dateComp;
+              return (b.createdAt || 0) - (a.createdAt || 0);
+            });
+            return merged;
           });
-          await batch.commit().catch(console.error);
+          setIsCloudSynced(true);
         }
       }, (err) => console.warn('Firestore posts listener error:', err));
 
-      // 3) Listen to Inquiries
+      // 3) Listen to Inquiries (pure read)
       const inquiriesColRef = collection(db, 'inquiries');
-      unsubscribeInquiries = onSnapshot(inquiriesColRef, async (snap) => {
+      unsubscribeInquiries = onSnapshot(inquiriesColRef, (snap) => {
         if (!snap.empty) {
           const items = snap.docs.map((d) => ({ ...d.data(), id: d.id } as InquiryLead));
           items.sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
           setInquiryLeadsState(items);
-        } else if (initialInquiryLeads.length > 0) {
-          const batch = writeBatch(db);
-          initialInquiryLeads.forEach((lead) => {
-            const ref = doc(db, 'inquiries', lead.id);
-            batch.set(ref, lead);
-          });
-          await batch.commit().catch(console.error);
         }
       }, (err) => console.warn('Firestore inquiries listener error:', err));
 
-      // 4) Listen to Casinos
+      // 4) Listen to Casinos (pure read)
       const casinosColRef = collection(db, 'casinos');
-      unsubscribeCasinos = onSnapshot(casinosColRef, async (snap) => {
+      unsubscribeCasinos = onSnapshot(casinosColRef, (snap) => {
         if (!snap.empty) {
           const rawItems = snap.docs.map((d) => ({ ...d.data(), id: d.id } as CasinoItem));
           const sorted = sortCasinos(rawItems);
           setCasinosState(sorted);
-
-          // Update any items in Firestore that lack correct order
-          rawItems.forEach(async (item) => {
-            const expected = DEFAULT_CASINO_ORDER[item.id];
-            if (expected && item.order !== expected) {
-              await setDoc(doc(db, 'casinos', item.id), { order: expected }, { merge: true }).catch(console.warn);
-            }
-          });
-        } else {
-          const batch = writeBatch(db);
-          sortCasinos(initialCasinos).forEach((c) => {
-            const ref = doc(db, 'casinos', c.id);
-            batch.set(ref, c);
-          });
-          await batch.commit().catch(console.error);
         }
       }, (err) => console.warn('Firestore casinos listener error:', err));
 
-      // 5) Listen to Philippine Tour Spots
+      // 5) Listen to Philippine Tour Spots (pure read)
       const spotsColRef = collection(db, 'philippine_spots');
-      unsubscribeSpots = onSnapshot(spotsColRef, async (snap) => {
+      unsubscribeSpots = onSnapshot(spotsColRef, (snap) => {
         if (!snap.empty) {
           const items = snap.docs.map((d) => ({ ...d.data(), id: d.id } as PhilippineTourSpot));
           setPhilippineSpotsState(items);
-        } else {
-          const batch = writeBatch(db);
-          initialPhilippineSpots.forEach((s) => {
-            const ref = doc(db, 'philippine_spots', s.id);
-            batch.set(ref, s);
-          });
-          await batch.commit().catch(console.error);
         }
       }, (err) => console.warn('Firestore spots listener error:', err));
 
-      // 6) Listen to Banner Slides
+      // 6) Listen to Banner Slides (pure read)
       const slidesColRef = collection(db, 'banner_slides');
-      unsubscribeSlides = onSnapshot(slidesColRef, async (snap) => {
+      unsubscribeSlides = onSnapshot(slidesColRef, (snap) => {
         if (!snap.empty) {
           const rawItems = snap.docs.map((d) => ({ ...d.data(), id: d.id } as BannerSlide));
           const cleanedItems = sanitizeSlides(rawItems);
           setBannerSlidesState(cleanedItems);
-          
-          // Check if any item had an old hashed path and update Firestore with clean static path
-          rawItems.forEach(async (item, idx) => {
-            if (item.bgImage && (item.bgImage.includes('/assets/') || item.bgImage.includes('oasis_gold_hero'))) {
-              const cleanBg = idx === 0 ? '/images/hero_bg.jpg' : '/images/casino_table.jpg';
-              await setDoc(doc(db, 'banner_slides', item.id), { bgImage: cleanBg }, { merge: true }).catch(console.warn);
-            }
-          });
-        } else {
-          const batch = writeBatch(db);
-          initialBannerSlides.forEach((slide) => {
-            const ref = doc(db, 'banner_slides', slide.id);
-            batch.set(ref, slide);
-          });
-          await batch.commit().catch(console.error);
         }
       }, (err) => console.warn('Firestore banner slides listener error:', err));
 
-      // 7) Listen to FAQs
+      // 7) Listen to FAQs (pure read)
       const faqsColRef = collection(db, 'faqs');
-      unsubscribeFaqs = onSnapshot(faqsColRef, async (snap) => {
+      unsubscribeFaqs = onSnapshot(faqsColRef, (snap) => {
         if (!snap.empty) {
           const items = snap.docs.map((d) => ({ ...d.data(), id: d.id } as FAQItem));
           setFaqsState(items);
-        } else {
-          const batch = writeBatch(db);
-          initialFAQs.forEach((faq) => {
-            const ref = doc(db, 'faqs', faq.id);
-            batch.set(ref, faq);
-          });
-          await batch.commit().catch(console.error);
         }
       }, (err) => console.warn('Firestore faqs listener error:', err));
 
-      // 8) Listen to Service Steps Doc
+      // 8) Listen to Service Steps Doc (pure read)
       const stepsDocRef = doc(db, 'site_config', 'service_steps');
       unsubscribeSteps = onSnapshot(stepsDocRef, (snap) => {
         if (snap.exists()) {
@@ -385,8 +330,6 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
           if (Array.isArray(data.steps)) {
             setServiceStepsState(data.steps);
           }
-        } else {
-          setDoc(stepsDocRef, { steps: initialServiceSteps }).catch(console.error);
         }
       }, (err) => console.warn('Firestore service steps listener error:', err));
 
@@ -624,9 +567,24 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const incrementPostView = async (id: string) => {
+    // 1. Optimistic UI update
     setPostsState((prev) =>
       prev.map((item) => (item.id === id ? { ...item, viewCount: (item.viewCount || 0) + 1 } : item))
     );
+
+    // 2. Prevent spamming Firestore writes: only write once per session per post
+    if (typeof window !== 'undefined') {
+      try {
+        const sessionKey = `viewed_post_${id}`;
+        if (sessionStorage.getItem(sessionKey)) {
+          return; // Already counted in this session, save Firestore write quota
+        }
+        sessionStorage.setItem(sessionKey, '1');
+      } catch {
+        // ignore storage errors
+      }
+    }
+
     try {
       const docRef = doc(db, 'posts', id);
       const target = posts.find((p) => p.id === id);

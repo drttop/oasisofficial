@@ -22,8 +22,8 @@ export const CasinoSection: React.FC = () => {
             <Crown className="w-3.5 h-3.5" />
             <span>{casinoBadge}</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight whitespace-pre-line">
-            {casinoTitle}
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight whitespace-pre-line break-keep">
+            {casinoTitle.replace('필리핀 메이저 카지노 제휴 라인업', '필리핀 메이저 카지노\n제휴 라인업').replace('필리핀 메이저 카지노 공식 제휴 라인업', '필리핀 메이저 카지노\n공식 제휴 라인업')}
           </h2>
           <p className="text-sm sm:text-base text-slate-600 leading-relaxed text-balance whitespace-pre-line">
             {casinoSubtitle}

@@ -54,11 +54,11 @@ export const Header: React.FC = () => {
       <div
         className={`w-full transition-all duration-300 ${
           isScrolled
-            ? 'shadow-md py-3.5 bg-slate-950/95 backdrop-blur-md border-b border-slate-800'
-            : 'py-4 sm:py-5 border-b border-white/10 bg-slate-950'
+            ? 'shadow-md bg-slate-950/95 backdrop-blur-md border-b border-slate-800'
+            : 'border-b border-white/10 bg-slate-950'
         }`}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+        <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between transition-all duration-300 ${isScrolled ? 'py-3.5' : 'py-4 sm:py-5'}`}>
           {/* Logo & Brand: Horizontal SVG Logo */}
           <a
             href="#home"
@@ -105,6 +105,29 @@ export const Header: React.FC = () => {
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
           </div>
+        </div>
+
+        {/* Mobile Horizontal Navigation (Category Bar) */}
+        <div className="lg:hidden w-full border-t border-slate-800/50 px-2 sm:px-4">
+          <nav className="flex items-center justify-between py-2.5">
+            <a
+              href="#home"
+              onClick={(e) => scrollToSection(e, '#home')}
+              className="text-[11px] min-[375px]:text-[12px] sm:text-[14px] font-medium text-white/80 hover:text-white hover:font-bold transition-colors whitespace-nowrap tracking-tight px-1"
+            >
+              홈
+            </a>
+            {navItems.map((item) => (
+              <a
+                key={`horiz-${item.id}`}
+                href={item.href}
+                onClick={(e) => scrollToSection(e, item.href)}
+                className="text-[11px] min-[375px]:text-[12px] sm:text-[14px] font-medium text-white/80 hover:text-white hover:font-bold transition-colors whitespace-nowrap tracking-tight px-1"
+              >
+                {item.label}
+              </a>
+            ))}
+          </nav>
         </div>
       </div>
 

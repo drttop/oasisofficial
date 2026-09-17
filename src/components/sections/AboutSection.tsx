@@ -50,21 +50,21 @@ export const AboutSection: React.FC = () => {
           {/* Left: 3 Government Agency Official Accreditation Emblem Cards (PAGCOR, GAB, PCSO) */}
           <div className="lg:col-span-6">
             {/* 3 Government Agency Emblem Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-3 gap-2 sm:gap-4">
               
               {/* 1. PAGCOR Card */}
-              <div className="p-7 sm:p-8 rounded-3xl bg-gradient-to-b from-slate-900 via-slate-950 to-slate-900 border-2 border-amber-400/40 shadow-xl text-center flex flex-col items-center justify-center relative overflow-hidden group hover:border-[#E5B54F] hover:shadow-2xl hover:shadow-amber-500/10 transition-all duration-300">
-                <div className="w-16 h-16 sm:w-18 sm:h-18 rounded-2xl bg-gradient-to-br from-[#E5B54F] via-[#F4D078] to-[#B38528] flex items-center justify-center text-slate-950 font-black mb-4 shadow-lg group-hover:scale-110 transition-transform">
-                  <Landmark className="w-8 h-8 sm:w-9 sm:h-9 text-slate-950" />
+              <div className="p-3 sm:p-8 rounded-2xl sm:rounded-3xl bg-gradient-to-b from-slate-900 via-slate-950 to-slate-900 border-2 border-amber-400/40 shadow-xl text-center flex flex-col items-center justify-center relative overflow-hidden group hover:border-[#E5B54F] hover:shadow-2xl hover:shadow-amber-500/10 transition-all duration-300">
+                <div className="w-10 h-10 sm:w-18 sm:h-18 rounded-xl sm:rounded-2xl bg-gradient-to-br from-[#E5B54F] via-[#F4D078] to-[#B38528] flex items-center justify-center text-slate-950 font-black mb-4 shadow-lg group-hover:scale-110 transition-transform">
+                  <Landmark className="w-5 h-5 sm:w-9 sm:h-9 text-slate-950" />
                 </div>
-                <span className="text-xl sm:text-2xl font-black text-[#E5B54F] font-montserrat tracking-wider block">
+                <span className="text-sm sm:text-2xl font-black text-[#E5B54F] font-montserrat tracking-wider block">
                   PAGCOR
                 </span>
-                <span className="text-xs sm:text-sm text-white font-bold block mt-1.5 break-keep">
+                <span className="text-[9px] sm:text-sm text-white font-bold block mt-1 sm:mt-1.5 tracking-tighter sm:tracking-normal break-keep">
                   게이밍규제위원회
                 </span>
-                <div className="mt-4 pt-3 border-t border-white/10 w-full">
-                  <span className="text-[11px] text-emerald-400 font-bold bg-emerald-950/60 border border-emerald-500/30 px-3 py-1 rounded-full inline-flex items-center gap-1">
+                <div className="mt-2 sm:mt-4 pt-2 sm:pt-3 border-t border-white/10 w-full">
+                  <span className="text-[8px] sm:text-[11px] text-emerald-400 whitespace-nowrap tracking-tighter px-1.5 sm:px-3  font-bold bg-emerald-950/60 border border-emerald-500/30 px-3 py-1 rounded-full inline-flex items-center gap-1">
                     <CheckCircle2 className="w-3 h-3 text-emerald-400" />
                     공식 승인
                   </span>
@@ -72,18 +72,18 @@ export const AboutSection: React.FC = () => {
               </div>
 
               {/* 2. GAB Card */}
-              <div className="p-7 sm:p-8 rounded-3xl bg-gradient-to-b from-slate-900 via-slate-950 to-slate-900 border-2 border-emerald-400/40 shadow-xl text-center flex flex-col items-center justify-center relative overflow-hidden group hover:border-emerald-400 hover:shadow-2xl hover:shadow-emerald-500/10 transition-all duration-300">
-                <div className="w-16 h-16 sm:w-18 sm:h-18 rounded-2xl bg-gradient-to-br from-emerald-400 via-teal-300 to-emerald-600 flex items-center justify-center text-slate-950 font-black mb-4 shadow-lg group-hover:scale-110 transition-transform">
-                  <ShieldCheck className="w-8 h-8 sm:w-9 sm:h-9 text-slate-950" />
+              <div className="p-3 sm:p-8 rounded-2xl sm:rounded-3xl bg-gradient-to-b from-slate-900 via-slate-950 to-slate-900 border-2 border-emerald-400/40 shadow-xl text-center flex flex-col items-center justify-center relative overflow-hidden group hover:border-emerald-400 hover:shadow-2xl hover:shadow-emerald-500/10 transition-all duration-300">
+                <div className="w-10 h-10 sm:w-18 sm:h-18 rounded-xl sm:rounded-2xl bg-gradient-to-br from-emerald-400 via-teal-300 to-emerald-600 flex items-center justify-center text-slate-950 font-black mb-4 shadow-lg group-hover:scale-110 transition-transform">
+                  <ShieldCheck className="w-5 h-5 sm:w-9 sm:h-9 text-slate-950" />
                 </div>
-                <span className="text-xl sm:text-2xl font-black text-emerald-300 font-montserrat tracking-wider block">
+                <span className="text-sm sm:text-2xl font-black text-emerald-300 font-montserrat tracking-wider block">
                   GAB
                 </span>
-                <span className="text-xs sm:text-sm text-white font-bold block mt-1.5 break-keep">
+                <span className="text-[9px] sm:text-sm text-white font-bold block mt-1 sm:mt-1.5 tracking-tighter sm:tracking-normal break-keep">
                   경기감독위원회
                 </span>
-                <div className="mt-4 pt-3 border-t border-white/10 w-full">
-                  <span className="text-[11px] text-emerald-400 font-bold bg-emerald-950/60 border border-emerald-500/30 px-3 py-1 rounded-full inline-flex items-center gap-1">
+                <div className="mt-2 sm:mt-4 pt-2 sm:pt-3 border-t border-white/10 w-full">
+                  <span className="text-[8px] sm:text-[11px] text-emerald-400 whitespace-nowrap tracking-tighter px-1.5 sm:px-3  font-bold bg-emerald-950/60 border border-emerald-500/30 px-3 py-1 rounded-full inline-flex items-center gap-1">
                     <CheckCircle2 className="w-3 h-3 text-emerald-400" />
                     정부 승인
                   </span>
@@ -91,18 +91,18 @@ export const AboutSection: React.FC = () => {
               </div>
 
               {/* 3. PCSO Card */}
-              <div className="p-7 sm:p-8 rounded-3xl bg-gradient-to-b from-slate-900 via-slate-950 to-slate-900 border-2 border-sky-400/40 shadow-xl text-center flex flex-col items-center justify-center relative overflow-hidden group hover:border-sky-400 hover:shadow-2xl hover:shadow-sky-500/10 transition-all duration-300">
-                <div className="w-16 h-16 sm:w-18 sm:h-18 rounded-2xl bg-gradient-to-br from-sky-400 via-cyan-300 to-blue-600 flex items-center justify-center text-slate-950 font-black mb-4 shadow-lg group-hover:scale-110 transition-transform">
-                  <Award className="w-8 h-8 sm:w-9 sm:h-9 text-slate-950" />
+              <div className="p-3 sm:p-8 rounded-2xl sm:rounded-3xl bg-gradient-to-b from-slate-900 via-slate-950 to-slate-900 border-2 border-sky-400/40 shadow-xl text-center flex flex-col items-center justify-center relative overflow-hidden group hover:border-sky-400 hover:shadow-2xl hover:shadow-sky-500/10 transition-all duration-300">
+                <div className="w-10 h-10 sm:w-18 sm:h-18 rounded-xl sm:rounded-2xl bg-gradient-to-br from-sky-400 via-cyan-300 to-blue-600 flex items-center justify-center text-slate-950 font-black mb-4 shadow-lg group-hover:scale-110 transition-transform">
+                  <Award className="w-5 h-5 sm:w-9 sm:h-9 text-slate-950" />
                 </div>
-                <span className="text-xl sm:text-2xl font-black text-sky-300 font-montserrat tracking-wider block">
+                <span className="text-sm sm:text-2xl font-black text-sky-300 font-montserrat tracking-wider block">
                   PCSO
                 </span>
-                <span className="text-xs sm:text-sm text-white font-bold block mt-1.5 break-keep">
+                <span className="text-[9px] sm:text-sm text-white font-bold block mt-1 sm:mt-1.5 tracking-tighter sm:tracking-normal break-keep">
                   자선복권관리공사
                 </span>
-                <div className="mt-4 pt-3 border-t border-white/10 w-full">
-                  <span className="text-[11px] text-emerald-400 font-bold bg-emerald-950/60 border border-emerald-500/30 px-3 py-1 rounded-full inline-flex items-center gap-1">
+                <div className="mt-2 sm:mt-4 pt-2 sm:pt-3 border-t border-white/10 w-full">
+                  <span className="text-[8px] sm:text-[11px] text-emerald-400 whitespace-nowrap tracking-tighter px-1.5 sm:px-3  font-bold bg-emerald-950/60 border border-emerald-500/30 px-3 py-1 rounded-full inline-flex items-center gap-1">
                     <CheckCircle2 className="w-3 h-3 text-emerald-400" />
                     공식 인가
                   </span>

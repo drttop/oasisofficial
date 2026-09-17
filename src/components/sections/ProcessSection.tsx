@@ -17,7 +17,7 @@ import {
 
 export const ProcessSection: React.FC = () => {
   const { serviceSteps, faqs, siteConfig } = useSite();
-  const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
+  const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
 
   const stepIcons = [MessageSquare, Building2, Car, ShieldCheck, CheckCircle2];
 
@@ -35,8 +35,8 @@ export const ProcessSection: React.FC = () => {
             <Clock className="w-3.5 h-3.5" />
             <span>VIP SERVICE PROCESS</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
-            {siteConfig.processTitle || '오아시스 VIP 의전 서비스 이용절차'}
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight whitespace-pre-line break-keep">
+            {(siteConfig.processTitle || '오아시스 VIP 의전 서비스 이용절차').replace('오아시스 VIP 의전 서비스 이용절차', '오아시스 VIP 의전\n서비스 이용절차').replace('오아시스 VIP의전 서비스 이용절차', '오아시스 VIP의전\n서비스 이용절차')}
           </h2>
           <p className="text-sm sm:text-base text-slate-600 leading-relaxed text-balance whitespace-pre-line">
             {siteConfig.processSubtitle || '첫 상담부터 호텔 예약, 공항 패스트트랙, 현지 1:1 케어 및 출국 정산까지 빈틈없는 5단계 원스톱 VIP 프로세스로 모십니다.'}
@@ -102,10 +102,10 @@ export const ProcessSection: React.FC = () => {
               <HelpCircle className="w-4 h-4 text-[#30308A]" />
               <span>FREQUENTLY ASKED QUESTIONS</span>
             </div>
-            <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900">
+            <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 break-keep text-balance">
               {siteConfig.faqTitle || '자주 묻는 질문 (FAQ)'}
             </h3>
-            <p className="text-xs sm:text-sm text-slate-600">
+            <p className="text-xs sm:text-sm text-slate-600 break-keep text-balance mt-2">
               {siteConfig.faqSubtitle || 'VIP 고객님들께서 가장 자주 문의하시는 내용을 정리했습니다.'}
             </p>
           </div>
@@ -120,13 +120,13 @@ export const ProcessSection: React.FC = () => {
                 >
                   <button
                     onClick={() => toggleFaq(fIdx)}
-                    className="w-full px-6 py-4 text-left flex items-center justify-between gap-4 font-bold text-sm sm:text-base text-slate-900 hover:bg-slate-50/80 transition-colors"
+                    className="w-full px-5 sm:px-6 py-4 text-left flex items-start sm:items-center justify-between gap-4 font-bold text-sm sm:text-base text-slate-900 hover:bg-slate-50/80 transition-colors"
                   >
-                    <span className="flex items-center gap-3">
-                      <span className="text-xs font-bold px-2 py-0.5 rounded bg-[#30308A]/10 text-[#30308A]">
+                    <span className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3">
+                      <span className="text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded bg-[#30308A]/10 text-[#30308A] whitespace-nowrap shrink-0">
                         {faq.category}
                       </span>
-                      <span>{faq.question}</span>
+                      <span className="leading-snug break-keep">{faq.question}</span>
                     </span>
                     {isOpen ? (
                       <ChevronUp className="w-5 h-5 text-slate-500 shrink-0" />

@@ -55,7 +55,7 @@ export const HeroSection: React.FC = () => {
 
         {/* Main Hero Title */}
         <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-[1.25] drop-shadow-xl max-w-4xl mx-auto mb-6 break-keep whitespace-pre-line">
-          {slide.title.split('\n').map((line, lIdx, arr) => (
+          {slide.title.replace('필리핀 카지노 공식 VIP 에이전트', '필리핀 카지노 공식\nVIP 에이전트').split('\n').map((line, lIdx, arr) => (
             <React.Fragment key={lIdx}>
               {line}
               {lIdx < arr.length - 1 && <br />}

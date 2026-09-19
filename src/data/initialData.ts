@@ -1,7 +1,7 @@
 import { SiteConfig, BannerSlide, CasinoItem, PhilippineTourSpot, ServiceStep, PostItem, FAQItem, InquiryLead } from '../types';
 
 export const initialSiteConfig: SiteConfig = {
-  siteName: '오아시스 필리핀 공식 에이전트',
+  siteName: '마닐라 오아시스에이전시',
   subTitle: 'OASIS OFFICIAL VIP AGENCY',
   pointColor: '#30308A',
   fontFamily: 'Pretendard',
@@ -12,9 +12,9 @@ export const initialSiteConfig: SiteConfig = {
   phoneNumber: '+63 917 123 4567 (현지) / 070-8098-7788 (인터넷전화)',
   email: 'vip@oasis-agent.com',
   operatingHours: '24시간 365일 연중무휴 VIP 컨시어지 데스크 운영',
-  seoTitle: '오아시스 필리핀 공식 에이전트 | 마닐라 & 클락 카지노 VIP 전문 에이전시',
-  seoDescription: '필리핀 마닐라 오카다, 솔레어, 시티오브드림즈, 클락 한 카지노 VIP 정켓 공식 에이전트. 5성급 호텔 숙박 지원, 공항 패스트트랙, 전용 의전 세단, 24시간 한국인 1:1 케어',
-  seoKeywords: '오아시스 에이전트, 필리핀 카지노, 마닐라 카지노, 클락 카지노, 오카다 마닐라, 솔레어 카지노, 필리핀 정켓, 마닐라 정캣, 필리핀 골프투어, 카지노 에이전시, 필리핀 환전, ',
+  seoTitle: '마닐라 오아시스에이전시 | 필리핀 마닐라 카지노 공식 VIP 에이전트',
+  seoDescription: '마닐라 오아시스에이전시 - 필리핀 마닐라 & 클락 메이저 복합리조트 공식 VIP 에이전트. 오카다, 솔레어, 시티오브드림즈, 클락 한 5성급 호텔 프리룸, 전용 의전 세단, 24시간 한국인 1:1 컨시어지 케어',
+  seoKeywords: '마닐라 오아시스에이전시, 오아시스 에이전시, 필리핀 카지노, 마닐라 카지노, 클락 카지노, 오카다 마닐라, 솔레어 리조트, COD 카지노, 한 카지노, VIP 에이전시, 호텔 프리룸, 공항 의전, 필리핀 골프투어, 마닐라 여행 가이드',
   bannerTitle: '신뢰와 품격의 최고봉, 필리핀 No.1 공식 VIP 에이전트',
   bannerSubtitle: '마닐라 & 클락 메이저 복합리조트 VIP 혜택과 24시간 프라이빗 1:1 전담 의전 서비스를 경험하십시오.',
   bannerBadge: 'OFFICIAL CERTIFIED VIP AGENCY',
@@ -87,12 +87,12 @@ export const initialCasinos: CasinoItem[] = [
     region: 'manila',
     regionLabel: '마닐라 엔터테인먼트 시티',
     image: 'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?auto=format&fit=crop&w=1200&q=80',
-    description: '아시아 최대 규모의 복합 엔터테인먼트 리조트로, 환상적인 분수 쇼와 럭셔리 스위트 객실, 최고급 VIP 전용 정켓 룸을 보유하고 있습니다.',
-    features: ['세계 최대 규모 멀티컬러 분수 쇼', '993개 전 객실 특급 스위트 구성', '프라이빗 VIP 하이리밋 살롱 보유', '미슐랭 스타 다이닝 및 실내 비치클럽 코브(Cove)'],
-    tableGames: '바카라, 블랙잭, 룰렛, 포커 (500+ 테이블)',
-    vipRooms: '최고급 프라이빗 VIP 정켓 살롱 (1:1 딜러 배정 가능)',
+    description: '아시아 최대 규모의 복합 엔터테인먼트 리조트로, 환상적인 분수 쇼와 럭셔리 스위트 객실, 최고급 VIP 전용 프라이빗 살롱을 보유하고 있습니다.',
+    features: ['세계 최대 규모 멀티컬러 분수 쇼', '993개 전 객실 특급 스위트 구성', '프라이빗 VIP 전용 럭셔리 살롱 보유', '미슐랭 스타 다이닝 및 실내 비치클럽 코브(Cove)'],
+    tableGames: 'VIP 전용 프리미엄 테이블 및 룰렛 (500+ 테이블)',
+    vipRooms: '최고급 프라이빗 VIP 전담 살롱 (1:1 전담 배정 가능)',
     hotelRating: '5성급 럭셔리 호텔 (Forbes 5-Star)',
-    highlights: 'VIP 회원 전용 스위트룸 무료 업그레이드 및 롤링 보너스 제공',
+    highlights: 'VIP 회원 전용 스위트룸 무료 업그레이드 및 멤버십 리워드 혜택',
     isFeatured: true,
     order: 1,
   },
@@ -104,8 +104,8 @@ export const initialCasinos: CasinoItem[] = [
     regionLabel: '마닐라 엔터테인먼트 시티',
     image: 'https://images.unsplash.com/photo-1540541338287-41700207dee6?auto=format&fit=crop&w=1200&q=80',
     description: '노부 호텔, 하얏트, 누와 호텔 3개의 세계적 5성급 호텔이 결합된 초대형 랜드마크로 모던하고 트렌디한 VIP 카지노 환경을 제공합니다.',
-    features: ['3대 럭셔리 호텔 브랜드 집약', '드림플레이 테마파크 & 고급 라운지', '최첨단 전자 게이밍 및 라이브 바카라', '황금빛 돔 구조의 상징적 건축미'],
-    tableGames: 'VIP 라이브 바카라, 룰렛, 다이사이 등 (300+ 테이블)',
+    features: ['3대 럭셔리 호텔 브랜드 집약', '드림플레이 테마파크 & 고급 라운지', '최첨단 전자 게이밍 및 프리미엄 라이브 테이블', '황금빛 돔 구조의 상징적 건축미'],
+    tableGames: 'VIP 라이브 프리미엄 테이블, 룰렛 등 (300+ 테이블)',
     vipRooms: '누와 클럽 & Signature VIP 라운지',
     hotelRating: '5성급 (Nüwa, Nobu, Hyatt Regency)',
     highlights: '오아시스 고객 전담 캐셔 패스트트랙 및 식음료 무제한 바우처',
@@ -121,8 +121,8 @@ export const initialCasinos: CasinoItem[] = [
     image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1200&q=80',
     description: '마닐라 베이의 아름다운 일몰을 조망하는 필리핀 최초의 통합 럭셔리 리조트로, 최상의 보안과 격조 높은 VIP 서비스를 자랑합니다.',
     features: ['마닐라 베이 오션뷰 파노라마 전경', '포브스 8년 연속 5성급 획득', '명품 부티크 거리(루이비통, 구찌 등) 입점', '세계 최고 권위의 셰프 레스토랑'],
-    tableGames: '바카라, 폰툰, 텍사스 홀덤 등 (400+ 테이블)',
-    vipRooms: '솔레어 클럽 전용 하이리밋 룸 및 단독 VIP 룸',
+    tableGames: '프리미엄 테이블 게임 라운지 (400+ 테이블)',
+    vipRooms: '솔레어 클럽 전용 VIP 전용 살롱 및 단독 프라이빗 룸',
     hotelRating: '5성급 특급 호텔 (Forbes 5-Star Travel Guide)',
     highlights: '공항 10분 거리 전용 픽업 의전 및 맞춤형 VIP 다이닝 크레딧 제공',
     isFeatured: true,
@@ -137,7 +137,7 @@ export const initialCasinos: CasinoItem[] = [
     image: 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=1200&q=80',
     description: '마닐라 국제공항 바로 앞에 위치하여 뛰어난 접근성을 자랑하며, 메리어트, 쉐라톤, 힐튼 등 글로벌 체인 호텔과 연결된 전통의 명문 카지노입니다.',
     features: ['마닐라 공항 3터미널 도보 브릿지 연결(Runway Manila)', '글로벌 특급 호텔 5개 결합 단지', '대형 쇼핑몰 및 뮤지컬 극장 보유', '24시간 활기찬 엔터테인먼트 시설'],
-    tableGames: '바카라, 룰렛, 캐리비안 스터드 포커 등',
+    tableGames: 'VIP 전용 테이블 게임 및 룰렛 라운지',
     vipRooms: '맥심 VIP 클럽 & 겐팅 클럽',
     hotelRating: '5성급 복합 (Marriott, Sheraton, Hilton, Okura)',
     highlights: '단기 체류 고객을 위한 초고속 공항 픽업/샌딩 최적화',
@@ -153,7 +153,7 @@ export const initialCasinos: CasinoItem[] = [
     image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80',
     description: '클락 최고의 최신식 5성급 복합 리조트로, 메리어트 호텔 & 스위소텔과 직결되어 쾌적하고 안전한 최고급 게이밍 환경을 제공합니다.',
     features: ['클락 최대 규모 최신식 5성급 시설', '스위소텔 & 클락 메리어트 호텔 직통 연결', '주변 명문 골프장 10분 이내 위치', '최고 수준의 치안 및 프라이버시 보장'],
-    tableGames: '최신 전자 테이블 & VIP 전용 바카라 테이블',
+    tableGames: '최신 전자 테이블 & VIP 전용 프리미엄 테이블',
     vipRooms: 'Hann VIP 전용 살롱 (한국인 전담 매니저 상주)',
     hotelRating: '5성급 럭셔리 (Swissôtel / Marriott)',
     highlights: '클락 골프투어 패키지 연계 및 스위트룸 무료 숙박 지원',
@@ -168,8 +168,8 @@ export const initialCasinos: CasinoItem[] = [
     regionLabel: '클락 몬테레이 힐스',
     image: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=1200&q=80',
     description: '클락의 수려한 자연경관 속에 위치한 프리미엄 리조트로, 썬밸리 골프장과 인접하여 여유로운 힐링과 고품격 게이밍을 동시에 만끽할 수 있습니다.',
-    features: ['자연 친화적 힐튼 호텔 직결', '36홀 클락 썬밸리 CC 바로 인접', '조용하고 프라이빗한 VIP 정켓 환경', '가족 및 비즈니스 동반 최적화 리조트'],
-    tableGames: '바카라, 블랙잭, 슬롯 머신 등',
+    features: ['자연 친화적 힐튼 호텔 직결', '36홀 클락 썬밸리 CC 바로 인접', '조용하고 프라이빗한 VIP 전용 살롱 환경', '가족 및 비즈니스 동반 최적화 리조트'],
+    tableGames: 'VIP 테이블 게임 및 전자 게임 라운지',
     vipRooms: '프라이빗 VIP 살롱 룸 완비',
     hotelRating: '5성급 힐튼 리조트 (Hilton Clark Sun Valley)',
     highlights: '골프 라운딩 + VIP 의전 결합 올인원 서비스',
@@ -407,7 +407,7 @@ export const initialPosts: PostItem[] = [
 - 현지 지리에 정통한 베테랑 전문 기사가 안전하고 쾌적하게 5성급 호텔 목적지까지 모십니다.
 
 ■ 3. 24시간 한국인 전담 실장 밀착 지원
-- 공항 픽업부터 호텔 체크인, 정켓 살롱 룸 배정까지 한국인 실장이 1:1로 소통하며 완벽한 편의를 제공합니다.
+- 공항 픽업부터 호텔 체크인, VIP 프라이빗 살롱 룸 배정까지 한국인 실장이 1:1로 소통하며 완벽한 편의를 제공합니다.
 - 일정 중 발생할 수 있는 모든 요구사항과 골프 투어, 식사 예약 등을 즉각 처리해 드립니다.
 
 안전하고 품격 있는 VIP 여행의 시작, 오아시스가 가장 완벽하게 책임지겠습니다.`,
@@ -427,7 +427,7 @@ export const initialFAQs: FAQItem[] = [
     id: 'faq-2',
     category: '호텔 및 항공',
     question: '5성급 호텔(오카다, 솔레어, 한 등) 무료 숙박 혜택은 어떤 조건인가요?',
-    answer: '고객님의 예상 플레이 규모 및 롤링 조건에 따라 최상급 스위트룸 및 일반 5성급 객실이 전액 무료 지원(Complimentary) 또는 특별 회원 요율로 제공됩니다. 사전 상담을 통해 투명하게 기준을 사전 안내해 드립니다.',
+    answer: '고객님의 예상 이용 규모 및 멤버십 실적 기준에 따라 최상급 스위트룸 및 일반 5성급 객실이 전액 무료 지원(Complimentary) 또는 특별 회원 요율로 제공됩니다. 사전 상담을 통해 투명하게 기준을 사전 안내해 드립니다.',
   },
   {
     id: 'faq-3',
@@ -443,9 +443,9 @@ export const initialFAQs: FAQItem[] = [
   },
   {
     id: 'faq-5',
-    category: '환전 및 칩셋',
-    question: '현지 통화 환전이나 롤링 칩 교환은 번거롭지 않나요?',
-    answer: '현지 전담 한국인 실장이 24시간 상주하여 계신 테이블 또는 VIP 살롱 룸에서 즉시 환전 및 칩셋 교환을 대행해 드립니다. 불필요하게 캐셔 창구에 줄을 서실 필요 없이 편안하게 게임에만 집중하실 수 있습니다.',
+    category: 'VIP 컨시어지',
+    question: '현지 체류 시 VIP 전담 컨시어지 케어는 어떻게 진행되나요?',
+    answer: '현지 전담 한국인 실장이 24시간 상주하여 계신 VIP 살롱 및 전용 라운지에서 모든 맞춤 편의 서비스를 대행해 드립니다. 불필요하게 대기하실 필요 없이 편안하게 품격 있는 휴식과 VIP 서비스에만 집중하실 수 있습니다.',
   },
 ];
 

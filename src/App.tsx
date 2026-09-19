@@ -31,20 +31,20 @@ const MainAppContent: React.FC = () => {
         {/* Hero Slider */}
         <HeroSection />
 
-        {/* 1. 오아시스 소개 (About Oasis) */}
+        {/* 1. 커뮤니티 (Community & Official Board) */}
+        <CommunitySection />
+
+        {/* 2. 오아시스 소개 (About Oasis) */}
         <AboutSection />
 
-        {/* 2. 카지노 소개 (Casino Intro) */}
+        {/* 3. 카지노 소개 (Casino Intro) */}
         <CasinoSection />
 
-        {/* 3. 필리핀 소개 (Philippines Travel & Golf) */}
+        {/* 4. 필리핀 소개 (Philippines Travel & Golf) */}
         <PhilippinesSection />
 
-        {/* 4. 이용방법 (Process & FAQ) */}
+        {/* 5. 이용방법 (Process & FAQ) */}
         <ProcessSection />
-
-        {/* 5. 커뮤니티 (Community & Official Board) */}
-        <CommunitySection />
       </main>
 
       {/* Footer */}

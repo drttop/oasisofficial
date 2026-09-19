@@ -58,35 +58,40 @@ export const Header: React.FC = () => {
             : 'border-b border-white/10 bg-slate-950'
         }`}
       >
-        <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between transition-all duration-300 ${isScrolled ? 'py-3.5' : 'py-4 sm:py-5'}`}>
+        <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative flex items-center justify-between transition-all duration-300 ${isScrolled ? 'py-3.5' : 'py-4 sm:py-5'}`}>
           {/* Logo & Brand: Horizontal SVG Logo */}
-          <a
-            href="#home"
-            onClick={(e) => scrollToSection(e, '#home')}
-            className="flex items-center group transition-transform hover:scale-105"
-            id="brand-logo-link"
-          >
-            {siteConfig.headerLogo && !imgError ? (
-              <img
-                src={siteConfig.headerLogo}
-                alt={siteConfig.siteName || "OASIS VIP"}
-                onError={() => setImgError(true)}
-                className="h-8 sm:h-10 w-auto max-w-[220px] object-contain"
-              />
-            ) : (
-              <OasisLogoHorizontal className="h-8 sm:h-10 w-auto max-w-[220px]" />
-            )}
-          </a>
+          <div className="flex-shrink-0 flex items-center z-10">
+            <a
+              href="#home"
+              onClick={(e) => scrollToSection(e, '#home')}
+              className="flex items-center group transition-transform hover:scale-105"
+              id="brand-logo-link"
+            >
+              {siteConfig.headerLogo && !imgError ? (
+                <img
+                  src={siteConfig.headerLogo}
+                  alt={siteConfig.siteName || "OASIS VIP"}
+                  onError={() => setImgError(true)}
+                  className="h-8 sm:h-10 w-auto max-w-[220px] object-contain"
+                />
+              ) : (
+                <OasisLogoHorizontal className="h-8 sm:h-10 w-auto max-w-[220px]" />
+              )}
+            </a>
+          </div>
 
-          {/* Desktop 5 Menu Categories */}
-          <nav className="hidden lg:flex items-center space-x-2 xl:space-x-4" aria-label="메인 메뉴">
+          {/* Desktop 5 Menu Categories (Centered with widened letter-spacing) */}
+          <nav
+            className="hidden lg:flex items-center justify-center absolute left-1/2 -translate-x-1/2 space-x-2 xl:space-x-5"
+            aria-label="메인 메뉴"
+          >
             {navItems.map((item) => (
               <a
                 key={item.id}
                 id={item.id}
                 href={item.href}
                 onClick={(e) => scrollToSection(e, item.href)}
-                className="px-4 py-2 text-sm sm:text-[15px] font-bold text-white/90 hover:text-white transition-colors rounded-lg hover:bg-white/10 relative group"
+                className="px-3.5 xl:px-4 py-2 text-sm sm:text-[15px] font-bold text-white/90 hover:text-white transition-colors rounded-lg hover:bg-white/10 relative group tracking-[0.06em]"
               >
                 {item.label}
                 <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-[#E5B54F] transition-all duration-200 group-hover:w-3/4 rounded-full" />
@@ -94,11 +99,12 @@ export const Header: React.FC = () => {
             ))}
           </nav>
 
-          {/* Mobile Menu Toggle Button */}
-          <div className="flex items-center space-x-2 lg:hidden">
+          {/* Right Spacer & Mobile Menu Toggle Button */}
+          <div className="flex items-center space-x-2 z-10">
+            <div className="hidden lg:block w-[180px] xl:w-[220px] pointer-events-none" aria-hidden="true" />
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-lg text-white hover:bg-white/10"
+              className="p-2 rounded-lg text-white hover:bg-white/10 lg:hidden"
               aria-label="모바일 메뉴 열기"
               id="btn-mobile-menu-toggle"
             >
@@ -109,11 +115,11 @@ export const Header: React.FC = () => {
 
         {/* Mobile Horizontal Navigation (Category Bar) */}
         <div className="lg:hidden w-full border-t border-slate-800/50 px-2 sm:px-4">
-          <nav className="flex items-center justify-between py-2.5">
+          <nav className="flex items-center justify-between w-full py-2.5">
             <a
               href="#home"
               onClick={(e) => scrollToSection(e, '#home')}
-              className="text-[11px] min-[375px]:text-[12px] sm:text-[14px] font-medium text-white/80 hover:text-white hover:font-bold transition-colors whitespace-nowrap tracking-tight px-1"
+              className="text-[11px] min-[360px]:text-[11.5px] min-[390px]:text-[13px] font-semibold text-white/85 hover:text-white transition-colors whitespace-nowrap tracking-tighter min-[390px]:tracking-tight px-0.5"
             >
               홈
             </a>
@@ -122,7 +128,7 @@ export const Header: React.FC = () => {
                 key={`horiz-${item.id}`}
                 href={item.href}
                 onClick={(e) => scrollToSection(e, item.href)}
-                className="text-[11px] min-[375px]:text-[12px] sm:text-[14px] font-medium text-white/80 hover:text-white hover:font-bold transition-colors whitespace-nowrap tracking-tight px-1"
+                className="text-[11px] min-[360px]:text-[11.5px] min-[390px]:text-[13px] font-semibold text-white/85 hover:text-white transition-colors whitespace-nowrap tracking-tighter min-[390px]:tracking-tight px-0.5"
               >
                 {item.label}
               </a>

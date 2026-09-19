@@ -31,20 +31,16 @@ export const CasinoSection: React.FC = () => {
         </div>
 
         {/* Casino Cards Grid (Sequential Order on both Mobile & Desktop) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-6 lg:gap-8">
           {orderedCasinos.map((casino) => {
-            // Find global sequential index (1 to 6)
-            const globalIndex = orderedCasinos.findIndex((c) => c.id === casino.id) + 1;
-            const formattedIndex = String(globalIndex).padStart(2, '0');
-
             return (
               <div
                 key={casino.id}
                 id={casino.id}
-                className="bg-white rounded-2xl overflow-hidden border border-slate-200/90 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col group"
+                className="bg-white rounded-xl sm:rounded-2xl overflow-hidden border border-slate-200/90 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col group"
               >
                 {/* Image Banner */}
-                <div className="relative h-56 w-full overflow-hidden bg-slate-900">
+                <div className="relative h-28 min-[380px]:h-36 sm:h-56 w-full overflow-hidden bg-slate-900">
                   <img
                     src={casino.image}
                     alt={casino.name}
@@ -54,69 +50,62 @@ export const CasinoSection: React.FC = () => {
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent" />
                   
                   {/* Badges */}
-                  <div className="absolute top-3 left-3 flex gap-1.5 flex-wrap items-center">
-                    {/* Numeric Sequence Badge: 01, 02, 03... */}
-                    <span className="px-2.5 py-1 rounded-md bg-slate-950/75 backdrop-blur-md text-[#E5B54F] text-[11px] font-mono font-black border border-white/10">
-                      NO.{formattedIndex}
-                    </span>
-                    <span className="px-2.5 py-1 rounded-md bg-[#30308A] text-white text-[11px] font-bold">
+                  <div className="absolute top-2 left-2 sm:top-3 sm:left-3 flex gap-1 sm:gap-1.5 flex-wrap items-center">
+                    <span className="px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-md bg-[#30308A] text-white text-[9px] sm:text-[11px] font-bold">
                       {casino.regionLabel}
                     </span>
                     {casino.isFeatured && (
-                      <span className="px-2 py-1 rounded-md bg-[#E5B54F] text-slate-950 text-[11px] font-bold flex items-center gap-1">
-                        <Sparkles className="w-3 h-3" />
-                        추천 리조트
+                      <span className="px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md bg-[#E5B54F] text-slate-950 text-[9px] sm:text-[11px] font-bold flex items-center gap-0.5 sm:gap-1">
+                        <Sparkles className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+                        <span className="hidden min-[400px]:inline">추천 리조트</span>
+                        <span className="min-[400px]:hidden">추천</span>
                       </span>
                     )}
                   </div>
 
-                  <div className="absolute bottom-3 left-4 right-4 text-white">
-                    <h3 className="text-xl font-bold tracking-tight text-white drop-shadow flex items-baseline gap-2">
-                      <span className="text-[#E5B54F] text-base font-mono font-extrabold">{globalIndex}.</span>
-                      <span>{casino.name}</span>
+                  <div className="absolute bottom-2 left-2 right-2 sm:bottom-3 sm:left-4 sm:right-4 text-white">
+                    <h3 className="text-xs min-[360px]:text-sm sm:text-xl font-bold tracking-tight text-white drop-shadow truncate">
+                      {casino.name}
                     </h3>
-                    <p className="text-xs text-slate-300 font-montserrat truncate">
+                    <p className="text-[9px] sm:text-xs text-slate-300 font-montserrat truncate">
                       {casino.englishName}
                     </p>
                   </div>
                 </div>
 
                 {/* Card Body */}
-                <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
-                  <p className="text-xs sm:text-sm text-slate-600 line-clamp-2 leading-relaxed">
+                <div className="p-2.5 sm:p-6 flex-1 flex flex-col justify-between space-y-2 sm:space-y-4">
+                  <p className="text-[11px] sm:text-xs sm:text-sm text-slate-600 line-clamp-2 leading-relaxed">
                     {casino.description}
                   </p>
 
                   {/* Specs List */}
-                  <div className="space-y-2 text-xs border-y border-slate-100 py-3">
+                  <div className="space-y-1 sm:space-y-2 text-[10px] sm:text-xs border-y border-slate-100 py-1.5 sm:py-3">
                     <div className="flex justify-between items-center text-slate-700">
                       <span className="text-slate-500">호텔 등급</span>
                       <span className="font-bold text-slate-900">{casino.hotelRating}</span>
                     </div>
                     <div className="flex justify-between items-center text-slate-700">
-                      <span className="text-slate-500">게이밍 규모</span>
-                      <span className="font-bold text-slate-900">{casino.tableGames}</span>
-                    </div>
-                    <div className="flex justify-between items-center text-slate-700">
-                      <span className="text-slate-500">VIP 전용 살롱</span>
-                      <span className="font-bold text-[#30308A] truncate max-w-[180px]">{casino.vipRooms}</span>
+                      <span className="text-slate-500">게이밍</span>
+                      <span className="font-bold text-slate-900 truncate max-w-[80px] sm:max-w-none text-right">{casino.tableGames}</span>
                     </div>
                   </div>
 
                   {/* Oasis Benefit Highlight */}
-                  <div className="p-2.5 rounded-lg bg-amber-50 border border-amber-200/80 text-[11px] text-amber-900 flex items-start gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
-                    <span className="font-medium line-clamp-2">{casino.highlights}</span>
+                  <div className="p-1.5 sm:p-2.5 rounded-lg bg-amber-50 border border-amber-200/80 text-[10px] sm:text-[11px] text-amber-900 flex items-start gap-1 sm:gap-1.5">
+                    <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-600 shrink-0 mt-0.5" />
+                    <span className="font-medium line-clamp-1 min-[380px]:line-clamp-2">{casino.highlights}</span>
                   </div>
 
                   {/* Card Action Button: 상세보기 */}
-                  <div className="pt-2">
+                  <div className="pt-1 sm:pt-2">
                     <button
                       onClick={() => setSelectedCasino(casino)}
-                      className="w-full py-3 px-4 rounded-xl border border-slate-300 hover:border-[#30308A] text-slate-800 hover:text-[#30308A] text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-1.5 bg-slate-50 hover:bg-slate-100 shadow-sm min-h-[44px]"
+                      className="w-full py-2 sm:py-3 px-2 sm:px-4 rounded-lg sm:rounded-xl border border-slate-300 hover:border-[#30308A] text-slate-800 hover:text-[#30308A] text-[11px] sm:text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-1 sm:gap-1.5 bg-slate-50 hover:bg-slate-100 shadow-sm min-h-[36px] sm:min-h-[44px]"
                     >
-                      <Eye className="w-4 h-4 text-[#30308A]" />
-                      <span>호텔 & 카지노 상세정보 보기</span>
+                      <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#30308A]" />
+                      <span className="hidden sm:inline">호텔 & 카지노 상세정보 보기</span>
+                      <span className="sm:hidden">상세보기</span>
                     </button>
                   </div>
                 </div>

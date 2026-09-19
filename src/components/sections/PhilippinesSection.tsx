@@ -28,13 +28,13 @@ export const PhilippinesSection: React.FC = () => {
         </div>
 
         {/* Spots Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-2 gap-2.5 sm:gap-8">
           {philippineSpots.map((spot) => (
             <div
               key={spot.id}
-              className="rounded-2xl overflow-hidden bg-slate-50 border border-slate-200/90 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col group"
+              className="rounded-xl sm:rounded-2xl overflow-hidden bg-slate-50 border border-slate-200/90 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col group"
             >
-              <div className="relative h-64 w-full overflow-hidden bg-slate-900">
+              <div className="relative h-28 min-[380px]:h-36 sm:h-64 w-full overflow-hidden bg-slate-900">
                 <img
                   src={spot.image}
                   alt={spot.title}
@@ -43,42 +43,42 @@ export const PhilippinesSection: React.FC = () => {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent" />
                 
-                <div className="absolute top-3.5 left-3.5">
-                  <span className="px-3 py-1 rounded-md bg-[#1E1E4F] text-white text-xs font-bold flex items-center gap-1 shadow-md">
-                    <MapPin className="w-3.5 h-3.5 text-[#E5B54F]" />
+                <div className="absolute top-2 left-2 sm:top-3.5 sm:left-3.5">
+                  <span className="px-1.5 sm:px-3 py-0.5 sm:py-1 rounded-md bg-[#1E1E4F] text-white text-[9px] sm:text-xs font-bold flex items-center gap-0.5 sm:gap-1 shadow-md">
+                    <MapPin className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 text-[#E5B54F]" />
                     {spot.location}
                   </span>
                 </div>
 
-                <div className="absolute bottom-3.5 left-4 right-4 text-white">
-                  <h3 className="text-xl font-bold tracking-tight text-white drop-shadow">
+                <div className="absolute bottom-2 left-2 right-2 sm:bottom-3.5 sm:left-4 sm:right-4 text-white">
+                  <h3 className="text-xs min-[360px]:text-sm sm:text-xl font-bold tracking-tight text-white drop-shadow truncate">
                     {spot.title}
                   </h3>
-                  <p className="text-xs text-slate-300 font-medium mt-0.5">
+                  <p className="text-[9px] sm:text-xs text-slate-300 font-medium mt-0.5 truncate">
                     {spot.subtitle}
                   </p>
                 </div>
               </div>
 
-              <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
-                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+              <div className="p-2.5 sm:p-6 flex-1 flex flex-col justify-between space-y-2 sm:space-y-4">
+                <p className="text-[11px] sm:text-xs sm:text-sm text-slate-600 line-clamp-2 leading-relaxed">
                   {spot.description}
                 </p>
 
-                <div className="flex flex-wrap gap-1.5 pt-2">
+                <div className="flex flex-wrap gap-1 sm:gap-1.5 pt-1 sm:pt-2">
                   {spot.tags.map((tag, tIdx) => (
                     <span
                       key={tIdx}
-                      className="px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-700 text-xs font-medium"
+                      className="px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-md bg-white border border-slate-200 text-slate-700 text-[9px] sm:text-xs font-medium"
                     >
                       #{tag}
                     </span>
                   ))}
                 </div>
 
-                <div className="pt-3 flex items-center gap-1.5 border-t border-slate-200 text-xs font-bold text-[#30308A]">
-                  <Sparkles className="w-3.5 h-3.5 text-[#E5B54F]" />
-                  <span>오아시스 VIP 전용 혜택 제공</span>
+                <div className="pt-2 sm:pt-3 flex items-center gap-1 sm:gap-1.5 border-t border-slate-200 text-[10px] sm:text-xs font-bold text-[#30308A]">
+                  <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#E5B54F]" />
+                  <span className="truncate">오아시스 VIP 전용 혜택</span>
                 </div>
               </div>
             </div>

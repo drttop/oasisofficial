@@ -44,48 +44,48 @@ export const ProcessSection: React.FC = () => {
         </div>
 
         {/* 5-Step Process Timeline Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-5 sm:gap-6 mb-48 lg:mb-64 relative">
+        <div className="grid grid-cols-3 md:grid-cols-5 gap-2 sm:gap-6 mb-16 sm:mb-24 lg:mb-32 relative">
           {serviceSteps.map((step, idx) => {
             const Icon = stepIcons[idx] || MessageSquare;
             return (
               <div
                 key={idx}
-                className="bg-white rounded-3xl py-7 sm:py-8 px-3.5 sm:px-4 border-2 border-slate-100 shadow-lg hover:shadow-2xl hover:-translate-y-3 hover:border-[#30308A] transition-all duration-300 flex flex-col relative group overflow-hidden"
+                className="bg-white rounded-2xl sm:rounded-3xl py-3.5 sm:py-8 px-2 sm:px-4 border-2 border-slate-100 shadow-sm hover:shadow-2xl hover:-translate-y-2 hover:border-[#30308A] transition-all duration-300 flex flex-col relative group overflow-hidden"
               >
                 {/* Giant Watermark Number */}
-                <div className="absolute -bottom-6 -right-4 text-[140px] font-black text-slate-50 group-hover:text-[#30308A]/5 transition-colors z-0 pointer-events-none select-none font-montserrat leading-none tracking-tighter">
+                <div className="absolute -bottom-3 -right-2 sm:-bottom-6 sm:-right-4 text-[48px] sm:text-[140px] font-black text-slate-50 group-hover:text-[#30308A]/5 transition-colors z-0 pointer-events-none select-none font-montserrat leading-none tracking-tighter">
                   {step.stepNumber}
                 </div>
 
                 {/* Top Accent Line */}
-                <div className="absolute top-0 left-0 w-full h-2 bg-slate-100 group-hover:bg-gradient-to-r group-hover:from-[#30308A] group-hover:to-[#E5B54F] transition-all duration-500" />
+                <div className="absolute top-0 left-0 w-full h-1 sm:h-2 bg-slate-100 group-hover:bg-gradient-to-r group-hover:from-[#30308A] group-hover:to-[#E5B54F] transition-all duration-500" />
                 
                 <div className="relative z-10 flex flex-col h-full">
                   {/* Step Number Top */}
-                  <div className="flex justify-between items-start mb-8">
+                  <div className="flex justify-between items-start mb-2.5 sm:mb-8">
                     <div className="flex flex-col">
-                      <span className="text-xs font-black text-slate-400 group-hover:text-[#E5B54F] tracking-widest transition-colors mb-1">STEP</span>
-                      <span className="font-montserrat text-4xl font-black text-[#30308A] tracking-tight group-hover:scale-105 origin-left transition-transform leading-none">
+                      <span className="text-[8px] sm:text-xs font-black text-slate-400 group-hover:text-[#E5B54F] tracking-widest transition-colors mb-0.5 sm:mb-1">STEP</span>
+                      <span className="font-montserrat text-xl sm:text-4xl font-black text-[#30308A] tracking-tight group-hover:scale-105 origin-left transition-transform leading-none">
                         {step.stepNumber.replace(/^0+/, '')}
                       </span>
                     </div>
-                    <div className="w-14 h-14 rounded-2xl bg-slate-50 border-2 border-slate-100 flex items-center justify-center text-[#30308A]/50 shadow-sm group-hover:bg-[#30308A] group-hover:border-[#30308A] group-hover:text-[#E5B54F] group-hover:shadow-md transition-all duration-300">
-                      <Icon className="w-7 h-7" />
+                    <div className="w-8 h-8 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-slate-50 border sm:border-2 border-slate-100 flex items-center justify-center text-[#30308A]/50 shadow-sm group-hover:bg-[#30308A] group-hover:border-[#30308A] group-hover:text-[#E5B54F] group-hover:shadow-md transition-all duration-300">
+                      <Icon className="w-4 h-4 sm:w-7 sm:h-7" />
                     </div>
                   </div>
 
                   {/* Content */}
                   <div className="flex flex-col flex-1">
-                    <div className="space-y-3">
-                      <h3 className="text-base sm:text-lg font-extrabold text-slate-900 leading-snug group-hover:text-[#30308A] transition-colors break-keep">
+                    <div className="space-y-1 sm:space-y-3">
+                      <h3 className="text-xs sm:text-lg font-extrabold text-slate-900 leading-snug group-hover:text-[#30308A] transition-colors break-keep">
                         {step.title}
                       </h3>
-                      <p className="text-xs font-bold text-slate-400 font-montserrat uppercase tracking-widest">
+                      <p className="text-[8px] sm:text-xs font-bold text-slate-400 font-montserrat uppercase tracking-wider truncate hidden min-[360px]:block">
                         {step.engTitle}
                       </p>
                     </div>
-                    <div className="w-10 h-1 rounded-full bg-slate-200 group-hover:bg-[#E5B54F] transition-colors my-5" />
-                    <p className="text-sm text-slate-600 leading-relaxed font-medium break-keep flex-1">
+                    <div className="w-6 sm:w-10 h-0.5 sm:h-1 rounded-full bg-slate-200 group-hover:bg-[#E5B54F] transition-colors my-1.5 sm:my-5" />
+                    <p className="text-[10px] sm:text-sm text-slate-600 leading-tight sm:leading-relaxed font-medium break-keep flex-1">
                       {step.description}
                     </p>
                   </div>

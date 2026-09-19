@@ -81,8 +81,17 @@ export const CommunitySection: React.FC = () => {
             <FileText className="w-3.5 h-3.5" />
             <span>OASIS VIP COMMUNITY & MAGAZINE</span>
           </div>
-          <h2 className="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
-            {siteConfig.communityTitle || '오아시스 공식 커뮤니티 & VIP 소식'}
+          <h2 className="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-snug">
+            <span className="sm:hidden">
+              오아시스 공지사항 &amp;
+              <br />
+              프로모션 소식
+            </span>
+            <span className="hidden sm:inline">
+              {(!siteConfig.communityTitle || siteConfig.communityTitle === '오아시스 공식 커뮤니티 & VIP 소식')
+                ? '오아시스 공지사항 & 프로모션 소식'
+                : siteConfig.communityTitle}
+            </span>
           </h2>
           <p className="text-xs sm:text-sm text-slate-600 leading-relaxed text-balance mx-auto">
             {siteConfig.communitySubtitle || '최신 카지노 프로모션, 특급 호텔 이벤트, 마닐라/클락 VIP 여행 팁 및 공식 공지사항을 확인하세요.'}

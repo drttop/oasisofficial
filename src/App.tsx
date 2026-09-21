@@ -1,16 +1,28 @@
-import React, { Suspense } from 'react';
+import React, { Suspense, useEffect } from 'react';
 import { SiteProvider, useSite } from './context/SiteContext';
 import { Header } from './components/Header';
 import { HeroSection } from './components/sections/HeroSection';
-import { AboutSection } from './components/sections/AboutSection';
-import { CasinoSection } from './components/sections/CasinoSection';
-import { PhilippinesSection } from './components/sections/PhilippinesSection';
-import { ProcessSection } from './components/sections/ProcessSection';
-import { CommunitySection } from './components/sections/CommunitySection';
 import { Footer } from './components/Footer';
 import { BottomFloatingBar } from './components/BottomFloatingBar';
 import { SEOManager } from './components/SEOManager';
 import { Settings } from 'lucide-react';
+
+// Lazy-load below-the-fold sections to ensure initial LCP & FCP load with zero main-thread blockage
+const CommunitySection = React.lazy(() =>
+  import('./components/sections/CommunitySection').then((m) => ({ default: m.CommunitySection }))
+);
+const AboutSection = React.lazy(() =>
+  import('./components/sections/AboutSection').then((m) => ({ default: m.AboutSection }))
+);
+const CasinoSection = React.lazy(() =>
+  import('./components/sections/CasinoSection').then((m) => ({ default: m.CasinoSection }))
+);
+const PhilippinesSection = React.lazy(() =>
+  import('./components/sections/PhilippinesSection').then((m) => ({ default: m.PhilippinesSection }))
+);
+const ProcessSection = React.lazy(() =>
+  import('./components/sections/ProcessSection').then((m) => ({ default: m.ProcessSection }))
+);
 
 // Code-split heavy modals to minimize initial JavaScript bundle and main-thread execution time
 const PostDetailModal = React.lazy(() =>
@@ -30,6 +42,23 @@ const preloadAdmin = () => {
 const MainAppContent: React.FC = () => {
   const { isAdminOpen, setIsAdminOpen, selectedPost, selectedCasino } = useSite();
 
+  // Prefetch below-the-fold sections during browser idle time so scrolling is instant
+  useEffect(() => {
+    const prefetchBelowTheFold = () => {
+      import('./components/sections/CommunitySection');
+      import('./components/sections/AboutSection');
+      import('./components/sections/CasinoSection');
+      import('./components/sections/PhilippinesSection');
+      import('./components/sections/ProcessSection');
+    };
+
+    if ('requestIdleCallback' in window) {
+      (window as any).requestIdleCallback(prefetchBelowTheFold, { timeout: 2500 });
+    } else {
+      setTimeout(prefetchBelowTheFold, 1500);
+    }
+  }, []);
+
   return (
     <div className="min-h-screen bg-white text-slate-900 flex flex-col relative selection:bg-[#30308A] selection:text-white">
       {/* Dynamic SEO & URL Route Manager */}
@@ -43,20 +72,23 @@ const MainAppContent: React.FC = () => {
         {/* Hero Slider (LCP Priority Element) */}
         <HeroSection />
 
-        {/* 1. 커뮤니티 (Community & Official Board) */}
-        <CommunitySection />
+        {/* Below-the-fold sections */}
+        <Suspense fallback={<div className="w-full min-h-[300px]" />}>
+          {/* 1. 커뮤니티 (Community & Official Board) */}
+          <CommunitySection />
 
-        {/* 2. 오아시스 소개 (About Oasis) */}
-        <AboutSection />
+          {/* 2. 오아시스 소개 (About Oasis) */}
+          <AboutSection />
 
-        {/* 3. 카지노 소개 (Casino Intro) */}
-        <CasinoSection />
+          {/* 3. 카지노 소개 (Casino Intro) */}
+          <CasinoSection />
 
-        {/* 4. 필리핀 소개 (Philippines Travel & Golf) */}
-        <PhilippinesSection />
+          {/* 4. 필리핀 소개 (Philippines Travel & Golf) */}
+          <PhilippinesSection />
 
-        {/* 5. 이용방법 (Process & FAQ) */}
-        <ProcessSection />
+          {/* 5. 이용방법 (Process & FAQ) */}
+          <ProcessSection />
+        </Suspense>
       </main>
 
       {/* Footer */}

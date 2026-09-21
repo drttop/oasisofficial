@@ -75,6 +75,7 @@
     <script>
       (function() {
         try {
+          if (!window.location.search || (window.location.search.indexOf('post') === -1 && window.location.search.indexOf('p=') === -1)) return;
           var params = new URLSearchParams(window.location.search);
           var postId = params.get('post') || params.get('postId') || params.get('p');
           if (postId) {

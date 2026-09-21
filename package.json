@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite --port=3000 --host=0.0.0.0",
-    "sync-seo": "node scripts/sync-seo.js",
-    "build": "node scripts/sync-seo.js && vite build",
+    "sync-seo": "NODE_ENV=production node scripts/sync-seo.js",
+    "build": "NODE_ENV=production node scripts/sync-seo.js && NODE_ENV=production vite build --mode production",
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit"

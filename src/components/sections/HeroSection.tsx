@@ -13,32 +13,44 @@ export const HeroSection: React.FC = () => {
 
   const currentBg = imgSrc || (slide?.bgImage ? (
     slide.bgImage.includes('/assets/') || slide.bgImage.includes('oasis_gold_hero') 
-      ? '/images/hero_bg.jpg' 
+      ? '/images/hero_bg.webp' 
       : slide.bgImage
-  ) : '/images/hero_bg.jpg');
+  ) : '/images/hero_bg.webp');
 
   if (!slide) return null;
+
+  const isLocalHero = currentBg.includes('hero_bg');
 
   return (
     <section
       id="home"
       className="relative w-full overflow-hidden bg-slate-950 text-white min-h-[100dvh] flex items-center justify-center"
     >
-      {/* Background Image */}
+      {/* Background Image - LCP Element */}
       <div className="absolute inset-0">
-        <img
-          src={currentBg}
-          alt={slide.title}
-          onError={() => {
-            if (currentBg !== '/images/hero_bg.jpg') {
-              setImgSrc('/images/hero_bg.jpg');
-            } else {
-              setImgSrc(FALLBACK_HERO_IMAGE);
-            }
-          }}
-          className="w-full h-full object-cover object-center transform scale-105 transition-opacity duration-700"
-          referrerPolicy="no-referrer"
-        />
+        <picture className="w-full h-full">
+          {isLocalHero && (
+            <source srcSet="/images/hero_bg.webp" type="image/webp" />
+          )}
+          <img
+            src={currentBg}
+            alt={slide.title}
+            loading="eager"
+            fetchPriority="high"
+            decoding="async"
+            width={1376}
+            height={768}
+            onError={() => {
+              if (currentBg !== '/images/hero_bg.jpg') {
+                setImgSrc('/images/hero_bg.jpg');
+              } else {
+                setImgSrc(FALLBACK_HERO_IMAGE);
+              }
+            }}
+            className="w-full h-full object-cover object-center transform scale-105 transition-opacity duration-700"
+            referrerPolicy="no-referrer"
+          />
+        </picture>
         {/* Subtle contrast dark gradient for luxury table atmosphere and crisp legibility */}
         <div className="absolute inset-0 bg-slate-950/65 via-slate-950/50 to-slate-950/75" />
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-black/40" />

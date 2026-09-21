@@ -14,9 +14,11 @@ import {
   Link as LinkIcon,
   Maximize2,
   Image as ImageIcon,
+  MapPin,
 } from 'lucide-react';
 import { getPostUrl } from '../../utils/seo';
 import { parsePostContent } from '../../utils/postContent';
+import { GoogleMapEmbed } from '../community/GoogleMapEmbed';
 
 export const PostDetailModal: React.FC = () => {
   const { selectedPost, setSelectedPost, siteConfig } = useSite();
@@ -63,13 +65,14 @@ export const PostDetailModal: React.FC = () => {
       ? [selectedPost.thumbnail]
       : [];
 
-  // Parse body content for inline photos like [사진1], [사진2]
-  const contentSegments = parsePostContent(selectedPost.content, displayImages);
+  // Parse body content for inline photos like [사진1], [사진2] and maps [지도:...]
+  const contentSegments = parsePostContent(selectedPost.content, displayImages, selectedPost.mapLocation);
   const inlineImageIndices = new Set(
     contentSegments
       .filter((s) => s.type === 'image' && s.imageIndex !== undefined)
       .map((s) => s.imageIndex as number)
   );
+  const hasInlineMap = contentSegments.some((s) => s.type === 'map');
 
   // If NO photos were placed in the body with tags, show the top gallery
   const showTopGallery = inlineImageIndices.size === 0 && displayImages.length > 0;
@@ -267,9 +270,38 @@ export const PostDetailModal: React.FC = () => {
                 );
               }
 
+              if (segment.type === 'map' && segment.mapQuery) {
+                return (
+                  <div key={idx} className="my-5">
+                    <GoogleMapEmbed
+                      query={segment.mapQuery}
+                      title={segment.mapTitle}
+                      address={segment.mapAddress}
+                      embedUrl={segment.mapEmbedUrl}
+                    />
+                  </div>
+                );
+              }
+
               return null;
             })}
           </div>
+
+          {/* Dedicated Map Section if not placed inline */}
+          {selectedPost.mapLocation && !hasInlineMap && (
+            <div className="pt-2 border-t border-slate-100 space-y-2">
+              <span className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                <MapPin className="w-3.5 h-3.5 text-[#30308A]" />
+                위치 및 찾아오시는 길
+              </span>
+              <GoogleMapEmbed
+                query={selectedPost.mapLocation.query}
+                title={selectedPost.mapLocation.title}
+                address={selectedPost.mapLocation.address}
+                embedUrl={selectedPost.mapLocation.embedUrl}
+              />
+            </div>
+          )}
 
           {/* Unplaced Photos (Uploaded by admin but not inserted into text body) */}
           {unplacedImages.length > 0 && !showTopGallery && (

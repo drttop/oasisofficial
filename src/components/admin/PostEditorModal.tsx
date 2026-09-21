@@ -18,9 +18,73 @@ import {
   Edit3,
   ImageDown,
   Loader2,
+  MapPin,
+  Navigation,
+  Compass,
+  ChevronDown,
+  ChevronUp,
+  Check,
 } from 'lucide-react';
 import { compressImageFile, optimizeDataUrl, createMiniThumbnail } from '../../utils/imageUpload';
-import { isPhotoInContent, parsePostContent } from '../../utils/postContent';
+import { isPhotoInContent, parsePostContent, getMapTag, isMapInContent } from '../../utils/postContent';
+import { GoogleMapEmbed } from '../community/GoogleMapEmbed';
+
+const POPULAR_MAP_PRESETS = [
+  {
+    title: '오카다 마닐라 (Okada Manila)',
+    address: 'New Seaside Dr, Entertainment City, Parañaque, Metro Manila',
+    query: 'Okada Manila, New Seaside Dr, Parañaque, Metro Manila',
+    tag: '마닐라',
+  },
+  {
+    title: '솔레어 리조트 엔터테인먼트 시티',
+    address: 'Aseana Ave, Entertainment City, Tambo, Parañaque, Metro Manila',
+    query: 'Solaire Resort & Casino Manila',
+    tag: '마닐라',
+  },
+  {
+    title: '시티 오브 드림즈 마닐라 (COD)',
+    address: 'Aseana Blvd, cor Roxas Blvd, Entertainment City, Parañaque',
+    query: 'City of Dreams Manila',
+    tag: '마닐라',
+  },
+  {
+    title: '뉴포트 월드 리조트 (구 리조트월드)',
+    address: 'Newport Blvd, Pasay, Metro Manila (공항 맞은편)',
+    query: 'Newport World Resorts Manila',
+    tag: '마닐라',
+  },
+  {
+    title: '한 카지노 & 리조트 클락 (Hann)',
+    address: 'M.A. Roxas Highway, Clark Freeport, Angeles, Pampanga',
+    query: 'Hann Casino Resort Clark',
+    tag: '클락',
+  },
+  {
+    title: '디하이츠 리조트 & 카지노 클락',
+    address: 'Monterrace Blvd, Clark Freeport, Angeles, Pampanga',
+    query: 'D\'Heights Resort and Casino Clark',
+    tag: '클락',
+  },
+  {
+    title: '로이스 호텔 & 카지노 클락',
+    address: 'Manuel A. Roxas Hwy, Clark Freeport, Angeles, Pampanga',
+    query: 'Royce Hotel and Casino Clark',
+    tag: '클락',
+  },
+  {
+    title: '마닐라 니노이 아키노 공항 (NAIA T3)',
+    address: 'Andrews Ave, Pasay, Metro Manila',
+    query: 'Ninoy Aquino International Airport Terminal 3',
+    tag: '공항/의전',
+  },
+  {
+    title: '클락 국제공항 (Clark Airport CRK)',
+    address: 'Andres Bonifacio Ave, Clark Freeport, Angeles, Pampanga',
+    query: 'Clark International Airport',
+    tag: '공항/의전',
+  },
+];
 
 interface PostEditorModalProps {
   postToEdit: PostItem | null;
@@ -44,6 +108,13 @@ export const PostEditorModal: React.FC<PostEditorModalProps> = ({
   const [images, setImages] = useState<string[]>([]);
   const [isPinned, setIsPinned] = useState(false);
   const [tagsInput, setTagsInput] = useState('');
+
+  // Map state
+  const [showMapPanel, setShowMapPanel] = useState(false);
+  const [mapTitle, setMapTitle] = useState('');
+  const [mapAddress, setMapAddress] = useState('');
+  const [mapQuery, setMapQuery] = useState('');
+  const [hasAttachedMap, setHasAttachedMap] = useState(false);
 
   // Editor tabs: edit vs live preview
   const [activeTab, setActiveTab] = useState<'edit' | 'preview'>('edit');
@@ -69,6 +140,19 @@ export const PostEditorModal: React.FC<PostEditorModalProps> = ({
       setViewCount(postToEdit.viewCount !== undefined ? postToEdit.viewCount : 392);
       setTagsInput(postToEdit.tags ? postToEdit.tags.join(', ') : '');
 
+      // Initialize map location
+      if (postToEdit.mapLocation) {
+        setMapTitle(postToEdit.mapLocation.title || '');
+        setMapAddress(postToEdit.mapLocation.address || '');
+        setMapQuery(postToEdit.mapLocation.query || '');
+        setHasAttachedMap(true);
+      } else {
+        setMapTitle('');
+        setMapAddress('');
+        setMapQuery('');
+        setHasAttachedMap(false);
+      }
+
       // Initialize images (up to 6)
       if (postToEdit.images && postToEdit.images.length > 0) {
         setImages(postToEdit.images.slice(0, 6));
@@ -87,6 +171,11 @@ export const PostEditorModal: React.FC<PostEditorModalProps> = ({
       setImages([]);
       setIsPinned(false);
       setTagsInput('');
+      setMapTitle('');
+      setMapAddress('');
+      setMapQuery('');
+      setHasAttachedMap(false);
+      setShowMapPanel(false);
     }
   }, [postToEdit, defaultCategory]);
 
@@ -188,6 +277,53 @@ export const PostEditorModal: React.FC<PostEditorModalProps> = ({
     }, 20);
   };
 
+  // Insert Google Maps tag into body text at current cursor position
+  const handleInsertMapTag = (customPlaceTitle?: string, customAddress?: string) => {
+    const pTitle = (customPlaceTitle || mapTitle || mapQuery).trim();
+    const pAddress = (customAddress || mapAddress).trim();
+
+    if (!pTitle && !mapQuery.trim()) return;
+
+    const tag = getMapTag(pTitle || mapQuery.trim(), pAddress || undefined);
+    const textarea = contentRef.current;
+    if (!textarea) {
+      setContent((prev) => (prev ? `${prev}\n\n${tag}\n\n` : tag));
+      setActiveTab('edit');
+      return;
+    }
+
+    const start = textarea.selectionStart ?? textarea.value.length;
+    const end = textarea.selectionEnd ?? textarea.value.length;
+    const textBefore = textarea.value.substring(0, start);
+    const textAfter = textarea.value.substring(end);
+
+    const insertion = `\n\n${tag}\n\n`;
+    const newContent = `${textBefore}${insertion}${textAfter}`;
+    setContent(newContent);
+    setActiveTab('edit');
+
+    setTimeout(() => {
+      textarea.focus();
+      const newPos = start + insertion.length;
+      textarea.setSelectionRange(newPos, newPos);
+    }, 20);
+  };
+
+  // Quick preset selector
+  const handleSelectPreset = (preset: typeof POPULAR_MAP_PRESETS[0]) => {
+    setMapTitle(preset.title);
+    setMapAddress(preset.address);
+    setMapQuery(preset.query);
+    setHasAttachedMap(true);
+  };
+
+  const handleClearMap = () => {
+    setMapTitle('');
+    setMapAddress('');
+    setMapQuery('');
+    setHasAttachedMap(false);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim() || !content.trim()) return;
@@ -212,6 +348,16 @@ export const PostEditorModal: React.FC<PostEditorModalProps> = ({
         primaryThumbnail = await createMiniThumbnail(optimizedImages[0]);
       }
 
+      // 3. Map Location Payload (if attached)
+      const mapLocationPayload =
+        hasAttachedMap && (mapQuery.trim() || mapTitle.trim())
+          ? {
+              title: mapTitle.trim() || undefined,
+              address: mapAddress.trim() || undefined,
+              query: (mapQuery.trim() || mapTitle.trim()),
+            }
+          : undefined;
+
       const payload = {
         title: title.trim(),
         category,
@@ -223,6 +369,7 @@ export const PostEditorModal: React.FC<PostEditorModalProps> = ({
         isPinned,
         tags,
         viewCount: Number(viewCount) >= 0 ? Number(viewCount) : (postToEdit?.viewCount || 392),
+        mapLocation: mapLocationPayload,
       };
 
       if (postToEdit) {
@@ -590,39 +737,230 @@ export const PostEditorModal: React.FC<PostEditorModalProps> = ({
               </div>
             </div>
 
-            {/* Quick Photo Insert Bar (when photos are uploaded, up to 6) */}
-            {images.length > 0 && (
-              <div className="p-2.5 bg-gradient-to-r from-blue-50/70 to-slate-50 rounded-xl border border-blue-100 flex flex-wrap items-center justify-between gap-2">
-                <div className="flex items-center gap-1.5 flex-wrap">
-                  <span className="text-[11px] font-bold text-slate-700 flex items-center gap-1">
-                    <ImageIcon className="w-3.5 h-3.5 text-[#30308A]" />
-                    본문 사진 삽입 도구:
-                  </span>
-                  {images.map((_, idx) => {
-                    const photoNum = idx + 1;
-                    const inserted = isPhotoInContent(content, idx);
-                    return (
-                      <button
-                        key={idx}
-                        type="button"
-                        onClick={() => handleInsertPhoto(photoNum)}
-                        className="px-2.5 py-1 bg-white hover:bg-slate-50 text-slate-800 text-xs font-bold rounded-lg border border-slate-200 shadow-xs flex items-center gap-1 cursor-pointer transition-all hover:border-[#30308A]"
-                      >
-                        <ImageDown className="w-3 h-3 text-[#30308A]" />
-                        <span>+ [사진{photoNum}]</span>
-                        {inserted && (
-                          <span className="text-[10px] text-emerald-600 font-bold ml-0.5">✓</span>
-                        )}
-                      </button>
-                    );
-                  })}
+            {/* Media & Maps Toolbar */}
+            <div className="p-2.5 bg-gradient-to-r from-blue-50/70 via-indigo-50/40 to-slate-50 rounded-xl border border-blue-100/80 space-y-2">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
+                  {/* Google Map Toggle Button */}
+                  <button
+                    type="button"
+                    onClick={() => setShowMapPanel((prev) => !prev)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer border shadow-xs ${
+                      showMapPanel || hasAttachedMap
+                        ? 'bg-[#30308A] text-white border-[#30308A]'
+                        : 'bg-white text-slate-800 hover:bg-slate-50 border-slate-200 hover:border-[#30308A]'
+                    }`}
+                  >
+                    <MapPin className="w-3.5 h-3.5 text-[#E5B54F]" />
+                    <span>📍 구글 지도 등록 / 본문 삽입</span>
+                    {hasAttachedMap ? (
+                      <span className="px-1.5 py-0.2 rounded text-[10px] bg-emerald-500 text-white font-bold">
+                        등록됨
+                      </span>
+                    ) : (
+                      <ChevronDown className={`w-3 h-3 text-slate-400 transition-transform ${showMapPanel ? 'rotate-180' : ''}`} />
+                    )}
+                  </button>
+
+                  {/* Photo quick insert tags (if images exist) */}
+                  {images.length > 0 && (
+                    <div className="flex items-center gap-1 flex-wrap">
+                      <span className="text-[11px] font-bold text-slate-600 flex items-center gap-1 ml-1">
+                        <ImageIcon className="w-3 h-3 text-[#30308A]" />
+                        사진:
+                      </span>
+                      {images.map((_, idx) => {
+                        const photoNum = idx + 1;
+                        const inserted = isPhotoInContent(content, idx);
+                        return (
+                          <button
+                            key={idx}
+                            type="button"
+                            onClick={() => handleInsertPhoto(photoNum)}
+                            className="px-2 py-1 bg-white hover:bg-slate-50 text-slate-800 text-xs font-bold rounded-lg border border-slate-200 shadow-xs flex items-center gap-1 cursor-pointer transition-all hover:border-[#30308A]"
+                            title={`본문에 [사진${photoNum}] 삽입`}
+                          >
+                            <ImageDown className="w-3 h-3 text-[#30308A]" />
+                            <span>[사진{photoNum}]</span>
+                            {inserted && (
+                              <span className="text-[10px] text-emerald-600 font-bold">✓</span>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
 
-                <span className="text-[10px] text-slate-500 hidden sm:inline">
-                  본문 원하는 위치에 커서를 두고 버튼을 누르세요 (최대 6장)
+                <span className="text-[10px] text-slate-500 hidden md:inline">
+                  본문에 [사진1] 또는 [지도:장소명] 태그로 자유롭게 배치 가능
                 </span>
               </div>
-            )}
+
+              {/* Collapsible Google Maps System Panel */}
+              {showMapPanel && (
+                <div className="p-3.5 sm:p-4 bg-white rounded-xl border border-indigo-200 shadow-sm space-y-3 animate-in fade-in slide-in-from-top-2 duration-150">
+                  <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-lg bg-[#30308A] flex items-center justify-center text-white">
+                        <MapPin className="w-3.5 h-3.5 text-[#E5B54F]" />
+                      </div>
+                      <div>
+                        <h4 className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                          구글 지도 (Google Maps) 시스템
+                          {hasAttachedMap && (
+                            <span className="text-[10px] text-emerald-600 font-bold bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
+                              ✓ 대표 위치 등록됨
+                            </span>
+                          )}
+                        </h4>
+                        <p className="text-[10px] text-slate-500">
+                          호텔, 카지노, 골프장, 공항 등 장소를 검색하여 본문에 삽입하거나 대표 지도로 등록합니다.
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setShowMapPanel(false)}
+                      className="text-slate-400 hover:text-slate-600 p-1"
+                      title="지도 패널 접기"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  {/* 1-Click Popular Manila & Clark Presets */}
+                  <div className="space-y-1.5">
+                    <span className="text-[11px] font-bold text-slate-700 flex items-center gap-1">
+                      <Compass className="w-3 h-3 text-[#30308A]" />
+                      자주 찾는 필리핀 주요 장소 (원클릭 자동 완성):
+                    </span>
+                    <div className="flex flex-wrap gap-1.5">
+                      {POPULAR_MAP_PRESETS.map((preset, idx) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => handleSelectPreset(preset)}
+                          className={`px-2 py-1 rounded-md text-[11px] font-medium border transition-all cursor-pointer flex items-center gap-1 ${
+                            mapTitle === preset.title
+                              ? 'bg-[#30308A] text-white border-[#30308A] shadow-xs'
+                              : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200'
+                          }`}
+                        >
+                          <span className="text-[9px] px-1 py-0.2 rounded bg-slate-200/70 text-slate-600 font-mono">
+                            {preset.tag}
+                          </span>
+                          <span>{preset.title.split(' ')[0]}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Custom Inputs */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
+                    <div className="sm:col-span-1">
+                      <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                        장소 / 건물명 <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={mapTitle}
+                        onChange={(e) => {
+                          setMapTitle(e.target.value);
+                          if (!mapQuery) setMapQuery(e.target.value);
+                        }}
+                        placeholder="예: 오카다 마닐라"
+                        className="w-full px-2.5 py-1.5 text-xs border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30308A]"
+                      />
+                    </div>
+                    <div className="sm:col-span-1">
+                      <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                        표시 상세 주소 (선택)
+                      </label>
+                      <input
+                        type="text"
+                        value={mapAddress}
+                        onChange={(e) => setMapAddress(e.target.value)}
+                        placeholder="예: New Seaside Dr, Parañaque"
+                        className="w-full px-2.5 py-1.5 text-xs border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30308A]"
+                      />
+                    </div>
+                    <div className="sm:col-span-1">
+                      <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                        지도 검색 키워드 <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={mapQuery}
+                        onChange={(e) => setMapQuery(e.target.value)}
+                        placeholder="예: Okada Manila"
+                        className="w-full px-2.5 py-1.5 text-xs border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30308A]"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Live Mini Preview inside Editor */}
+                  {(mapQuery.trim() || mapTitle.trim()) && (
+                    <div className="mt-2">
+                      <div className="text-[10px] font-bold text-slate-500 mb-1 flex items-center gap-1">
+                        <span>지도 실시간 미리보기:</span>
+                      </div>
+                      <GoogleMapEmbed
+                        query={mapQuery.trim() || mapTitle.trim()}
+                        title={mapTitle.trim()}
+                        address={mapAddress.trim()}
+                        height="h-40 sm:h-48"
+                        showActions={true}
+                      />
+                    </div>
+                  )}
+
+                  {/* Action Buttons */}
+                  <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-100">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {/* Insert Tag into Body Button */}
+                      <button
+                        type="button"
+                        onClick={() => handleInsertMapTag()}
+                        disabled={!mapTitle.trim() && !mapQuery.trim()}
+                        className="px-3 py-1.5 rounded-lg bg-[#30308A] hover:bg-[#25256e] disabled:opacity-40 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs cursor-pointer transition-colors"
+                        title="본문 커서 위치에 [지도:...] 태그 삽입"
+                      >
+                        <MapPin className="w-3.5 h-3.5 text-[#E5B54F]" />
+                        <span>본문 커서 위치에 [지도] 태그 넣기</span>
+                      </button>
+
+                      {/* Attach as Post Location */}
+                      <button
+                        type="button"
+                        onClick={() => setHasAttachedMap((prev) => !prev)}
+                        disabled={!mapTitle.trim() && !mapQuery.trim()}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 border transition-all cursor-pointer ${
+                          hasAttachedMap
+                            ? 'bg-emerald-600 text-white border-emerald-600'
+                            : 'bg-white hover:bg-slate-50 text-slate-700 border-slate-200'
+                        }`}
+                        title="게시글 하단에 공식 지도 위치로 표시"
+                      >
+                        <Check className="w-3.5 h-3.5" />
+                        <span>{hasAttachedMap ? '대표 지도 등록됨 ✓' : '게시글 대표 지도로 등록'}</span>
+                      </button>
+                    </div>
+
+                    {/* Reset Button */}
+                    {(mapTitle || mapQuery || hasAttachedMap) && (
+                      <button
+                        type="button"
+                        onClick={handleClearMap}
+                        className="text-red-500 hover:text-red-700 text-xs font-semibold px-2 py-1"
+                      >
+                        지도 초기화
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
 
             {activeTab === 'edit' ? (
               <div>
@@ -630,19 +968,19 @@ export const PostEditorModal: React.FC<PostEditorModalProps> = ({
                   ref={contentRef}
                   required
                   rows={8}
-                  placeholder="자유롭게 커뮤니티 글을 작성해 보세요...&#10;&#10;💡 사진을 원하는 위치에 넣고 싶을 때는 위 [+ [사진1]~[사진6]] 버튼을 누르거나, 본문에 직접 [사진1], [사진2], [사진3]... 라고 적으시면 해당 위치에 사진이 크게 삽입됩니다."
+                  placeholder="자유롭게 커뮤니티 글을 작성해 보세요...&#10;&#10;💡 사진 삽입: [+ [사진1]~[사진6]] 버튼을 누르거나 본문에 [사진1], [사진2] 입력&#10;💡 구글 지도 삽입: 상단 [📍 구글 지도 등록 / 본문 삽입] 버튼을 누르거나 본문에 직접 [지도:오카다 마닐라] 또는 [지도:오카다 마닐라|상세주소] 입력"
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
                   className="w-full px-3.5 py-2.5 text-xs sm:text-sm border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#30308A] resize-y min-h-[190px] font-sans leading-relaxed bg-white"
                 />
                 <div className="flex items-center justify-between text-[11px] text-slate-400 mt-1 px-1">
-                  <span>지원 태그: [사진1] ~ [사진6] (대소문자/띄어쓰기 무관)</span>
+                  <span>지원 태그: [사진1]~[사진6], [지도:장소명], [지도:장소명|주소]</span>
                   <span>{content.length}자 작성</span>
                 </div>
               </div>
             ) : (
               /* Live Preview Box */
-              <div className="border border-slate-200 rounded-xl p-4 bg-slate-50 min-h-[200px] max-h-[380px] overflow-y-auto space-y-3 text-xs sm:text-sm">
+              <div className="border border-slate-200 rounded-xl p-4 bg-slate-50 min-h-[200px] max-h-[420px] overflow-y-auto space-y-3 text-xs sm:text-sm">
                 <div className="font-bold text-slate-800 border-b border-slate-200 pb-2 flex items-center justify-between">
                   <span className="flex items-center gap-1.5">
                     <Eye className="w-3.5 h-3.5 text-[#30308A]" />
@@ -655,7 +993,17 @@ export const PostEditorModal: React.FC<PostEditorModalProps> = ({
 
                 {content.trim() ? (
                   <div className="space-y-3 text-slate-800">
-                    {parsePostContent(content, images).map((seg, idx) => {
+                    {parsePostContent(
+                      content,
+                      images,
+                      hasAttachedMap && (mapQuery.trim() || mapTitle.trim())
+                        ? {
+                            title: mapTitle.trim() || undefined,
+                            address: mapAddress.trim() || undefined,
+                            query: mapQuery.trim() || mapTitle.trim(),
+                          }
+                        : undefined
+                    ).map((seg, idx) => {
                       if (seg.type === 'text') {
                         return (
                           <div key={idx} className="whitespace-pre-line leading-relaxed">
@@ -681,8 +1029,37 @@ export const PostEditorModal: React.FC<PostEditorModalProps> = ({
                           </div>
                         );
                       }
+                      if (seg.type === 'map' && seg.mapQuery) {
+                        return (
+                          <div key={idx} className="my-3">
+                            <GoogleMapEmbed
+                              query={seg.mapQuery}
+                              title={seg.mapTitle}
+                              address={seg.mapAddress}
+                              embedUrl={seg.mapEmbedUrl}
+                              height="h-44 sm:h-52"
+                            />
+                          </div>
+                        );
+                      }
                       return null;
                     })}
+
+                    {/* Attached map if not inline */}
+                    {hasAttachedMap && (mapQuery.trim() || mapTitle.trim()) && !isMapInContent(content) && (
+                      <div className="pt-3 border-t border-slate-200 space-y-1.5">
+                        <span className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                          <MapPin className="w-3.5 h-3.5 text-[#30308A]" />
+                          게시글 대표 위치 및 찾아오시는 길
+                        </span>
+                        <GoogleMapEmbed
+                          query={mapQuery.trim() || mapTitle.trim()}
+                          title={mapTitle.trim()}
+                          address={mapAddress.trim()}
+                          height="h-44 sm:h-52"
+                        />
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <p className="text-slate-400 text-center py-10">본문 내용을 입력하시면 여기에 실시간으로 표시됩니다.</p>

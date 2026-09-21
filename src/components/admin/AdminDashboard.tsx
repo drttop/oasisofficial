@@ -1979,6 +1979,12 @@ Sitemap: https://oasis46.com/sitemap.xml`}
                               고정
                             </span>
                           )}
+                          {(post.mapLocation || post.content.includes('[지도') || post.content.includes('[구글지도') || post.content.includes('[map:')) && (
+                            <span className="ml-1 inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold bg-blue-50 text-[#30308A] border border-blue-200/60" title="구글 지도 포함">
+                              <MapPin className="w-2.5 h-2.5 text-[#E5B54F]" />
+                              지도
+                            </span>
+                          )}
                         </td>
                         <td className="p-3.5 font-bold text-slate-900 max-w-md truncate">
                           {post.title}

@@ -3,6 +3,19 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Performance & Preload Optimization (PageSpeed & Core Web Vitals) -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+    <link rel="preconnect" href="https://images.unsplash.com" crossorigin />
+    <link rel="dns-prefetch" href="https://images.unsplash.com" />
+
+    <!-- Preload Largest Contentful Paint (LCP) Hero Image with High Fetch Priority -->
+    <link rel="preload" as="image" href="/images/hero_bg.webp" type="image/webp" fetchpriority="high" />
+
     <title>마닐라 오아시스에이전시 | 필리핀 마닐라 카지노 공식 VIP 에이전트</title>
     <meta name="description" content="마닐라 오아시스에이전시 - 필리핀 마닐라 & 클락 메이저 복합리조트 공식 VIP 에이전트. 오카다, 솔레어, 시티오브드림즈, 클락 한 5성급 호텔 프리룸, 전용 의전 세단, 24시간 한국인 1:1 컨시어지 케어" />
     <meta property="og:title" content="마닐라 오아시스에이전시 | 필리핀 마닐라 카지노 공식 VIP 에이전트" />
@@ -102,8 +115,12 @@
                 desc: '국제유가상승으로 인한 유류할증료 인상. 무료항공권이 절실한 때! - [사진2] 올가을, 겨울 해외여행을 계획하고 계신다면 항공권 예매를 서두르셔야겠습니다. 국제유가 고공행진의 여파로 10월 국제선 항공권 유류할증료가 두 달 연속 인상됩니다. 게다가 연말 11월,12월, 1월까지 전쟁이 '
               },
               'post-8': {
-                title: '9월 신규회원대상 마닐라 5성급호텔 프리룸 3박 이벤트!! | 오아시스',
+                title: '9월 신규회원대상 이벤트!! 마닐라 5성급호텔 프리룸 3박 | 오아시스',
                 desc: '오아시스 9월프로모션 마닐라 5성급호텔 프리룸3박 혜택 - [사진1] ✈️ 오아시스 9월 마지막 이벤트! 신규고객 풀패키지 쏜다! 추석 연휴 여행, 아직 고민 중이신가요? 오아시스에 처음 오시는 분들을 위해 몸만 오셔도 되는 완벽한 혜택을 준비했습니다. ✔️ 기간: 2026년 9월 한 '
+              },
+              'post-9': {
+                title: '필리핀 여행주의! 금연법 강력처벌! 대처 가이드 | 오아시스',
+                desc: '필리핀 금연법 여행자도 강력처벌! 금연법 가이드! - [사진1] 필리핀은 전국 공공장소 전면 금연을 시행하고 있으며, 이는 외국인 관광객과 전자담배 사용자에게도 예외 없이 엄격하게 적용됩니다. 벌금 규정: 지정 구역 외 흡연 시 적발 횟수에 따라 500페소에서 최대 10,000페소의 벌'
               }
             };
             
@@ -159,16 +176,16 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
-    <!-- Pretendard Font CDN -->
-    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Optimized Font Loading -->
+    <link rel="preload" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" as="style" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Montserrat:wght@400;500;600;700;800&display=swap" as="style" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Montserrat:wght@400;500;600;700;800&display=swap" />
   </head>
   <body class="font-sans antialiased bg-white text-slate-900 selection:bg-[#30308A] selection:text-white">
     <div id="root"></div>
     <!-- Static Crawlable Fallback for Search Engines (Googlebot, Naver Yeti, Daumoa) -->
-    <noscript>
+    <noscript id="seo-crawlable-fallback">
       <main style="padding: 20px; font-family: sans-serif; max-width: 900px; margin: 0 auto;">
         <h1>마닐라 오아시스에이전시 | 오아시스 VIP 에이전시 공식 커뮤니티 및 가이드</h1>
         <p>마닐라 오아시스에이전시 공식 웹사이트 - 필리핀 마닐라 & 클락 최고급 카지노 VIP 정킷 에이전시 오아시스의 공식 안내, 멤버십 혜택, 호텔 프로모션 및 여행 가이드입니다.</p>
@@ -206,8 +223,12 @@
           <p>국제유가상승으로 인한 유류할증료 인상. 무료항공권이 절실한 때! - [사진2] 올가을, 겨울 해외여행을 계획하고 계신다면 항공권 예매를 서두르셔야겠습니다. 국제유가 고공행진의 여파로 10월 국제선 항공권 유류할증료가 두 달 연속 인상됩니다. 게다가 연말 11월,12월, 1월까지 전쟁이 계속되고 있는 현시점 추가 인상도 불</p>
         </article>
         <article style="margin-bottom: 24px;">
-          <h2><a href="https://oasis46.com/?post=post-8">9월 신규회원대상 마닐라 5성급호텔 프리룸 3박 이벤트!!</a></h2>
+          <h2><a href="https://oasis46.com/?post=post-8">9월 신규회원대상 이벤트!! 마닐라 5성급호텔 프리룸 3박</a></h2>
           <p>오아시스 9월프로모션 마닐라 5성급호텔 프리룸3박 혜택 - [사진1] ✈️ 오아시스 9월 마지막 이벤트! 신규고객 풀패키지 쏜다! 추석 연휴 여행, 아직 고민 중이신가요? 오아시스에 처음 오시는 분들을 위해 몸만 오셔도 되는 완벽한 혜택을 준비했습니다. ✔️ 기간: 2026년 9월 한 달간 ✔️ 대상: 오아시스 신규 이용</p>
+        </article>
+        <article style="margin-bottom: 24px;">
+          <h2><a href="https://oasis46.com/?post=post-9">필리핀 여행주의! 금연법 강력처벌! 대처 가이드</a></h2>
+          <p>필리핀 금연법 여행자도 강력처벌! 금연법 가이드! - [사진1] 필리핀은 전국 공공장소 전면 금연을 시행하고 있으며, 이는 외국인 관광객과 전자담배 사용자에게도 예외 없이 엄격하게 적용됩니다. 벌금 규정: 지정 구역 외 흡연 시 적발 횟수에 따라 500페소에서 최대 10,000페소의 벌금이 부과되며, 3회 이상 위반 시 </p>
         </article>
       </main>
     </noscript>

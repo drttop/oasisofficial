@@ -68,14 +68,14 @@ export const initialBannerSlides: BannerSlide[] = [
     title: '필리핀 카지노 공식 VIP 에이전트',
     subtitle: '오카다 · 솔레어 · COD · 클락 한 카지노 공식파트너 \n차원이 다른 프리미엄 혜택과 투명한 정산 보증',
     badge: 'PAGCOR OFFICIAL CERTIFIED VIP AGENCY',
-    bgImage: '/images/hero_bg.jpg',
+    bgImage: '/images/hero_bg.webp',
   },
   {
     id: 'slide-2',
     title: '24시간 퍼스트클래스 전담 케어',
     subtitle: '공항 VIP 패스트트랙 입국, 최고급 전용 리무진 픽업, 5성급 호텔 전액 지원',
     badge: '24/7 DEDICATED PRIVATE CONCIERGE',
-    bgImage: '/images/casino_table.jpg',
+    bgImage: '/images/casino_table.webp',
   },
 ];
 
@@ -311,10 +311,18 @@ export const initialPosts: PostItem[] = [
 - 혜택 3: 마닐라 공항 - 호텔 간 전용 최고급 알파드 리무진 단독 픽업/샌딩
 - 혜택 4: 24시간 1:1 전담 VIP 매니저 상주 및 빠른 롤링 환전 지원
 
+[오카다 마닐라 찾아오시는 길]
+[지도:오카다 마닐라|New Seaside Dr, Entertainment City, Parañaque, Metro Manila]
+
 [신청 및 예약 방법]
 하단 실시간 카카오톡 또는 텔레그램으로 '가을 프로모션 예약' 메시지를 보내주시면 즉시 배정해 드립니다.`,
     thumbnail: 'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?auto=format&fit=crop&w=800&q=80',
     tags: ['프로모션', '오카다마닐라', '솔레어', '스위트룸무료'],
+    mapLocation: {
+      title: '오카다 마닐라 (Okada Manila)',
+      address: 'New Seaside Dr, Entertainment City, Parañaque, Metro Manila',
+      query: 'Okada Manila, New Seaside Dr, Parañaque, Metro Manila',
+    },
   },
   {
     id: 'post-3',
@@ -332,9 +340,17 @@ export const initialPosts: PostItem[] = [
 - 연계 호텔: 스위소텔(Swissôtel) 및 클락 메리어트 직통 전용 엘리베이터 연결
 - 오아시스 혜택: 대기 없는 즉시 입장, 현장 전담 실장 에스코트, 전용 칩셋 및 롤링 혜택 즉시 반영
 
+[클락 한 카지노 위치 및 지도]
+[지도:한 카지노 리조트 클락|M.A. Roxas Highway, Clark Freeport, Angeles, Pampanga]
+
 클락의 깨끗한 자연과 골프, 최신 시설의 게이밍을 원하시는 고객님께 강력 추천합니다.`,
     thumbnail: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80',
     tags: ['클락카지노', '한카지노', 'VIP살롱', '클락투어'],
+    mapLocation: {
+      title: '한 카지노 & 리조트 클락 (Hann Casino)',
+      address: 'M.A. Roxas Highway, Clark Freeport, Angeles, Pampanga',
+      query: 'Hann Casino Resort Clark',
+    },
   },
   {
     id: 'post-4',

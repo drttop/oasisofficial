@@ -14,14 +14,17 @@ export const Header: React.FC = () => {
   }, [siteConfig.headerLogo]);
 
   useEffect(() => {
+    let ticking = false;
     const handleScroll = () => {
-      if (window.scrollY > 20) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          setIsScrolled(window.scrollY > 20);
+          ticking = false;
+        });
+        ticking = true;
       }
     };
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -71,6 +74,9 @@ export const Header: React.FC = () => {
                 <img
                   src={siteConfig.headerLogo}
                   alt={siteConfig.siteName || "OASIS VIP"}
+                  width={200}
+                  height={40}
+                  decoding="async"
                   onError={() => setImgError(true)}
                   className="h-8 sm:h-10 w-auto max-w-[220px] object-contain"
                 />

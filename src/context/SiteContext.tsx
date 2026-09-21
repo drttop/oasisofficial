@@ -177,7 +177,27 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const [posts, setPostsState] = useState<PostItem[]>(() => {
     const saved = localStorage.getItem(STORAGE_KEYS.POSTS);
-    return saved ? JSON.parse(saved) : initialPosts;
+    if (!saved) return initialPosts;
+    try {
+      const parsed: PostItem[] = JSON.parse(saved);
+      // Ensure initial sample posts inherit map data if user had old localStorage
+      return parsed.map((p) => {
+        const matchingInitial = initialPosts.find((ip) => ip.id === p.id);
+        if (matchingInitial?.mapLocation && !p.mapLocation) {
+          return {
+            ...p,
+            mapLocation: matchingInitial.mapLocation,
+            content:
+              matchingInitial.content.includes('[지도') && !p.content.includes('[지도')
+                ? matchingInitial.content
+                : p.content,
+          };
+        }
+        return p;
+      });
+    } catch {
+      return initialPosts;
+    }
   });
 
   const [inquiryLeads, setInquiryLeadsState] = useState<InquiryLead[]>(() => {

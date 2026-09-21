@@ -5,18 +5,23 @@ import { Send, MessageCircle } from 'lucide-react';
 export const BottomFloatingBar: React.FC = () => {
   const { siteConfig } = useSite();
   const [visible, setVisible] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
 
   useEffect(() => {
+    let ticking = false;
+
     const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      setVisible(true);
-      setLastScrollY(currentScrollY);
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          setVisible(true);
+          ticking = false;
+        });
+        ticking = true;
+      }
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [lastScrollY]);
+  }, []);
 
   return (
     <div

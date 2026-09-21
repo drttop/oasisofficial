@@ -120,6 +120,13 @@ export interface ServiceStep {
   iconName: string;
 }
 
+export interface PostMapLocation {
+  title?: string;
+  address?: string;
+  query: string;
+  embedUrl?: string;
+}
+
 export interface PostItem {
   id: string;
   category: '공지사항' | '프로모션' | 'VIP매거진' | '커뮤니티' | string;
@@ -134,6 +141,7 @@ export interface PostItem {
   images?: string[]; // 최대 6장 직접 업로드 사진
   tags?: string[];
   createdAt?: number;
+  mapLocation?: PostMapLocation;
 }
 
 export interface InquiryLead {

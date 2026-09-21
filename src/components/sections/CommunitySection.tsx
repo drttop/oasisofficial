@@ -11,8 +11,10 @@ import {
   ChevronLeft,
   Sparkles,
   Camera,
+  MapPin,
 } from 'lucide-react';
 import { getPostUrl } from '../../utils/seo';
+import { isMapInContent } from '../../utils/postContent';
 
 const POSTS_PER_PAGE = 8;
 
@@ -143,6 +145,7 @@ export const CommunitySection: React.FC = () => {
             {paginatedPosts.map((post) => {
               const cardImage = (post.images && post.images.length > 0) ? post.images[0] : post.thumbnail;
               const hasMultiplePhotos = (post.images && post.images.length > 1);
+              const hasMap = Boolean(post.mapLocation || isMapInContent(post.content));
 
               return (
                 <a
@@ -161,10 +164,14 @@ export const CommunitySection: React.FC = () => {
                       <img
                         src={cardImage}
                         alt={post.title}
+                        loading="lazy"
+                        decoding="async"
+                        width={600}
+                        height={360}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         referrerPolicy="no-referrer"
                       />
-                      <div className="absolute top-2 sm:top-3 left-2 sm:left-3 flex items-center gap-1 sm:gap-1.5">
+                      <div className="absolute top-2 sm:top-3 left-2 sm:left-3 flex items-center gap-1 sm:gap-1.5 flex-wrap">
                         <span
                           className={`px-1.5 sm:px-2.5 py-0.5 rounded-full text-[10px] sm:text-[11px] font-bold border ${
                             categoryColorMap[post.category] || 'bg-slate-100 text-slate-700'
@@ -176,6 +183,12 @@ export const CommunitySection: React.FC = () => {
                           <span className="inline-flex items-center gap-0.5 sm:gap-1 text-[10px] sm:text-[11px] font-bold text-white bg-red-600 px-1.5 sm:px-2 py-0.5 rounded-full shadow">
                             <Pin className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                             <span className="hidden min-[380px]:inline">중요</span>
+                          </span>
+                        )}
+                        {hasMap && (
+                          <span className="inline-flex items-center gap-0.5 text-[9px] sm:text-[10px] font-bold text-white bg-[#30308A]/90 backdrop-blur-sm px-1.5 py-0.5 rounded-full shadow border border-white/20">
+                            <MapPin className="w-2.5 h-2.5 text-[#E5B54F]" />
+                            <span>지도</span>
                           </span>
                         )}
                       </div>
@@ -196,7 +209,7 @@ export const CommunitySection: React.FC = () => {
                   <div className="p-2.5 sm:p-6 flex-1 flex flex-col justify-between space-y-2 sm:space-y-4">
                     <div className="space-y-1 sm:space-y-2">
                       {!cardImage && (
-                        <div className="flex items-center gap-1 sm:gap-1.5 mb-1.5 sm:mb-2">
+                        <div className="flex items-center gap-1 sm:gap-1.5 mb-1.5 sm:mb-2 flex-wrap">
                           <span
                             className={`px-1.5 sm:px-2.5 py-0.5 rounded-full text-[10px] sm:text-[11px] font-bold border ${
                               categoryColorMap[post.category] || 'bg-slate-100 text-slate-700'
@@ -208,6 +221,12 @@ export const CommunitySection: React.FC = () => {
                             <span className="inline-flex items-center gap-0.5 sm:gap-1 text-[10px] sm:text-[11px] font-bold text-red-600 bg-red-50 px-1.5 sm:px-2 py-0.5 rounded-full border border-red-100">
                               <Pin className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                               <span className="hidden min-[380px]:inline">중요</span>
+                            </span>
+                          )}
+                          {hasMap && (
+                            <span className="inline-flex items-center gap-0.5 text-[10px] sm:text-[11px] font-bold text-[#30308A] bg-blue-50 px-1.5 sm:px-2 py-0.5 rounded-full border border-blue-200/60">
+                              <MapPin className="w-2.5 h-2.5 text-[#E5B54F]" />
+                              <span>지도</span>
                             </span>
                           )}
                         </div>

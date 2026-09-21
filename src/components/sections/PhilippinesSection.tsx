@@ -38,6 +38,10 @@ export const PhilippinesSection: React.FC = () => {
                 <img
                   src={spot.image}
                   alt={spot.title}
+                  loading="lazy"
+                  decoding="async"
+                  width={600}
+                  height={400}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   referrerPolicy="no-referrer"
                 />

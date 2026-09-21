@@ -376,7 +376,7 @@ export const PostDetailModal: React.FC = () => {
                 target="_blank"
                 rel="noreferrer"
                 id="modal-post-telegram-btn"
-                className="py-2.5 px-4 bg-[#229ED9] hover:bg-[#1b8ec3] text-white rounded-xl text-xs font-bold flex items-center gap-1.5 border border-sky-400/40 transition-all hover:scale-105"
+                className="py-2.5 px-4 bg-[#0274b3] hover:bg-[#026aa2] text-white rounded-xl text-xs font-bold flex items-center gap-1.5 border border-sky-400/40 transition-all hover:scale-105"
               >
                 <Send className="w-3.5 h-3.5 text-white" />
                 <span>텔레그램 문의</span>

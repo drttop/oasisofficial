@@ -132,7 +132,7 @@ export const CasinoDetailModal: React.FC = () => {
                 target="_blank"
                 rel="noreferrer"
                 id="modal-casino-telegram-btn"
-                className="flex-1 sm:flex-initial px-4 py-2.5 rounded-lg text-white font-bold text-xs bg-[#229ED9] hover:bg-[#1b8ec3] transition-all flex items-center justify-center gap-1.5 border border-sky-400/40"
+                className="flex-1 sm:flex-initial px-4 py-2.5 rounded-lg text-white font-bold text-xs bg-[#0274b3] hover:bg-[#026aa2] transition-all flex items-center justify-center gap-1.5 border border-sky-400/40"
               >
                 <Send className="w-3.5 h-3.5" />
                 <span>텔레그램 문의</span>

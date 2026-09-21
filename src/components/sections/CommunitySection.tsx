@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { getPostUrl } from '../../utils/seo';
 import { isMapInContent } from '../../utils/postContent';
+import { getResponsiveImageProps } from '../../utils/imageOptimizer';
 
 const POSTS_PER_PAGE = 8;
 
@@ -136,8 +137,8 @@ export const CommunitySection: React.FC = () => {
         {filteredPosts.length === 0 ? (
           <div className="py-20 text-center text-slate-500 bg-slate-50 rounded-2xl border border-dashed border-slate-200 space-y-2">
             <FileText className="w-10 h-10 mx-auto text-slate-400" />
-            <p className="text-sm font-semibold">검색 조건에 일치하는 게시글이 없습니다.</p>
-            <p className="text-xs text-slate-400">다른 키워드 또는 카테고리를 선택해 보세요.</p>
+            <p className="text-sm font-semibold text-slate-700">검색 조건에 일치하는 게시글이 없습니다.</p>
+            <p className="text-xs text-slate-500">다른 키워드 또는 카테고리를 선택해 보세요.</p>
           </div>
         ) : (
           <>
@@ -162,7 +163,7 @@ export const CommunitySection: React.FC = () => {
                   {cardImage && (
                     <div className="relative h-28 sm:h-48 w-full overflow-hidden bg-slate-900">
                       <img
-                        src={cardImage}
+                        {...getResponsiveImageProps(cardImage, 600, '(max-width: 640px) 380px, (max-width: 1024px) 50vw, 380px')}
                         alt={post.title}
                         loading="lazy"
                         decoding="async"

@@ -37,6 +37,8 @@ export const HeroSection: React.FC = () => {
           )}
           <img
             src={currentBg}
+            srcSet={isLocalHero ? '/images/hero_bg_mobile.webp 640w, /images/hero_bg.webp 1376w' : undefined}
+            sizes="100vw"
             alt={slide.title}
             loading="eager"
             fetchPriority="high"

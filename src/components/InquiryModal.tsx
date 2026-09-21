@@ -88,7 +88,7 @@ export const InquiryModal: React.FC = () => {
                   href={siteConfig.telegramUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex-1 py-2 text-center text-xs font-bold text-white bg-[#229ED9] rounded-lg"
+                  className="flex-1 py-2 text-center text-xs font-bold text-white bg-[#0274b3] hover:bg-[#026aa2] transition-colors rounded-lg"
                 >
                   텔레그램 바로가기
                 </a>

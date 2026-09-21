@@ -58,7 +58,7 @@ export const BottomFloatingBar: React.FC = () => {
           rel="noopener noreferrer"
           id="floating-telegram-btn"
           aria-label={`텔레그램 상담 문의 (${siteConfig.telegramId || '상담'})`}
-          className="flex-1 max-w-[210px] px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-2xl bg-[#229ED9] hover:bg-[#1a8fc5] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-[0_8px_25px_rgba(34,158,217,0.35)] border border-sky-400/40 transition-all duration-200 hover:scale-105 active:scale-95 group"
+          className="flex-1 max-w-[210px] px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-2xl bg-[#0274b3] hover:bg-[#026aa2] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-[0_8px_25px_rgba(2,116,179,0.35)] border border-sky-400/40 transition-all duration-200 hover:scale-105 active:scale-95 group"
         >
           <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center shrink-0">
             <Send className="w-3.5 h-3.5 text-white" />

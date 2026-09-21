@@ -1,6 +1,7 @@
 import React from 'react';
 import { useSite, sortCasinos } from '../../context/SiteContext';
 import { Crown, Sparkles, Eye } from 'lucide-react';
+import { getResponsiveImageProps } from '../../utils/imageOptimizer';
 
 export const CasinoSection: React.FC = () => {
   const { casinos, setSelectedCasino, siteConfig } = useSite();
@@ -42,7 +43,7 @@ export const CasinoSection: React.FC = () => {
                 {/* Image Banner */}
                 <div className="relative h-28 min-[380px]:h-36 sm:h-56 w-full overflow-hidden bg-slate-900">
                   <img
-                    src={casino.image}
+                    {...getResponsiveImageProps(casino.image, 600, '(max-width: 640px) 380px, (max-width: 1024px) 50vw, 380px')}
                     alt={casino.name}
                     loading="lazy"
                     decoding="async"

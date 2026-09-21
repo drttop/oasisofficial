@@ -1,6 +1,7 @@
 import React from 'react';
 import { useSite } from '../../context/SiteContext';
 import { Compass, MapPin, Sparkles } from 'lucide-react';
+import { getResponsiveImageProps } from '../../utils/imageOptimizer';
 
 export const PhilippinesSection: React.FC = () => {
   const { philippineSpots, siteConfig } = useSite();
@@ -36,7 +37,7 @@ export const PhilippinesSection: React.FC = () => {
             >
               <div className="relative h-28 min-[380px]:h-36 sm:h-64 w-full overflow-hidden bg-slate-900">
                 <img
-                  src={spot.image}
+                  {...getResponsiveImageProps(spot.image, 600, '(max-width: 640px) 380px, (max-width: 1024px) 50vw, 380px')}
                   alt={spot.title}
                   loading="lazy"
                   decoding="async"

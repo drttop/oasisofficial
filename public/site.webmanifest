@@ -3,17 +3,17 @@
   "short_name": "마닐라 오아시스에이전시",
   "icons": [
     {
-      "src": "/favicon-96x96.png?v=2",
+      "src": "/favicon-96x96.png?v=3",
       "sizes": "96x96",
       "type": "image/png"
     },
     {
-      "src": "/favicon-192x192.png?v=2",
+      "src": "/favicon-192x192.png?v=3",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "/favicon-512x512.png?v=2",
+      "src": "/favicon-512x512.png?v=3",
       "sizes": "512x512",
       "type": "image/png"
     }

@@ -64,12 +64,12 @@ export const ProcessSection: React.FC = () => {
                   {/* Step Number Top */}
                   <div className="flex justify-between items-start mb-2.5 sm:mb-8">
                     <div className="flex flex-col">
-                      <span className="text-[8px] sm:text-xs font-black text-slate-400 group-hover:text-[#E5B54F] tracking-widest transition-colors mb-0.5 sm:mb-1">STEP</span>
+                      <span className="text-[8px] sm:text-xs font-black text-slate-600 group-hover:text-[#30308A] tracking-widest transition-colors mb-0.5 sm:mb-1">STEP</span>
                       <span className="font-montserrat text-xl sm:text-4xl font-black text-[#30308A] tracking-tight group-hover:scale-105 origin-left transition-transform leading-none">
                         {step.stepNumber.replace(/^0+/, '')}
                       </span>
                     </div>
-                    <div className="w-8 h-8 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-slate-50 border sm:border-2 border-slate-100 flex items-center justify-center text-[#30308A]/50 shadow-sm group-hover:bg-[#30308A] group-hover:border-[#30308A] group-hover:text-[#E5B54F] group-hover:shadow-md transition-all duration-300">
+                    <div className="w-8 h-8 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-slate-50 border sm:border-2 border-slate-100 flex items-center justify-center text-[#30308A]/70 shadow-sm group-hover:bg-[#30308A] group-hover:border-[#30308A] group-hover:text-[#E5B54F] group-hover:shadow-md transition-all duration-300">
                       <Icon className="w-4 h-4 sm:w-7 sm:h-7" />
                     </div>
                   </div>
@@ -80,7 +80,7 @@ export const ProcessSection: React.FC = () => {
                       <h3 className="text-xs sm:text-lg font-extrabold text-slate-900 leading-snug group-hover:text-[#30308A] transition-colors break-keep">
                         {step.title}
                       </h3>
-                      <p className="text-[8px] sm:text-xs font-bold text-slate-400 font-montserrat uppercase tracking-wider truncate hidden min-[360px]:block">
+                      <p className="text-[8px] sm:text-xs font-bold text-slate-600 font-montserrat uppercase tracking-wider truncate hidden min-[360px]:block">
                         {step.engTitle}
                       </p>
                     </div>
@@ -98,7 +98,7 @@ export const ProcessSection: React.FC = () => {
         {/* FAQ Section */}
         <div className="max-w-4xl mx-auto">
           <div className="text-center space-y-2 mb-10">
-            <div className="inline-flex items-center gap-1 text-xs font-bold text-slate-500 uppercase tracking-widest">
+            <div className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-700 uppercase tracking-widest">
               <HelpCircle className="w-4 h-4 text-[#30308A]" />
               <span>FREQUENTLY ASKED QUESTIONS</span>
             </div>

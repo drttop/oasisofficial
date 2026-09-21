@@ -23,6 +23,7 @@ export default defineConfig(() => {
       minify: 'esbuild',
       cssMinify: true,
       cssCodeSplit: true,
+      sourcemap: true,
       rollupOptions: {
         output: {
           manualChunks(id) {

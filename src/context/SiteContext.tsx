@@ -101,8 +101,8 @@ const STORAGE_KEYS = {
 
 const sanitizeConfig = (cfg: Partial<SiteConfig>): SiteConfig => {
   const merged = { ...initialSiteConfig, ...cfg };
-  if (merged.headerLogo && (merged.headerLogo.includes('oasis_gold_logo') || merged.headerLogo.includes('oasis_logo_official'))) {
-    merged.headerLogo = '';
+  if (!merged.headerLogo || merged.headerLogo.includes('oasis_gold_logo') || merged.headerLogo.includes('oasis_logo_official')) {
+    merged.headerLogo = '/images/oasis_header_logo.webp';
   }
   return merged;
 };

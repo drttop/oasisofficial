@@ -1,17 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useSite } from '../context/SiteContext';
 import { Menu, X, ChevronRight } from 'lucide-react';
-import { OasisLogoHorizontal } from './OasisLogoHorizontal';
 
 export const Header: React.FC = () => {
   const { siteConfig } = useSite();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [imgError, setImgError] = useState(false);
-
-  useEffect(() => {
-    setImgError(false);
-  }, [siteConfig.headerLogo]);
 
   useEffect(() => {
     let ticking = false;
@@ -62,27 +56,32 @@ export const Header: React.FC = () => {
         }`}
       >
         <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative flex items-center justify-between transition-all duration-300 ${isScrolled ? 'py-3.5' : 'py-4 sm:py-5'}`}>
-          {/* Logo & Brand: Horizontal SVG Logo */}
+          {/* Logo & Brand: Official Luxury Gold Logo */}
           <div className="flex-shrink-0 flex items-center z-10">
             <a
               href="#home"
               onClick={(e) => scrollToSection(e, '#home')}
               className="flex items-center group transition-transform hover:scale-105"
               id="brand-logo-link"
+              aria-label="마닐라 오아시스에이전시 홈으로 이동"
             >
-              {siteConfig.headerLogo && !imgError ? (
-                <img
-                  src={siteConfig.headerLogo}
-                  alt={siteConfig.siteName || "OASIS VIP"}
-                  width={200}
-                  height={40}
-                  decoding="async"
-                  onError={() => setImgError(true)}
-                  className="h-8 sm:h-10 w-auto max-w-[220px] object-contain"
-                />
-              ) : (
-                <OasisLogoHorizontal className="h-8 sm:h-10 w-auto max-w-[220px]" />
-              )}
+              <span className="sr-only">마닐라 오아시스에이전시 홈</span>
+              <img
+                src={siteConfig.headerLogo || "/images/oasis_header_logo.webp"}
+                alt={siteConfig.siteName || "OASIS VIP"}
+                width={200}
+                height={42}
+                fetchPriority="high"
+                loading="eager"
+                decoding="async"
+                onError={(e) => {
+                  const target = e.currentTarget;
+                  if (!target.src.endsWith('oasis_header_logo.png')) {
+                    target.src = '/images/oasis_header_logo.png';
+                  }
+                }}
+                className="h-8 sm:h-10 w-auto max-w-[220px] object-contain"
+              />
             </a>
           </div>
 

@@ -513,11 +513,11 @@ export const AdminDashboard: React.FC = () => {
                     <div className="space-y-3">
                       <div className="flex items-center gap-4">
                         <div className="w-48 h-16 rounded-xl bg-slate-950 border border-slate-700 p-2 flex items-center justify-center overflow-hidden">
-                          {siteConfig.headerLogo ? (
-                            <img src={siteConfig.headerLogo} alt="Logo Preview" className="max-w-full max-h-full object-contain" />
-                          ) : (
-                            <OasisLogoHorizontal className="w-full h-8" />
-                          )}
+                          <img
+                            src={siteConfig.headerLogo || "/images/oasis_header_logo.webp"}
+                            alt="Logo Preview"
+                            className="max-w-full max-h-full object-contain"
+                          />
                         </div>
                         <div className="flex-1 space-y-2">
                           <input
@@ -544,10 +544,10 @@ export const AdminDashboard: React.FC = () => {
                             className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded focus:ring-2 focus:ring-[#30308A]"
                           />
                         </div>
-                        {siteConfig.headerLogo && (
+                        {siteConfig.headerLogo && siteConfig.headerLogo !== '/images/oasis_header_logo.webp' && (
                           <button
                             onClick={() => {
-                              updateSiteConfig({ headerLogo: '' });
+                              updateSiteConfig({ headerLogo: '/images/oasis_header_logo.webp' });
                               showToast('기본 공식 골드 로고로 복원되었습니다.');
                             }}
                             className="px-3 py-2 bg-red-50 text-red-500 rounded-lg text-xs font-bold hover:bg-red-100 transition-colors whitespace-nowrap"

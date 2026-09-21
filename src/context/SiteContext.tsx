@@ -236,131 +236,133 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [activeSection, setActiveSection] = useState('home');
   const [isCloudSynced, setIsCloudSynced] = useState(false);
 
-  // 1. Setup Firestore Realtime Listeners & Auto-Seeding
+  // 1. Setup Firestore Realtime Listeners (Deferred until idle to maximize PageSpeed & minimize TBT)
   useEffect(() => {
     let unsubscribeConfig = () => {};
     let unsubscribePosts = () => {};
-    let unsubscribeInquiries = () => {};
     let unsubscribeCasinos = () => {};
     let unsubscribeSpots = () => {};
     let unsubscribeSlides = () => {};
     let unsubscribeSteps = () => {};
     let unsubscribeFaqs = () => {};
+    let isCancelled = false;
 
-    try {
-      // 1) Listen to Site Config (pure read)
-      const configDocRef = doc(db, 'site_config', 'main');
-      unsubscribeConfig = onSnapshot(configDocRef, (snap) => {
-        if (snap.exists()) {
-          const data = snap.data() as Partial<SiteConfig>;
-          setSiteConfigState(sanitizeConfig(data));
-          setIsCloudSynced(true);
-        }
-      }, (err) => console.warn('Firestore config listener error:', err));
-
-      // 2) Listen to Posts (pure read)
-      const postsColRef = collection(db, 'posts');
-      unsubscribePosts = onSnapshot(postsColRef, (snap) => {
-        if (!snap.empty) {
-          const remoteItems = snap.docs.map((d) => {
-            const data = d.data();
-            return {
-              ...data,
-              id: d.id,
-              viewCount: typeof data.viewCount === 'number' && !isNaN(data.viewCount) ? data.viewCount : 392,
-            } as PostItem;
-          });
-
-          // Merge with any freshly created local posts that might not have synced yet or are in local cache
-          setPostsState((prev) => {
-            const remoteMap = new Map(remoteItems.map((p) => [p.id, p]));
-            // Keep local posts if they were just created and not in remoteMap yet
-            const merged = [...remoteItems];
-            prev.forEach((localPost) => {
-              if (!remoteMap.has(localPost.id)) {
-                merged.push(localPost);
-              }
-            });
-            merged.sort((a, b) => {
-              if (a.isPinned && !b.isPinned) return -1;
-              if (!a.isPinned && b.isPinned) return 1;
-              const dateComp = (b.date || '').localeCompare(a.date || '');
-              if (dateComp !== 0) return dateComp;
-              return (b.createdAt || 0) - (a.createdAt || 0);
-            });
-            return merged;
-          });
-          setIsCloudSynced(true);
-        }
-      }, (err) => console.warn('Firestore posts listener error:', err));
-
-      // 3) Listen to Inquiries (pure read)
-      const inquiriesColRef = collection(db, 'inquiries');
-      unsubscribeInquiries = onSnapshot(inquiriesColRef, (snap) => {
-        if (!snap.empty) {
-          const items = snap.docs.map((d) => ({ ...d.data(), id: d.id } as InquiryLead));
-          items.sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
-          setInquiryLeadsState(items);
-        }
-      }, (err) => console.warn('Firestore inquiries listener error:', err));
-
-      // 4) Listen to Casinos (pure read)
-      const casinosColRef = collection(db, 'casinos');
-      unsubscribeCasinos = onSnapshot(casinosColRef, (snap) => {
-        if (!snap.empty) {
-          const rawItems = snap.docs.map((d) => ({ ...d.data(), id: d.id } as CasinoItem));
-          const sorted = sortCasinos(rawItems);
-          setCasinosState(sorted);
-        }
-      }, (err) => console.warn('Firestore casinos listener error:', err));
-
-      // 5) Listen to Philippine Tour Spots (pure read)
-      const spotsColRef = collection(db, 'philippine_spots');
-      unsubscribeSpots = onSnapshot(spotsColRef, (snap) => {
-        if (!snap.empty) {
-          const items = snap.docs.map((d) => ({ ...d.data(), id: d.id } as PhilippineTourSpot));
-          setPhilippineSpotsState(items);
-        }
-      }, (err) => console.warn('Firestore spots listener error:', err));
-
-      // 6) Listen to Banner Slides (pure read)
-      const slidesColRef = collection(db, 'banner_slides');
-      unsubscribeSlides = onSnapshot(slidesColRef, (snap) => {
-        if (!snap.empty) {
-          const rawItems = snap.docs.map((d) => ({ ...d.data(), id: d.id } as BannerSlide));
-          const cleanedItems = sanitizeSlides(rawItems);
-          setBannerSlidesState(cleanedItems);
-        }
-      }, (err) => console.warn('Firestore banner slides listener error:', err));
-
-      // 7) Listen to FAQs (pure read)
-      const faqsColRef = collection(db, 'faqs');
-      unsubscribeFaqs = onSnapshot(faqsColRef, (snap) => {
-        if (!snap.empty) {
-          const items = snap.docs.map((d) => ({ ...d.data(), id: d.id } as FAQItem));
-          setFaqsState(items);
-        }
-      }, (err) => console.warn('Firestore faqs listener error:', err));
-
-      // 8) Listen to Service Steps Doc (pure read)
-      const stepsDocRef = doc(db, 'site_config', 'service_steps');
-      unsubscribeSteps = onSnapshot(stepsDocRef, (snap) => {
-        if (snap.exists()) {
-          const data = snap.data();
-          if (Array.isArray(data.steps)) {
-            setServiceStepsState(data.steps);
+    // Start listeners during browser idle time or after initial render
+    const startListeners = () => {
+      if (isCancelled) return;
+      try {
+        // 1) Listen to Site Config
+        const configDocRef = doc(db, 'site_config', 'main');
+        unsubscribeConfig = onSnapshot(configDocRef, (snap) => {
+          if (snap.exists()) {
+            const data = snap.data() as Partial<SiteConfig>;
+            setSiteConfigState(sanitizeConfig(data));
+            setIsCloudSynced(true);
           }
-        }
-      }, (err) => console.warn('Firestore service steps listener error:', err));
+        }, (err) => console.warn('Firestore config listener error:', err));
 
-    } catch (err) {
-      console.error('Firebase initialization error:', err);
-    }
+        // 2) Listen to Posts
+        const postsColRef = collection(db, 'posts');
+        unsubscribePosts = onSnapshot(postsColRef, (snap) => {
+          if (!snap.empty) {
+            const remoteItems = snap.docs.map((d) => {
+              const data = d.data();
+              return {
+                ...data,
+                id: d.id,
+                viewCount: typeof data.viewCount === 'number' && !isNaN(data.viewCount) ? data.viewCount : 392,
+              } as PostItem;
+            });
+
+            setPostsState((prev) => {
+              const remoteMap = new Map(remoteItems.map((p) => [p.id, p]));
+              const merged = [...remoteItems];
+              prev.forEach((localPost) => {
+                if (!remoteMap.has(localPost.id)) {
+                  merged.push(localPost);
+                }
+              });
+              merged.sort((a, b) => {
+                if (a.isPinned && !b.isPinned) return -1;
+                if (!a.isPinned && b.isPinned) return 1;
+                const dateComp = (b.date || '').localeCompare(a.date || '');
+                if (dateComp !== 0) return dateComp;
+                return (b.createdAt || 0) - (a.createdAt || 0);
+              });
+              return merged;
+            });
+            setIsCloudSynced(true);
+          }
+        }, (err) => console.warn('Firestore posts listener error:', err));
+
+        // 3) Listen to Casinos
+        const casinosColRef = collection(db, 'casinos');
+        unsubscribeCasinos = onSnapshot(casinosColRef, (snap) => {
+          if (!snap.empty) {
+            const rawItems = snap.docs.map((d) => ({ ...d.data(), id: d.id } as CasinoItem));
+            const sorted = sortCasinos(rawItems);
+            setCasinosState(sorted);
+          }
+        }, (err) => console.warn('Firestore casinos listener error:', err));
+
+        // 4) Listen to Philippine Tour Spots
+        const spotsColRef = collection(db, 'philippine_spots');
+        unsubscribeSpots = onSnapshot(spotsColRef, (snap) => {
+          if (!snap.empty) {
+            const items = snap.docs.map((d) => ({ ...d.data(), id: d.id } as PhilippineTourSpot));
+            setPhilippineSpotsState(items);
+          }
+        }, (err) => console.warn('Firestore spots listener error:', err));
+
+        // 5) Listen to Banner Slides
+        const slidesColRef = collection(db, 'banner_slides');
+        unsubscribeSlides = onSnapshot(slidesColRef, (snap) => {
+          if (!snap.empty) {
+            const rawItems = snap.docs.map((d) => ({ ...d.data(), id: d.id } as BannerSlide));
+            const cleanedItems = sanitizeSlides(rawItems);
+            setBannerSlidesState(cleanedItems);
+          }
+        }, (err) => console.warn('Firestore banner slides listener error:', err));
+
+        // 6) Listen to FAQs
+        const faqsColRef = collection(db, 'faqs');
+        unsubscribeFaqs = onSnapshot(faqsColRef, (snap) => {
+          if (!snap.empty) {
+            const items = snap.docs.map((d) => ({ ...d.data(), id: d.id } as FAQItem));
+            setFaqsState(items);
+          }
+        }, (err) => console.warn('Firestore faqs listener error:', err));
+
+        // 7) Listen to Service Steps Doc
+        const stepsDocRef = doc(db, 'site_config', 'service_steps');
+        unsubscribeSteps = onSnapshot(stepsDocRef, (snap) => {
+          if (snap.exists()) {
+            const data = snap.data();
+            if (Array.isArray(data.steps)) {
+              setServiceStepsState(data.steps);
+            }
+          }
+        }, (err) => console.warn('Firestore service steps listener error:', err));
+
+      } catch (err) {
+        console.error('Firebase initialization error:', err);
+      }
+    };
+
+    // Defer listener initialization to free main thread for initial paint & interaction
+    const timer = setTimeout(() => {
+      if ('requestIdleCallback' in window) {
+        (window as any).requestIdleCallback(startListeners, { timeout: 2000 });
+      } else {
+        startListeners();
+      }
+    }, 1200);
 
     return () => {
+      isCancelled = true;
+      clearTimeout(timer);
       unsubscribeConfig();
       unsubscribePosts();
-      unsubscribeInquiries();
       unsubscribeCasinos();
       unsubscribeSpots();
       unsubscribeSlides();
@@ -368,6 +370,25 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
       unsubscribeFaqs();
     };
   }, []);
+
+  // 1-B. Inquiries listener: ONLY active when Admin panel is opened
+  useEffect(() => {
+    if (!isAdminOpen) return;
+    let unsubscribe = () => {};
+    try {
+      const inquiriesColRef = collection(db, 'inquiries');
+      unsubscribe = onSnapshot(inquiriesColRef, (snap) => {
+        if (!snap.empty) {
+          const items = snap.docs.map((d) => ({ ...d.data(), id: d.id } as InquiryLead));
+          items.sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+          setInquiryLeadsState(items);
+        }
+      }, (err) => console.warn('Firestore inquiries listener error:', err));
+    } catch (err) {
+      console.warn('Inquiries listener error:', err);
+    }
+    return () => unsubscribe();
+  }, [isAdminOpen]);
 
   // Local Storage Mirroring for immediate responsive UX
   useEffect(() => {

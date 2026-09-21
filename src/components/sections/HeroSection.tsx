@@ -30,7 +30,10 @@ export const HeroSection: React.FC = () => {
       <div className="absolute inset-0">
         <picture className="w-full h-full">
           {isLocalHero && (
-            <source srcSet="/images/hero_bg.webp" type="image/webp" />
+            <>
+              <source media="(max-width: 640px)" srcSet="/images/hero_bg_mobile.webp" type="image/webp" />
+              <source media="(min-width: 641px)" srcSet="/images/hero_bg.webp" type="image/webp" />
+            </>
           )}
           <img
             src={currentBg}

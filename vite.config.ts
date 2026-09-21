@@ -15,10 +15,14 @@ export default defineConfig(() => {
       hmr: process.env.DISABLE_HMR !== 'true',
       watch: process.env.DISABLE_HMR === 'true' ? null : {},
     },
+    esbuild: {
+      drop: process.env.NODE_ENV === 'production' ? ['console', 'debugger'] : [],
+    },
     build: {
       target: 'esnext',
       minify: 'esbuild',
       cssMinify: true,
+      cssCodeSplit: true,
       rollupOptions: {
         output: {
           manualChunks(id) {

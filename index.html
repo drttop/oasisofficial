@@ -13,8 +13,9 @@
     <link rel="preconnect" href="https://images.unsplash.com" crossorigin />
     <link rel="dns-prefetch" href="https://images.unsplash.com" />
 
-    <!-- Preload Largest Contentful Paint (LCP) Hero Image with High Fetch Priority -->
-    <link rel="preload" as="image" href="/images/hero_bg.webp" type="image/webp" fetchpriority="high" />
+    <!-- Preload Largest Contentful Paint (LCP) Hero Image with Responsive Media Queries -->
+    <link rel="preload" as="image" href="/images/hero_bg_mobile.webp" type="image/webp" media="(max-width: 640px)" fetchpriority="high" />
+    <link rel="preload" as="image" href="/images/hero_bg.webp" type="image/webp" media="(min-width: 641px)" fetchpriority="high" />
 
     <title>마닐라 오아시스에이전시 | 필리핀 마닐라 카지노 공식 VIP 에이전트</title>
     <meta name="description" content="마닐라 오아시스에이전시 - 필리핀 마닐라 & 클락 메이저 복합리조트 공식 VIP 에이전트. 오카다, 솔레어, 시티오브드림즈, 클락 한 5성급 호텔 프리룸, 전용 의전 세단, 24시간 한국인 1:1 컨시어지 케어" />
@@ -176,11 +177,9 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
-    <!-- Optimized Font Loading -->
-    <link rel="preload" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" as="style" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Montserrat:wght@400;500;600;700;800&display=swap" as="style" />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Montserrat:wght@400;500;600;700;800&display=swap" />
+    <!-- 100% Non-render-blocking Font Stylesheets (Eliminates Render-Blocking CSS in PageSpeed) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" media="print" onload="this.media='all'" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Montserrat:wght@400;500;600;700;800&display=swap" media="print" onload="this.media='all'" />
   </head>
   <body class="font-sans antialiased bg-white text-slate-900 selection:bg-[#30308A] selection:text-white">
     <div id="root"></div>

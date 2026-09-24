@@ -77,9 +77,9 @@ async function syncSEO() {
 
     const targetSiteName = (siteConfig && siteConfig.siteName) || '마닐라 오아시스에이전시';
 
-    // Update noscript block (specifically target crawlable fallback in body)
+    // Update noscript block (specifically target crawlable fallback in body, ensure only 1 H1 exists on page)
     const noscriptRegex = /<noscript id="seo-crawlable-fallback">[\s\S]*?<\/noscript>|<noscript>[\s\S]*?<\/main>\s*<\/noscript>/;
-    const newNoscript = `<noscript id="seo-crawlable-fallback">\n      <main style="padding: 20px; font-family: sans-serif; max-width: 900px; margin: 0 auto;">\n        <h1>${targetSiteName} | 오아시스 VIP 에이전시 공식 커뮤니티 및 가이드</h1>\n        <p>${targetSiteName} 공식 웹사이트 - 필리핀 마닐라 & 클락 최고급 카지노 VIP 정킷 에이전시 오아시스의 공식 안내, 멤버십 혜택, 호텔 프로모션 및 여행 가이드입니다.</p>\n        \n${noscriptArticles}\n      </main>\n    </noscript>`;
+    const newNoscript = `<noscript id="seo-crawlable-fallback">\n      <main style="padding: 20px; font-family: sans-serif; max-width: 900px; margin: 0 auto;">\n        <h2 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 0.75rem;">${targetSiteName} | 오아시스 VIP 에이전시 공식 커뮤니티 및 가이드</h2>\n        <p>${targetSiteName} 공식 웹사이트 - 필리핀 마닐라 & 클락 최고급 카지노 VIP 정킷 에이전시 오아시스의 공식 안내, 멤버십 혜택, 호텔 프로모션 및 여행 가이드입니다.</p>\n        \n${noscriptArticles}\n      </main>\n    </noscript>`;
     if (noscriptRegex.test(indexHtml)) {
       indexHtml = indexHtml.replace(noscriptRegex, newNoscript);
     }

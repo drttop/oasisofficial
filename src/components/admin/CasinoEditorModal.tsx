@@ -43,7 +43,7 @@ export const CasinoEditorModal: React.FC<CasinoEditorModalProps> = ({ casinoToEd
       setEnglishName('');
       setRegion('manila');
       setRegionLabel('마닐라 엔터테인먼트 시티');
-      setImage('https://images.unsplash.com/photo-1511193311914-0346f16efe90?auto=format&fit=crop&w=1200&q=80');
+      setImage('https://images.unsplash.com/photo-1511193311914-0346f16efe90?auto=format&fm=webp&fit=crop&w=1200&q=80&ext=.webp');
       setDescription('');
       setFeaturesInput('5성급 스위트 호텔 직결\n프라이빗 VIP 룸 운영\n공항 패스트트랙 연계');
       setTableGames('바카라, 블랙잭, 룰렛 (300+ 테이블)');

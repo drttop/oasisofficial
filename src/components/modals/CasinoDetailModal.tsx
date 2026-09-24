@@ -1,6 +1,7 @@
 import React from 'react';
 import { useSite } from '../../context/SiteContext';
 import { X, MapPin, Sparkles, Check, Building2, Crown, MessageCircle, Send, Star } from 'lucide-react';
+import { getOptimizedImageUrl } from '../../utils/imageOptimizer';
 
 export const CasinoDetailModal: React.FC = () => {
   const { selectedCasino, setSelectedCasino, siteConfig } = useSite();
@@ -14,10 +15,12 @@ export const CasinoDetailModal: React.FC = () => {
         {/* Top Image Banner */}
         <div className="relative h-64 sm:h-72 w-full bg-slate-900 overflow-hidden">
           <img
-            src={selectedCasino.image}
+            src={getOptimizedImageUrl(selectedCasino.image, 1000, 80)}
             alt={selectedCasino.name}
             className="w-full h-full object-cover opacity-90"
             referrerPolicy="no-referrer"
+            loading="lazy"
+            decoding="async"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
           

@@ -31,7 +31,7 @@ export const initialSiteConfig: SiteConfig = {
   aboutStoryParagraph1: '오아시스 공식 에이전트는 필리핀의 각종 게임규제 정부부처의 규정을 준수하며 협력하고 있습니다. 13년간 필리핀 현지에서 직접 상주하며 단 한 건의 사고 없는 무결점 VIP 운영을 약속합니다.  필리핀 정부 게이밍 규제기관(PAGCOR), 필리핀 경기감독위원회(GAB), 필리핀 자선복권공사(PCSO)와의 공식 파트너십을 통해 \n법적 리스크 없는 100% 안전한 여정을 보장합니다.',
   aboutStoryParagraph2: '단순한 중개를 넘어 마닐라(오카다, 솔레어, 시티오브드림즈) 및 클락(한 카지노, 디하이츠, 로이스) 현지 법인 인프라를 바탕으로, 공항 VIP 패스트트랙 입국부터 최고급 의전 차량, 5성급 스위트룸 무료 바우처, 전담 한국인 매니저의 24시간 현지 밀착 케어까지 원스톱으로 책임집니다.',
   aboutStoryHighlight: ' 하단박스',
-  aboutImageUrl: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=600&q=75',
+  aboutImageUrl: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fm=webp&fit=crop&w=600&q=75&ext=.webp',
   aboutLicenseTitle: '필리핀 정부기관 공식 승인 에이전시',
   aboutLicenseSub: 'PAGCOR · GAB · PCSO Official Registered Agency',
   aboutYearsExperience: '13년 현지 직영',
@@ -86,7 +86,7 @@ export const initialCasinos: CasinoItem[] = [
     englishName: 'Okada Manila Resort & Casino',
     region: 'manila',
     regionLabel: '마닐라 엔터테인먼트 시티',
-    image: 'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?auto=format&fit=crop&w=600&q=75',
+    image: 'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?auto=format&fm=webp&fit=crop&w=600&q=75&ext=.webp',
     description: '아시아 최대 규모의 복합 엔터테인먼트 리조트로, 환상적인 분수 쇼와 럭셔리 스위트 객실, 최고급 VIP 전용 프라이빗 살롱을 보유하고 있습니다.',
     features: ['세계 최대 규모 멀티컬러 분수 쇼', '993개 전 객실 특급 스위트 구성', '프라이빗 VIP 전용 럭셔리 살롱 보유', '미슐랭 스타 다이닝 및 실내 비치클럽 코브(Cove)'],
     tableGames: 'VIP 전용 프리미엄 테이블 및 룰렛 (500+ 테이블)',
@@ -102,7 +102,7 @@ export const initialCasinos: CasinoItem[] = [
     englishName: 'City of Dreams Manila',
     region: 'manila',
     regionLabel: '마닐라 엔터테인먼트 시티',
-    image: 'https://images.unsplash.com/photo-1540541338287-41700207dee6?auto=format&fit=crop&w=600&q=75',
+    image: 'https://images.unsplash.com/photo-1540541338287-41700207dee6?auto=format&fm=webp&fit=crop&w=600&q=75&ext=.webp',
     description: '노부 호텔, 하얏트, 누와 호텔 3개의 세계적 5성급 호텔이 결합된 초대형 랜드마크로 모던하고 트렌디한 VIP 카지노 환경을 제공합니다.',
     features: ['3대 럭셔리 호텔 브랜드 집약', '드림플레이 테마파크 & 고급 라운지', '최첨단 전자 게이밍 및 프리미엄 라이브 테이블', '황금빛 돔 구조의 상징적 건축미'],
     tableGames: 'VIP 라이브 프리미엄 테이블, 룰렛 등 (300+ 테이블)',
@@ -118,7 +118,7 @@ export const initialCasinos: CasinoItem[] = [
     englishName: 'Solaire Resort & Casino Manila',
     region: 'manila',
     regionLabel: '마닐라 엔터테인먼트 시티',
-    image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=600&q=75',
+    image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fm=webp&fit=crop&w=600&q=75&ext=.webp',
     description: '마닐라 베이의 아름다운 일몰을 조망하는 필리핀 최초의 통합 럭셔리 리조트로, 최상의 보안과 격조 높은 VIP 서비스를 자랑합니다.',
     features: ['마닐라 베이 오션뷰 파노라마 전경', '포브스 8년 연속 5성급 획득', '명품 부티크 거리(루이비통, 구찌 등) 입점', '세계 최고 권위의 셰프 레스토랑'],
     tableGames: '프리미엄 테이블 게임 라운지 (400+ 테이블)',
@@ -134,7 +134,7 @@ export const initialCasinos: CasinoItem[] = [
     englishName: 'Newport World Resorts (구 리조트 월드 마닐라)',
     region: 'manila',
     regionLabel: '마닐라 공항 제3터미널 맞은편',
-    image: 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=600&q=75',
+    image: 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fm=webp&fit=crop&w=600&q=75&ext=.webp',
     description: '마닐라 국제공항 바로 앞에 위치하여 뛰어난 접근성을 자랑하며, 메리어트, 쉐라톤, 힐튼 등 글로벌 체인 호텔과 연결된 전통의 명문 카지노입니다.',
     features: ['마닐라 공항 3터미널 도보 브릿지 연결(Runway Manila)', '글로벌 특급 호텔 5개 결합 단지', '대형 쇼핑몰 및 뮤지컬 극장 보유', '24시간 활기찬 엔터테인먼트 시설'],
     tableGames: 'VIP 전용 테이블 게임 및 룰렛 라운지',
@@ -150,7 +150,7 @@ export const initialCasinos: CasinoItem[] = [
     englishName: 'Hann Casino Resort Clark',
     region: 'clark',
     regionLabel: '클락 경제자유구역 (Clark Freeport Zone)',
-    image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=600&q=75',
+    image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fm=webp&fit=crop&w=600&q=75&ext=.webp',
     description: '클락 최고의 최신식 5성급 복합 리조트로, 메리어트 호텔 & 스위소텔과 직결되어 쾌적하고 안전한 최고급 게이밍 환경을 제공합니다.',
     features: ['클락 최대 규모 최신식 5성급 시설', '스위소텔 & 클락 메리어트 호텔 직통 연결', '주변 명문 골프장 10분 이내 위치', '최고 수준의 치안 및 프라이버시 보장'],
     tableGames: '최신 전자 테이블 & VIP 전용 프리미엄 테이블',
@@ -166,7 +166,7 @@ export const initialCasinos: CasinoItem[] = [
     englishName: "D'Heights Resort and Casino Clark",
     region: 'clark',
     regionLabel: '클락 몬테레이 힐스',
-    image: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=600&q=75',
+    image: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fm=webp&fit=crop&w=600&q=75&ext=.webp',
     description: '클락의 수려한 자연경관 속에 위치한 프리미엄 리조트로, 썬밸리 골프장과 인접하여 여유로운 힐링과 고품격 게이밍을 동시에 만끽할 수 있습니다.',
     features: ['자연 친화적 힐튼 호텔 직결', '36홀 클락 썬밸리 CC 바로 인접', '조용하고 프라이빗한 VIP 전용 살롱 환경', '가족 및 비즈니스 동반 최적화 리조트'],
     tableGames: 'VIP 테이블 게임 및 전자 게임 라운지',
@@ -184,7 +184,7 @@ export const initialPhilippineSpots: PhilippineTourSpot[] = [
     category: 'hotel',
     title: '마닐라 베이 5성급 럭셔리 스위트 호텔',
     subtitle: '오카다 / 솔레어 / 그랜드 하얏트 BGC',
-    image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=600&q=75',
+    image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fm=webp&fit=crop&w=600&q=75&ext=.webp',
     description: '오아시스 VIP 고객님께는 최고급 오션뷰 및 스위트 객실 무료 지원 또는 특별 프로모션 요율을 적용해 드립니다.',
     tags: ['5성급 호텔', '스위트룸 무료지원', '오션뷰', '24시간 룸서비스'],
     location: 'Metro Manila',
@@ -194,7 +194,7 @@ export const initialPhilippineSpots: PhilippineTourSpot[] = [
     category: 'golf',
     title: '마닐라 & 클락 명문 프라이빗 골프 투어',
     subtitle: '미모사 골프클럽 / 클락 썬밸리 CC / FA코리아 CC',
-    image: 'https://images.unsplash.com/photo-1535131749006-b7f58c99034b?auto=format&fit=crop&w=600&q=75',
+    image: 'https://images.unsplash.com/photo-1535131749006-b7f58c99034b?auto=format&fm=webp&fit=crop&w=600&q=75&ext=.webp',
     description: '필리핀 최고의 잔디 컨디션을 자랑하는 PGA급 코스에서 1:1 캐디 및 전용 카트, 패스트 부킹 혜택을 제공합니다.',
     tags: ['명문 골프장', 'PGA 36홀', 'VIP 티오프 우선예약', '클럽하우스 의전'],
     location: 'Clark / Angeles',
@@ -204,7 +204,7 @@ export const initialPhilippineSpots: PhilippineTourSpot[] = [
     category: 'dining',
     title: 'BGC & 카지노 리조트 최고급 파인다이닝',
     subtitle: '미슐랭 스타 일식, 최고급 한우/와규 스테이크 & 와인 바',
-    image: 'https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?auto=format&fit=crop&w=600&q=75',
+    image: 'https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?auto=format&fm=webp&fit=crop&w=600&q=75&ext=.webp',
     description: '필리핀 최고의 부촌 BGC(보니파시오)와 호텔 리조트 내 프리미엄 레스토랑 사전 예약 및 VIP 할인 서비스를 지원합니다.',
     tags: ['파인다이닝', '미슐랭 셰프', '프라이빗 룸', 'VIP 바우처'],
     location: 'Bonifacio Global City',
@@ -214,7 +214,7 @@ export const initialPhilippineSpots: PhilippineTourSpot[] = [
     category: 'travel_info',
     title: '필리핀 입국 규정 및 안심 VIP 의전 가이드',
     subtitle: 'e-Travel 사전 등록 대행, 여권 6개월 이상, 무비자 30일 체류',
-    image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=600&q=75',
+    image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fm=webp&fit=crop&w=600&q=75&ext=.webp',
     description: '복잡한 입국 절차 없이 공항 내 VIP 패스트트랙 통과부터 최고급 의전 세단으로 호텔까지 안전하고 신속하게 모십니다.',
     tags: ['공항 패스트트랙', 'eTravel 지원', '안전보안', '전용 리무진'],
     location: 'NAIA Manila & Clark Airport',
@@ -290,7 +290,7 @@ export const initialPosts: PostItem[] = [
 - 24시간 공식 텔레그램(@oasis_official_agent) 및 공식 카카오톡 채널을 통해서만 공식 계좌 및 픽업 예약이 진행됩니다. 유사 사칭 채널에 각별히 유의해 주시기 바랍니다.
 
 고객님의 품격 있는 필리핀 여정을 오아시스가 가장 완벽하게 완성해 드리겠습니다. 감사합니다.`,
-    thumbnail: 'https://images.unsplash.com/photo-1511193311914-0346f16efe90?auto=format&fit=crop&w=600&q=75',
+    thumbnail: 'https://images.unsplash.com/photo-1511193311914-0346f16efe90?auto=format&fm=webp&fit=crop&w=600&q=75&ext=.webp',
     tags: ['공지사항', 'VIP혜택', '오아시스공식', '마닐라', '클락'],
   },
   {
@@ -316,7 +316,7 @@ export const initialPosts: PostItem[] = [
 
 [신청 및 예약 방법]
 하단 실시간 카카오톡 또는 텔레그램으로 '가을 프로모션 예약' 메시지를 보내주시면 즉시 배정해 드립니다.`,
-    thumbnail: 'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?auto=format&fit=crop&w=600&q=75',
+    thumbnail: 'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?auto=format&fm=webp&fit=crop&w=600&q=75&ext=.webp',
     tags: ['프로모션', '오카다마닐라', '솔레어', '스위트룸무료'],
     mapLocation: {
       title: '오카다 마닐라 (Okada Manila)',
@@ -344,7 +344,7 @@ export const initialPosts: PostItem[] = [
 [지도:한 카지노 리조트 클락|M.A. Roxas Highway, Clark Freeport, Angeles, Pampanga]
 
 클락의 깨끗한 자연과 골프, 최신 시설의 게이밍을 원하시는 고객님께 강력 추천합니다.`,
-    thumbnail: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=600&q=75',
+    thumbnail: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fm=webp&fit=crop&w=600&q=75&ext=.webp',
     tags: ['클락카지노', '한카지노', 'VIP살롱', '클락투어'],
     mapLocation: {
       title: '한 카지노 & 리조트 클락 (Hann Casino)',
@@ -377,7 +377,7 @@ export const initialPosts: PostItem[] = [
 - 미화 10,000 USD 이상 소지 시 입국 시 세관 신고가 필요하며, 현지 페소화는 최대 50,000 PHP까지 소지 가능합니다.
 
 궁금하신 점은 24시간 언제든 오아시스 고객센터로 문의해 주시기 바랍니다.`,
-    thumbnail: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=600&q=75',
+    thumbnail: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fm=webp&fit=crop&w=600&q=75&ext=.webp',
     tags: ['입국가이드', 'eTravel', '필리핀여행', '마닐라공항'],
   },
   {
@@ -398,7 +398,7 @@ export const initialPosts: PostItem[] = [
 5. Ruth's Chris Steak House - 뜨거운 500도 버터 플레이트에 서빙되는 최상급 필레미뇽
 
 오아시스 전담 실장이 프라이빗 룸 사전 예약 및 차량 의전을 함께 도와드립니다.`,
-    thumbnail: 'https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?auto=format&fit=crop&w=600&q=75',
+    thumbnail: 'https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?auto=format&fm=webp&fit=crop&w=600&q=75&ext=.webp',
     tags: ['BGC', '파인다이닝', '미식투어', '마닐라야경'],
   },
   {
@@ -427,7 +427,7 @@ export const initialPosts: PostItem[] = [
 - 일정 중 발생할 수 있는 모든 요구사항과 골프 투어, 식사 예약 등을 즉각 처리해 드립니다.
 
 안전하고 품격 있는 VIP 여행의 시작, 오아시스가 가장 완벽하게 책임지겠습니다.`,
-    thumbnail: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=600&q=75',
+    thumbnail: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fm=webp&fit=crop&w=600&q=75&ext=.webp',
     tags: ['공항의전', 'VIP픽업', '알파드리무진', '패스트트랙', '안심여행'],
   },
 ];

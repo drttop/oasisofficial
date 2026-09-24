@@ -19,6 +19,7 @@ import {
 import { getPostUrl } from '../../utils/seo';
 import { parsePostContent } from '../../utils/postContent';
 import { GoogleMapEmbed } from '../community/GoogleMapEmbed';
+import { getOptimizedImageUrl } from '../../utils/imageOptimizer';
 
 export const PostDetailModal: React.FC = () => {
   const { selectedPost, setSelectedPost, siteConfig } = useSite();
@@ -178,10 +179,12 @@ export const PostDetailModal: React.FC = () => {
                   className="group relative rounded-2xl overflow-hidden shadow-sm border border-slate-200 bg-slate-900 cursor-zoom-in max-h-80"
                 >
                   <img
-                    src={displayImages[0]}
+                    src={getOptimizedImageUrl(displayImages[0], 1000, 80)}
                     alt={selectedPost.title}
                     className="w-full h-full max-h-80 object-cover group-hover:scale-102 transition-transform duration-300"
                     referrerPolicy="no-referrer"
+                    loading="lazy"
+                    decoding="async"
                   />
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
                     <span className="opacity-0 group-hover:opacity-100 transition-opacity px-3 py-1.5 rounded-lg bg-black/60 text-white text-xs font-bold flex items-center gap-1.5 backdrop-blur-sm shadow">
@@ -202,10 +205,12 @@ export const PostDetailModal: React.FC = () => {
                       className="group relative rounded-2xl overflow-hidden shadow-sm border border-slate-200 bg-slate-900 cursor-zoom-in h-44 sm:h-52"
                     >
                       <img
-                        src={imgSrc}
+                        src={getOptimizedImageUrl(imgSrc, 600, 75)}
                         alt={`${selectedPost.title} - 사진 ${idx + 1}`}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         referrerPolicy="no-referrer"
+                        loading="lazy"
+                        decoding="async"
                       />
                       <span className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-md bg-slate-900/80 backdrop-blur-sm text-white text-[10px] font-bold">
                         사진 {idx + 1}
@@ -249,10 +254,12 @@ export const PostDetailModal: React.FC = () => {
                     className="my-5 group relative rounded-2xl overflow-hidden shadow-sm hover:shadow-md border border-slate-200 bg-slate-950 cursor-zoom-in transition-all"
                   >
                     <img
-                      src={segment.imageUrl}
+                      src={getOptimizedImageUrl(segment.imageUrl, 1000, 80)}
                       alt={`${selectedPost.title} - ${segment.imageLabel || '본문 사진'}`}
                       className="w-full max-h-[440px] object-cover sm:object-contain bg-slate-950 group-hover:scale-[1.01] transition-transform duration-300"
                       referrerPolicy="no-referrer"
+                      loading="lazy"
+                      decoding="async"
                     />
                     <div className="absolute top-3 left-3 flex items-center gap-1.5">
                       <span className="px-2.5 py-1 rounded-lg bg-slate-900/85 backdrop-blur-sm text-white text-xs font-bold flex items-center gap-1.5 shadow border border-white/10">
@@ -320,10 +327,12 @@ export const PostDetailModal: React.FC = () => {
                     className="group relative rounded-xl overflow-hidden shadow-sm border border-slate-200 bg-slate-900 cursor-zoom-in h-36 sm:h-44"
                   >
                     <img
-                      src={imgSrc}
+                      src={getOptimizedImageUrl(imgSrc, 600, 75)}
                       alt="첨부 사진"
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       referrerPolicy="no-referrer"
+                      loading="lazy"
+                      decoding="async"
                     />
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/25 transition-colors flex items-center justify-center">
                       <span className="opacity-0 group-hover:opacity-100 transition-opacity px-3 py-1.5 rounded-lg bg-black/70 text-white text-xs font-bold flex items-center gap-1.5 backdrop-blur-sm shadow">

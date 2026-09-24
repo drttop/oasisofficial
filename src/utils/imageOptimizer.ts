@@ -11,10 +11,10 @@ export function getOptimizedImageUrl(
 ): string {
   if (!url) return '';
   
-  // Optimize Unsplash images dynamically
+  // Optimize Unsplash images dynamically to modern WebP format
   if (url.includes('images.unsplash.com')) {
     const base = url.split('?')[0];
-    return `${base}?auto=format&fit=crop&w=${width}&q=${quality}`;
+    return `${base}?auto=format&fm=webp&fit=crop&w=${width}&q=${quality}&ext=.webp`;
   }
 
   return url;

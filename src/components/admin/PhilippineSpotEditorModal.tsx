@@ -43,7 +43,7 @@ export const PhilippineSpotEditorModal: React.FC<Props> = ({
         subtitle: '',
         category: 'hotel',
         location: '',
-        image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80',
+        image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fm=webp&fit=crop&w=800&q=80&ext=.webp',
         description: '',
         tagsString: '특급호텔, VIP의전, 스위트룸',
       });
@@ -69,7 +69,7 @@ export const PhilippineSpotEditorModal: React.FC<Props> = ({
       subtitle: formData.subtitle,
       category: formData.category as PhilippineTourSpot['category'],
       location: formData.location || 'Metro Manila / Clark',
-      image: formData.image || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80',
+      image: formData.image || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fm=webp&fit=crop&w=800&q=80&ext=.webp',
       description: formData.description,
       tags: tags.length > 0 ? tags : ['VIP의전', '필리핀투어'],
     };

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useSite } from '../../context/SiteContext';
 import { Crown } from 'lucide-react';
 
-const FALLBACK_HERO_IMAGE = 'https://images.unsplash.com/photo-1518609878373-06d740f60d8b?auto=format&fit=crop&w=2000&q=80';
+const FALLBACK_HERO_IMAGE = 'https://images.unsplash.com/photo-1518609878373-06d740f60d8b?auto=format&fm=webp&fit=crop&w=2000&q=80&ext=.webp';
 
 export const HeroSection: React.FC = () => {
   const { bannerSlides } = useSite();

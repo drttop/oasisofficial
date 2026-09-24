@@ -213,8 +213,15 @@ export function applySEO(post: PostItem | null, siteConfig: SiteConfig) {
           'description': defaultDesc,
           'inLanguage': 'ko-KR',
           'publisher': {
-            '@type': 'Organization',
             '@id': `${currentBaseUrl}#organization`,
+          },
+          'potentialAction': {
+            '@type': 'SearchAction',
+            'target': {
+              '@type': 'EntryPoint',
+              'urlTemplate': `${currentBaseUrl}?q={search_term_string}`,
+            },
+            'query-input': 'required name=search_term_string',
           },
         },
         {
@@ -248,16 +255,7 @@ export function applySEO(post: PostItem | null, siteConfig: SiteConfig) {
             'postalCode': '1701',
             'addressCountry': 'PH',
           },
-          'areaServed': [
-            {
-              '@type': 'Country',
-              'name': 'South Korea',
-            },
-            {
-              '@type': 'Country',
-              'name': 'Philippines',
-            },
-          ],
+          'areaServed': ['KR', 'PH'],
           'contactPoint': [
             {
               '@type': 'ContactPoint',

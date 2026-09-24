@@ -49,8 +49,15 @@
       "description": "마닐라 오아시스에이전시 - 필리핀 마닐라 & 클락 메이저 복합리조트 공식 VIP 에이전트. 오카다, 솔레어, 시티오브드림즈, 클락 한 5성급 호텔 프리룸, 전용 의전 세단, 24시간 한국인 1:1 컨시어지 케어",
       "inLanguage": "ko-KR",
       "publisher": {
-        "@type": "Organization",
         "@id": "https://oasis46.com/#organization"
+      },
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://oasis46.com/?q={search_term_string}"
+        },
+        "query-input": "required name=search_term_string"
       }
     }
     </script>
@@ -87,16 +94,7 @@
         "postalCode": "1701",
         "addressCountry": "PH"
       },
-      "areaServed": [
-        {
-          "@type": "Country",
-          "name": "South Korea"
-        },
-        {
-          "@type": "Country",
-          "name": "Philippines"
-        }
-      ],
+      "areaServed": ["KR", "PH"],
       "contactPoint": [
         {
           "@type": "ContactPoint",

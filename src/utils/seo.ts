@@ -109,31 +109,65 @@ export function applySEO(post: PostItem | null, siteConfig: SiteConfig) {
     setMetaTag('twitter:description', postDesc);
     setMetaTag('twitter:image', postImage);
 
-    // Schema.org BlogPosting / Article JSON-LD for Google Crawler
+    // Schema.org BlogPosting / Article JSON-LD for Google Crawler & AI Engines (GEO NTT 최적화)
     const jsonLd = {
       '@context': 'https://schema.org',
-      '@type': 'BlogPosting',
-      'headline': post.title,
-      'description': postDesc,
-      'image': [postImage],
-      'datePublished': post.date ? `${post.date}T00:00:00+09:00` : new Date().toISOString(),
-      'dateModified': post.date ? `${post.date}T00:00:00+09:00` : new Date().toISOString(),
-      'author': {
-        '@type': 'Person',
-        'name': post.author || '마닐라 오아시스에이전시',
-      },
-      'publisher': {
-        '@type': 'Organization',
-        'name': siteConfig.siteName || '마닐라 오아시스에이전시',
-        'logo': {
-          '@type': 'ImageObject',
-          'url': `${origin}/logo.jpg`,
+      '@graph': [
+        {
+          '@type': 'Organization',
+          '@id': `${origin}/#organization`,
+          'name': siteConfig.siteName || '마닐라 오아시스에이전시',
+          'url': `${origin}/`,
+          'logo': {
+            '@type': 'ImageObject',
+            '@id': `${origin}/#logo`,
+            'url': `${origin}/logo.jpg`,
+            'caption': `${siteConfig.siteName || '마닐라 오아시스에이전시'} 공식 로고`,
+          },
+          'sameAs': [
+            siteConfig.telegramUrl || 'https://t.me/oasis066',
+            'https://open.kakao.com/me/oasis06',
+            'https://www.wikidata.org/wiki/Q7125390',
+            'https://www.wikidata.org/wiki/Q110292723',
+            'https://www.wikidata.org/wiki/Q7555778',
+            'https://www.wikidata.org/wiki/Q5124740',
+            'https://www.wikidata.org/wiki/Q5380436',
+          ],
         },
-      },
-      'mainEntityOfPage': {
-        '@type': 'WebPage',
-        '@id': postUrl,
-      },
+        {
+          '@type': 'WebSite',
+          '@id': `${origin}/#website`,
+          'name': siteConfig.siteName || '마닐라 오아시스에이전시',
+          'url': `${origin}/`,
+          'publisher': {
+            '@id': `${origin}/#organization`,
+          },
+        },
+        {
+          '@type': 'BlogPosting',
+          '@id': `${postUrl}#article`,
+          'headline': post.title,
+          'description': postDesc,
+          'image': [postImage],
+          'datePublished': post.date ? `${post.date}T00:00:00+09:00` : new Date().toISOString(),
+          'dateModified': post.date ? `${post.date}T00:00:00+09:00` : new Date().toISOString(),
+          'isPartOf': {
+            '@id': `${origin}/#website`,
+          },
+          'author': {
+            '@type': 'Person',
+            '@id': `${origin}/#author`,
+            'name': post.author || '마닐라 오아시스에이전시',
+          },
+          'publisher': {
+            '@id': `${origin}/#organization`,
+          },
+          'mainEntityOfPage': {
+            '@type': 'WebPage',
+            '@id': postUrl,
+          },
+        },
+      ],
     };
     setStructuredData(jsonLd);
 
@@ -159,34 +193,98 @@ export function applySEO(post: PostItem | null, siteConfig: SiteConfig) {
     setMetaTag('twitter:description', defaultDesc);
     setMetaTag('twitter:image', defaultImage);
 
-    // Organization & WebSite JSON-LD Schema
+    // Organization & WebSite JSON-LD Schema (GEO NTT 최적화: @id 부여, sameAs 외부 권위 링크, 교차 참조)
     const homeJsonLd = {
       '@context': 'https://schema.org',
-      '@type': 'WebSite',
-      'name': siteConfig.siteName || '마닐라 오아시스에이전시',
-      'alternateName': [
-        '마닐라 오아시스 에이전시',
-        '오아시스에이전시',
-        '마닐라 오아시스',
-        '오아시스 공식 에이전트',
-        'OASIS VIP AGENCY',
-        'oasis46',
-      ],
-      'url': currentBaseUrl,
-      'description': defaultDesc,
-      'publisher': {
-        '@type': 'Organization',
-        'name': siteConfig.siteName || '마닐라 오아시스에이전시',
-        'url': currentBaseUrl,
-        'logo': `${origin}/logo.jpg`,
-        'contactPoint': {
-          '@type': 'ContactPoint',
-          'telephone': siteConfig.phoneNumber || '+63-917-000-0000',
-          'contactType': 'customer service',
-          'areaServed': ['KR', 'PH'],
-          'availableLanguage': ['Korean', 'English'],
+      '@graph': [
+        {
+          '@type': 'WebSite',
+          '@id': `${currentBaseUrl}#website`,
+          'name': siteConfig.siteName || '마닐라 오아시스에이전시',
+          'alternateName': [
+            '마닐라 오아시스 에이전시',
+            '오아시스에이전시',
+            '마닐라 오아시스',
+            '오아시스 공식 에이전트',
+            'OASIS VIP AGENCY',
+            'oasis46',
+          ],
+          'url': currentBaseUrl,
+          'description': defaultDesc,
+          'inLanguage': 'ko-KR',
+          'publisher': {
+            '@type': 'Organization',
+            '@id': `${currentBaseUrl}#organization`,
+          },
         },
-      },
+        {
+          '@type': 'Organization',
+          '@id': `${currentBaseUrl}#organization`,
+          'name': siteConfig.siteName || '마닐라 오아시스에이전시',
+          'alternateName': [
+            '마닐라 오아시스 에이전시',
+            '오아시스에이전시',
+            '마닐라 오아시스',
+            '오아시스 공식 에이전트',
+            'OASIS VIP AGENCY',
+            'oasis46',
+          ],
+          'url': currentBaseUrl,
+          'logo': {
+            '@type': 'ImageObject',
+            '@id': `${currentBaseUrl}#logo`,
+            'url': `${origin}/logo.jpg`,
+            'caption': `${siteConfig.siteName || '마닐라 오아시스에이전시'} 공식 로고`,
+          },
+          'image': `${origin}/logo.jpg`,
+          'description': siteConfig.seoDescription || defaultDesc,
+          'telephone': siteConfig.phoneNumber || '+63-917-000-0000',
+          'email': 'contact@oasis46.com',
+          'address': {
+            '@type': 'PostalAddress',
+            'streetAddress': 'Entertainment City, New Seaside Dr',
+            'addressLocality': 'Parañaque',
+            'addressRegion': 'Metro Manila',
+            'postalCode': '1701',
+            'addressCountry': 'PH',
+          },
+          'areaServed': [
+            {
+              '@type': 'Country',
+              'name': 'South Korea',
+            },
+            {
+              '@type': 'Country',
+              'name': 'Philippines',
+            },
+          ],
+          'contactPoint': [
+            {
+              '@type': 'ContactPoint',
+              'telephone': siteConfig.phoneNumber || '+63-917-000-0000',
+              'contactType': 'customer service',
+              'areaServed': ['KR', 'PH'],
+              'availableLanguage': ['Korean', 'English'],
+            },
+          ],
+          'sameAs': [
+            siteConfig.telegramUrl || 'https://t.me/oasis066',
+            'https://open.kakao.com/me/oasis06',
+            'https://www.wikidata.org/wiki/Q7125390',
+            'https://www.wikidata.org/wiki/Q110292723',
+            'https://www.wikidata.org/wiki/Q7555778',
+            'https://www.wikidata.org/wiki/Q5124740',
+            'https://www.wikidata.org/wiki/Q5380436',
+          ],
+          'knowsAbout': [
+            'https://en.wikipedia.org/wiki/Okada_Manila',
+            'https://en.wikipedia.org/wiki/Solaire_Resort_%26_Casino',
+            'https://en.wikipedia.org/wiki/City_of_Dreams_Manila',
+            'https://en.wikipedia.org/wiki/PAGCOR',
+            'https://en.wikipedia.org/wiki/Entertainment_City',
+          ],
+        },
+      ],
     };
     setStructuredData(homeJsonLd);
   }

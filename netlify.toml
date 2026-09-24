@@ -7,6 +7,16 @@
   to = "/index.html"
   status = 200
 
+# Global Security Headers (Clickjacking, MIME Sniffing, Referrer-Policy, HSTS)
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
+
 # Cache-Control rules for ultra-fast PageSpeed loading
 [[headers]]
   for = "/assets/*"

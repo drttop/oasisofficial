@@ -17,7 +17,6 @@ import {
   MessageCircle,
   Send,
   Pin,
-  Edit3,
   ChevronLeft,
   ChevronRight,
   ArrowUp,
@@ -33,22 +32,39 @@ import { getOptimizedImageUrl } from '../../utils/imageOptimizer';
 interface PostDetailPageProps {
   post: PostItem;
   onBack: () => void;
-  onEdit?: () => void;
 }
 
 export const PostDetailPage: React.FC<PostDetailPageProps> = ({
   post,
   onBack,
-  onEdit,
 }) => {
-  const { posts, setSelectedPost, siteConfig, incrementPostView, openPostEditor } = useSite();
+  const { posts, setSelectedPost, siteConfig, incrementPostView } = useSite();
   const [copied, setCopied] = useState(false);
   const [zoomedImage, setZoomedImage] = useState<string | null>(null);
 
   // Scroll to top when post changes
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [post.id]);
+    if (post?.id) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [post?.id]);
+
+  if (!post || !post.id) {
+    return (
+      <div className="w-full bg-slate-50 min-h-screen py-20 flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <p className="text-slate-600 font-bold text-base">게시글 정보를 찾을 수 없습니다.</p>
+          <button
+            type="button"
+            onClick={onBack}
+            className="px-5 py-2.5 rounded-xl bg-[#30308A] text-white text-xs font-bold"
+          >
+            커뮤니티 목록으로 돌아가기
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const postUrl = getPostUrl(post.id);
 
@@ -136,19 +152,6 @@ export const PostDetailPage: React.FC<PostDetailPageProps> = ({
           </div>
 
           <div className="flex items-center gap-2">
-            {/* Edit Post Button (if onEdit provided) */}
-            {onEdit && (
-              <button
-                type="button"
-                onClick={onEdit}
-                className="px-3 py-1.5 rounded-xl border border-slate-200 hover:border-[#30308A] bg-white hover:bg-slate-50 text-slate-700 hover:text-[#30308A] text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
-                title="게시글 수정하기"
-              >
-                <Edit3 className="w-3.5 h-3.5 text-[#30308A]" />
-                <span className="hidden sm:inline">글 수정</span>
-              </button>
-            )}
-
             {/* Share / Copy URL Button */}
             <button
               type="button"
@@ -252,17 +255,17 @@ export const PostDetailPage: React.FC<PostDetailPageProps> = ({
                 {displayImages.length === 1 ? (
                   <div
                     onClick={() => setZoomedImage(displayImages[0])}
-                    className="group relative rounded-2xl overflow-hidden shadow-sm border border-slate-200 bg-slate-900 cursor-zoom-in max-h-96"
+                    className="group relative rounded-2xl overflow-hidden shadow-sm border border-slate-200 bg-slate-950 cursor-zoom-in min-h-[280px] max-h-[640px] flex items-center justify-center p-1 sm:p-2"
                   >
                     <img
-                      src={getOptimizedImageUrl(displayImages[0], 1200, 80)}
+                      src={displayImages[0]}
                       alt={post.title}
-                      className="w-full h-full max-h-96 object-cover group-hover:scale-[1.01] transition-transform duration-300"
+                      className="w-full h-auto max-h-[620px] object-contain mx-auto group-hover:scale-[1.01] transition-transform duration-300"
                       referrerPolicy="no-referrer"
                       loading="lazy"
                       decoding="async"
                     />
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center pointer-events-none">
                       <span className="opacity-0 group-hover:opacity-100 transition-opacity px-3.5 py-2 rounded-xl bg-black/70 text-white text-xs font-bold flex items-center gap-1.5 backdrop-blur-sm shadow-md">
                         <Maximize2 className="w-3.5 h-3.5 text-[#E5B54F]" />
                         클릭하여 사진 크게 보기
@@ -281,12 +284,12 @@ export const PostDetailPage: React.FC<PostDetailPageProps> = ({
                       <div
                         key={idx}
                         onClick={() => setZoomedImage(imgSrc)}
-                        className="group relative rounded-2xl overflow-hidden shadow-sm border border-slate-200 bg-slate-900 cursor-zoom-in h-48 sm:h-56"
+                        className="group relative rounded-2xl overflow-hidden shadow-sm border border-slate-200 bg-slate-950 cursor-zoom-in aspect-video sm:aspect-[4/3] flex items-center justify-center p-1"
                       >
                         <img
-                          src={getOptimizedImageUrl(imgSrc, 700, 75)}
+                          src={imgSrc}
                           alt={`${post.title} - 사진 ${idx + 1}`}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          className="w-full h-full object-contain mx-auto group-hover:scale-105 transition-transform duration-300"
                           referrerPolicy="no-referrer"
                           loading="lazy"
                           decoding="async"
@@ -294,7 +297,7 @@ export const PostDetailPage: React.FC<PostDetailPageProps> = ({
                         <span className="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-md bg-slate-900/80 backdrop-blur-sm text-white text-[11px] font-bold">
                           사진 {idx + 1}
                         </span>
-                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/25 transition-colors flex items-center justify-center">
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/25 transition-colors flex items-center justify-center pointer-events-none">
                           <span className="opacity-0 group-hover:opacity-100 transition-opacity px-3 py-1.5 rounded-lg bg-black/70 text-white text-xs font-bold flex items-center gap-1.5 backdrop-blur-sm shadow">
                             <Maximize2 className="w-3.5 h-3.5 text-[#E5B54F]" />
                             확대 보기
@@ -325,12 +328,12 @@ export const PostDetailPage: React.FC<PostDetailPageProps> = ({
                     <div
                       key={idx}
                       onClick={() => setZoomedImage(segment.imageUrl!)}
-                      className="my-6 group relative rounded-2xl overflow-hidden shadow-sm hover:shadow-md border border-slate-200 bg-slate-950 cursor-zoom-in transition-all"
+                      className="my-6 group relative rounded-2xl overflow-hidden shadow-sm hover:shadow-md border border-slate-200 bg-slate-950 cursor-zoom-in transition-all flex items-center justify-center p-1 sm:p-2"
                     >
                       <img
-                        src={getOptimizedImageUrl(segment.imageUrl, 1200, 80)}
+                        src={segment.imageUrl}
                         alt={`${post.title} - ${segment.imageLabel || '본문 사진'}`}
-                        className="w-full max-h-[500px] object-cover sm:object-contain bg-slate-950 group-hover:scale-[1.01] transition-transform duration-300"
+                        className="w-full h-auto max-h-[620px] object-contain mx-auto rounded-xl group-hover:scale-[1.01] transition-transform duration-300"
                         referrerPolicy="no-referrer"
                         loading="lazy"
                         decoding="async"
@@ -341,7 +344,7 @@ export const PostDetailPage: React.FC<PostDetailPageProps> = ({
                           {segment.imageLabel || '사진'}
                         </span>
                       </div>
-                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/25 transition-colors flex items-center justify-center">
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/25 transition-colors flex items-center justify-center pointer-events-none">
                         <span className="opacity-0 group-hover:opacity-100 transition-opacity px-3.5 py-2 rounded-xl bg-black/75 text-white text-xs font-bold flex items-center gap-2 backdrop-blur-sm shadow-lg border border-white/20">
                           <Maximize2 className="w-4 h-4 text-[#E5B54F]" />
                           클릭하여 사진 확대
@@ -402,17 +405,17 @@ export const PostDetailPage: React.FC<PostDetailPageProps> = ({
                     <div
                       key={idx}
                       onClick={() => setZoomedImage(imgSrc)}
-                      className="group relative rounded-xl overflow-hidden shadow-sm border border-slate-200 bg-slate-900 cursor-zoom-in h-40 sm:h-48"
+                      className="group relative rounded-xl overflow-hidden shadow-sm border border-slate-200 bg-slate-950 cursor-zoom-in aspect-video sm:aspect-[4/3] flex items-center justify-center p-1"
                     >
                       <img
-                        src={getOptimizedImageUrl(imgSrc, 700, 75)}
+                        src={imgSrc}
                         alt="첨부 사진"
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        className="w-full h-full object-contain mx-auto group-hover:scale-105 transition-transform duration-300"
                         referrerPolicy="no-referrer"
                         loading="lazy"
                         decoding="async"
                       />
-                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/25 transition-colors flex items-center justify-center">
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/25 transition-colors flex items-center justify-center pointer-events-none">
                         <span className="opacity-0 group-hover:opacity-100 transition-opacity px-3 py-1.5 rounded-lg bg-black/70 text-white text-xs font-bold flex items-center gap-1.5 backdrop-blur-sm shadow">
                           <Maximize2 className="w-3.5 h-3.5 text-[#E5B54F]" />
                           확대 보기

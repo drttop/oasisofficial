@@ -46,7 +46,7 @@ export const Header: React.FC = () => {
 
       if (typeof window !== 'undefined') {
         const cleanUrl = href === '#home' ? window.location.pathname : `${window.location.pathname}${href}`;
-        window.history.pushState({}, '', cleanUrl);
+        window.history.replaceState({}, '', cleanUrl);
       }
 
       if (href === '#home') {
@@ -57,7 +57,8 @@ export const Header: React.FC = () => {
       // Smoothly scroll to the target section once the main landing page elements are mounted
       let attempts = 0;
       const tryScroll = () => {
-        const element = document.querySelector(href);
+        const targetId = href.replace(/^#/, '');
+        const element = document.getElementById(targetId) || document.querySelector(href);
         if (element) {
           const headerOffset = 80;
           const elementPosition = element.getBoundingClientRect().top;
@@ -66,12 +67,15 @@ export const Header: React.FC = () => {
             top: offsetPosition,
             behavior: 'smooth',
           });
-        } else if (attempts < 12) {
+        } else if (attempts < 20) {
           attempts++;
           setTimeout(tryScroll, 50);
         }
       };
-      setTimeout(tryScroll, 50);
+      // Give React an animation frame to mount landing sections
+      requestAnimationFrame(() => {
+        setTimeout(tryScroll, 30);
+      });
       return;
     }
 
@@ -80,7 +84,8 @@ export const Header: React.FC = () => {
       return;
     }
 
-    const element = document.querySelector(href);
+    const targetId = href.replace(/^#/, '');
+    const element = document.getElementById(targetId) || document.querySelector(href);
     if (element) {
       const headerOffset = 80;
       const elementPosition = element.getBoundingClientRect().top;

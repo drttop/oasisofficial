@@ -54,7 +54,7 @@ interface SiteContextType {
   
   posts: PostItem[];
   setPosts: (posts: PostItem[]) => void;
-  addPost: (post: Omit<PostItem, 'id' | 'date'> & { viewCount?: number }) => Promise<void> | void;
+  addPost: (post: Omit<PostItem, 'id' | 'date'> & { viewCount?: number }) => Promise<PostItem>;
   updatePost: (id: string, post: Partial<PostItem>) => Promise<void> | void;
   deletePost: (id: string) => Promise<void> | void;
   incrementPostView: (id: string) => Promise<void> | void;
@@ -99,9 +99,20 @@ const STORAGE_KEYS = {
   CASINOS: 'oasis_casinos_v8',
   SPOTS: 'oasis_philippine_spots_v8',
   POSTS: 'oasis_posts_v8',
+  DELETED_POSTS: 'oasis_deleted_post_ids_v8',
   LEADS: 'oasis_inquiry_leads_v8',
   STEPS: 'oasis_service_steps_v8',
   FAQS: 'oasis_faqs_v8',
+};
+
+export const getDeletedPostIds = (): Set<string> => {
+  if (typeof window === 'undefined') return new Set();
+  try {
+    const saved = localStorage.getItem(STORAGE_KEYS.DELETED_POSTS);
+    return saved ? new Set(JSON.parse(saved)) : new Set();
+  } catch {
+    return new Set();
+  }
 };
 
 const sanitizeConfig = (cfg: Partial<SiteConfig>): SiteConfig => {
@@ -171,13 +182,16 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
   });
 
   const [posts, setPostsState] = useState<PostItem[]>(() => {
+    const deletedIds = getDeletedPostIds();
+    const availableInitial = initialPosts.filter((ip) => !deletedIds.has(ip.id));
     const saved = localStorage.getItem(STORAGE_KEYS.POSTS);
-    if (!saved) return initialPosts;
+    if (!saved) return availableInitial;
     try {
       const parsed: PostItem[] = JSON.parse(saved);
-      const existingIds = new Set(parsed.map((p) => p.id));
-      const missingInitial = initialPosts.filter((ip) => !existingIds.has(ip.id));
-      const combined = [...parsed, ...missingInitial];
+      const validParsed = parsed.filter((p) => !deletedIds.has(p.id));
+      const existingIds = new Set(validParsed.map((p) => p.id));
+      const missingInitial = availableInitial.filter((ip) => !existingIds.has(ip.id));
+      const combined = [...validParsed, ...missingInitial];
       // Ensure initial sample posts inherit map data if user had old localStorage
       return combined.map((p) => {
         const matchingInitial = initialPosts.find((ip) => ip.id === p.id);
@@ -194,7 +208,7 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return p;
       });
     } catch {
-      return initialPosts;
+      return availableInitial;
     }
   });
 
@@ -253,7 +267,7 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
           url.searchParams.delete('edit');
           const cleanSearch = url.searchParams.toString();
           const cleanUrl = url.pathname + (cleanSearch ? `?${cleanSearch}` : '') + (url.hash || '');
-          window.history.pushState({}, '', cleanUrl);
+          window.history.replaceState({}, '', cleanUrl);
         }
       } catch {
         // fallback
@@ -293,21 +307,24 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // 2) Listen to Posts
         const postsColRef = collection(db, 'posts');
         unsubscribePosts = onSnapshot(postsColRef, (snap) => {
+          const deletedIds = getDeletedPostIds();
           if (!snap.empty) {
-            const remoteItems = snap.docs.map((d) => {
-              const data = d.data();
-              return {
-                ...data,
-                id: d.id,
-                viewCount: typeof data.viewCount === 'number' && !isNaN(data.viewCount) ? data.viewCount : 392,
-              } as PostItem;
-            });
+            const remoteItems = snap.docs
+              .map((d) => {
+                const data = d.data();
+                return {
+                  ...data,
+                  id: d.id,
+                  viewCount: typeof data.viewCount === 'number' && !isNaN(data.viewCount) ? data.viewCount : 392,
+                } as PostItem;
+              })
+              .filter((p) => !deletedIds.has(p.id) && !(p as any).isDeleted);
 
             setPostsState((prev) => {
               const remoteMap = new Map(remoteItems.map((p) => [p.id, p]));
               const merged = [...remoteItems];
               prev.forEach((localPost) => {
-                if (!remoteMap.has(localPost.id)) {
+                if (!remoteMap.has(localPost.id) && !deletedIds.has(localPost.id)) {
                   merged.push(localPost);
                 }
               });
@@ -427,37 +444,63 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   }, [isAdminOpen]);
 
+  // Safe storage helper to guarantee no QuotaExceededError crashes the React app
+  const safeStorageSet = (key: string, value: string) => {
+    if (typeof window === 'undefined') return;
+    try {
+      localStorage.setItem(key, value);
+    } catch (err) {
+      console.warn(`[Storage] Failed to write key ${key} to localStorage:`, err);
+      if (key === STORAGE_KEYS.POSTS) {
+        try {
+          const parsed = JSON.parse(value);
+          if (Array.isArray(parsed)) {
+            // Strip heavy base64 images from localStorage mirror to stay under 5MB browser quota
+            const lightweight = parsed.map((p) => ({
+              ...p,
+              images: undefined,
+              thumbnail: p.thumbnail?.startsWith('data:') ? undefined : p.thumbnail,
+            }));
+            localStorage.setItem(key, JSON.stringify(lightweight));
+          }
+        } catch {
+          // Ignore fallback failure
+        }
+      }
+    }
+  };
+
   // Local Storage Mirroring for immediate responsive UX
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.CONFIG, JSON.stringify(siteConfig));
+    safeStorageSet(STORAGE_KEYS.CONFIG, JSON.stringify(siteConfig));
   }, [siteConfig]);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.SLIDES, JSON.stringify(bannerSlides));
+    safeStorageSet(STORAGE_KEYS.SLIDES, JSON.stringify(bannerSlides));
   }, [bannerSlides]);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.CASINOS, JSON.stringify(casinos));
+    safeStorageSet(STORAGE_KEYS.CASINOS, JSON.stringify(casinos));
   }, [casinos]);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.SPOTS, JSON.stringify(philippineSpots));
+    safeStorageSet(STORAGE_KEYS.SPOTS, JSON.stringify(philippineSpots));
   }, [philippineSpots]);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.POSTS, JSON.stringify(posts));
+    safeStorageSet(STORAGE_KEYS.POSTS, JSON.stringify(posts));
   }, [posts]);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.LEADS, JSON.stringify(inquiryLeads));
+    safeStorageSet(STORAGE_KEYS.LEADS, JSON.stringify(inquiryLeads));
   }, [inquiryLeads]);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.FAQS, JSON.stringify(faqs));
+    safeStorageSet(STORAGE_KEYS.FAQS, JSON.stringify(faqs));
   }, [faqs]);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.STEPS, JSON.stringify(serviceSteps));
+    safeStorageSet(STORAGE_KEYS.STEPS, JSON.stringify(serviceSteps));
   }, [serviceSteps]);
 
   // Point color sync to CSS custom property
@@ -617,12 +660,27 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch (err) {
       console.error('Failed to add post to Firestore:', err);
     }
+
+    return newPost;
   };
 
   const updatePost = async (id: string, partial: Partial<PostItem>) => {
+    let updatedItem: PostItem | null = null;
     setPostsState((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, ...partial } : item))
+      prev.map((item) => {
+        if (item.id === id) {
+          updatedItem = { ...item, ...partial };
+          return updatedItem;
+        }
+        return item;
+      })
     );
+
+    // Keep selectedPost in sync if the currently viewed post was updated
+    if (updatedItem) {
+      setSelectedPost((curr) => (curr?.id === id ? updatedItem : curr));
+    }
+
     try {
       const cleanPartial: Record<string, any> = {};
       Object.entries(partial).forEach(([k, v]) => {
@@ -643,11 +701,40 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const deletePost = async (id: string) => {
-    setPostsState((prev) => prev.filter((item) => item.id !== id));
+    // 1. Immediately record in deleted IDs set to prevent resurrection
+    const currentDeleted = getDeletedPostIds();
+    currentDeleted.add(id);
+    safeStorageSet(STORAGE_KEYS.DELETED_POSTS, JSON.stringify(Array.from(currentDeleted)));
+
+    // 2. Optimistic local state update and storage sync
+    setPostsState((prev) => {
+      const filtered = prev.filter((item) => item.id !== id);
+      safeStorageSet(STORAGE_KEYS.POSTS, JSON.stringify(filtered));
+      return filtered;
+    });
+
+    // 3. Clear selectedPost if it was the deleted post
+    setSelectedPost((curr) => (curr?.id === id ? null : curr));
+
+    // 4. Close editor if editing this deleted post
+    if (editingPost?.id === id) {
+      closePostEditor();
+    }
+
+    // 5. Delete and tombstone in Firestore
     try {
       const { db, fs } = await loadFirebase();
       const docRef = fs.doc(db, 'posts', id);
-      await fs.deleteDoc(docRef);
+      await Promise.race([
+        fs.deleteDoc(docRef),
+        new Promise((resolve) => setTimeout(resolve, 2500)),
+      ]);
+      const tombstoneRef = fs.doc(db, 'deleted_posts', id);
+      await Promise.race([
+        fs.setDoc(tombstoneRef, { id, deletedAt: Date.now() }),
+        new Promise((resolve) => setTimeout(resolve, 1500)),
+      ]);
+      console.log('Post deleted successfully:', id);
     } catch (err) {
       console.error('Failed to delete post from Firestore:', err);
     }

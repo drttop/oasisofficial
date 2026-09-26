@@ -65,51 +65,52 @@ export function getPostUrl(postId: string): string {
 export function applySEO(post: PostItem | null, siteConfig: SiteConfig) {
   if (typeof window === 'undefined') return;
 
-  const origin = window.location.origin;
-  const pathname = window.location.pathname;
-  const currentBaseUrl = `${origin}${pathname}`;
+  try {
+    const origin = window.location.origin;
+    const pathname = window.location.pathname;
+    const currentBaseUrl = `${origin}${pathname}`;
 
-  const defaultTitle = siteConfig.seoTitle || `${siteConfig.siteName || '마닐라 오아시스에이전시'} | 필리핀 마닐라 카지노 공식 VIP 에이전트`;
-  const defaultDesc = siteConfig.seoDescription || siteConfig.subTitle || '마닐라 오아시스에이전시 - 필리핀 마닐라 & 클락 특급 카지노 VIP 서비스, 5성급 호텔 예약, 전용 의전 픽업 및 맞춤 투어 안내';
-  const defaultKeywords = siteConfig.seoKeywords || '마닐라 오아시스에이전시, 오아시스 에이전시, 필리핀 카지노, 마닐라 카지노, 클락 카지노, 오카다 마닐라, 솔레어 리조트, COD 카지노, 한 카지노, VIP 에이전트, 오아시스';
-  const defaultImage = `${origin}/images/hero_bg.jpg`;
+    const defaultTitle = siteConfig?.seoTitle || `${siteConfig?.siteName || '마닐라 오아시스에이전시'} | 필리핀 마닐라 카지노 공식 VIP 에이전트`;
+    const defaultDesc = siteConfig?.seoDescription || siteConfig?.subTitle || '마닐라 오아시스에이전시 - 필리핀 마닐라 & 클락 특급 카지노 VIP 서비스, 5성급 호텔 예약, 전용 의전 픽업 및 맞춤 투어 안내';
+    const defaultKeywords = siteConfig?.seoKeywords || '마닐라 오아시스에이전시, 오아시스 에이전시, 필리핀 카지노, 마닐라 카지노, 클락 카지노, 오카다 마닐라, 솔레어 리조트, COD 카지노, 한 카지노, VIP 에이전트, 오아시스';
+    const defaultImage = `${origin}/images/hero_bg.jpg`;
 
-  if (post) {
-    // 1. Single Post SEO
-    const postTitle = `${post.title} | ${siteConfig.siteName || '마닐라 오아시스에이전시'}`;
-    const cleanContent = post.content ? stripFormattingTags(post.content).slice(0, 160).replace(/\n/g, ' ') : '';
-    const postDesc = post.summary ? stripFormattingTags(post.summary) : (cleanContent || defaultDesc);
-    const postKeywords = [...(post.tags || []), post.category, siteConfig.siteName || '마닐라 오아시스에이전시'].join(', ');
-    const postUrl = getPostUrl(post.id);
-    const postImage = post.thumbnail || defaultImage;
+    if (post) {
+      // 1. Single Post SEO
+      const postTitle = `${post.title || '게시글'} | ${siteConfig?.siteName || '마닐라 오아시스에이전시'}`;
+      const cleanContent = post.content ? stripFormattingTags(post.content).slice(0, 160).replace(/\n/g, ' ') : '';
+      const postDesc = post.summary ? stripFormattingTags(post.summary) : (cleanContent || defaultDesc);
+      const postKeywords = [...(post.tags || []), post.category || '공지사항', siteConfig?.siteName || '마닐라 오아시스에이전시'].join(', ');
+      const postUrl = getPostUrl(post.id);
+      const postImage = post.thumbnail || defaultImage;
 
-    // Document Title
-    document.title = postTitle;
+      // Document Title
+      document.title = postTitle;
 
-    // Standard Meta Tags
-    setMetaTag('description', postDesc);
-    setMetaTag('keywords', postKeywords);
-    setMetaTag('author', post.author || '마닐라 오아시스에이전시');
+      // Standard Meta Tags
+      setMetaTag('description', postDesc);
+      setMetaTag('keywords', postKeywords);
+      setMetaTag('author', post.author || '마닐라 오아시스에이전시');
 
-    // Canonical
-    setCanonicalUrl(postUrl);
+      // Canonical
+      setCanonicalUrl(postUrl);
 
-    // OpenGraph
-    setMetaTag('og:title', postTitle, true);
-    setMetaTag('og:description', postDesc, true);
-    setMetaTag('og:url', postUrl, true);
-    setMetaTag('og:type', 'article', true);
-    setMetaTag('og:image', postImage, true);
-    setMetaTag('og:site_name', siteConfig.siteName || '마닐라 오아시스에이전시', true);
-    setMetaTag('article:published_time', post.date ? `${post.date}T00:00:00+09:00` : new Date().toISOString(), true);
-    setMetaTag('article:author', post.author || '마닐라 오아시스에이전시', true);
-    setMetaTag('article:section', post.category || '커뮤니티', true);
+      // OpenGraph
+      setMetaTag('og:title', postTitle, true);
+      setMetaTag('og:description', postDesc, true);
+      setMetaTag('og:url', postUrl, true);
+      setMetaTag('og:type', 'article', true);
+      setMetaTag('og:image', postImage, true);
+      setMetaTag('og:site_name', siteConfig?.siteName || '마닐라 오아시스에이전시', true);
+      setMetaTag('article:published_time', post.date ? `${post.date}T00:00:00+09:00` : new Date().toISOString(), true);
+      setMetaTag('article:author', post.author || '마닐라 오아시스에이전시', true);
+      setMetaTag('article:section', post.category || '커뮤니티', true);
 
-    // Twitter Card
-    setMetaTag('twitter:card', 'summary_large_image');
-    setMetaTag('twitter:title', postTitle);
-    setMetaTag('twitter:description', postDesc);
-    setMetaTag('twitter:image', postImage);
+      // Twitter Card
+      setMetaTag('twitter:card', 'summary_large_image');
+      setMetaTag('twitter:title', postTitle);
+      setMetaTag('twitter:description', postDesc);
+      setMetaTag('twitter:image', postImage);
 
     // Schema.org BlogPosting / Article JSON-LD for Google Crawler & AI Engines (GEO NTT 최적화)
     const jsonLd = {
@@ -287,5 +288,8 @@ export function applySEO(post: PostItem | null, siteConfig: SiteConfig) {
       ],
     };
     setStructuredData(homeJsonLd);
+  }
+  } catch (err) {
+    console.warn('Failed to apply SEO meta tags:', err);
   }
 }

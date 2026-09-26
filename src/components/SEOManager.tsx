@@ -116,10 +116,11 @@ export const SEOManager: React.FC = () => {
       currentParams.delete('action');
       currentParams.delete('edit');
       const remainingQuery = currentParams.toString();
+      const currentHash = window.location.hash || '';
       const newUrl = remainingQuery
-        ? `${window.location.pathname}?${remainingQuery}`
-        : window.location.pathname;
-      window.history.pushState({}, '', newUrl);
+        ? `${window.location.pathname}?${remainingQuery}${currentHash}`
+        : `${window.location.pathname}${currentHash}`;
+      window.history.replaceState({}, '', newUrl);
     }
 
     // Reapply default Site Home SEO

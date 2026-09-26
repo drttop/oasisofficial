@@ -27,6 +27,7 @@ import {
   Pin,
   Sliders,
   Check,
+  Table,
 } from 'lucide-react';
 import { compressImageFile, optimizeDataUrl, createMiniThumbnail } from '../../utils/imageUpload';
 import { GoogleMapEmbed } from './GoogleMapEmbed';
@@ -61,27 +62,38 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
   onClose,
   onSaved,
 }) => {
-  const { addPost, updatePost, user } = useSite();
+  const { addPost, updatePost } = useSite();
 
-  const [title, setTitle] = useState('');
-  const [category, setCategory] = useState<'공지사항' | '프로모션' | 'VIP매거진'>('공지사항');
-  const [author, setAuthor] = useState('');
-  const [summary, setSummary] = useState('');
-  const [content, setContent] = useState('');
-  const [images, setImages] = useState<string[]>([]);
-  const [isPinned, setIsPinned] = useState(false);
-  const [viewCount, setViewCount] = useState<number>(392);
-  const [tagsInput, setTagsInput] = useState('');
+  const [title, setTitle] = useState(postToEdit?.title || '');
+  const [category, setCategory] = useState<'공지사항' | '프로모션' | 'VIP매거진'>(
+    (postToEdit?.category as any) || '공지사항'
+  );
+  const [author, setAuthor] = useState(postToEdit?.author || '오아시스 VIP');
+  const [summary, setSummary] = useState(postToEdit?.summary || '');
+  const [content, setContent] = useState(postToEdit?.content || '');
+  const [images, setImages] = useState<string[]>(
+    postToEdit?.images && postToEdit.images.length > 0
+      ? postToEdit.images
+      : postToEdit?.thumbnail
+      ? [postToEdit.thumbnail]
+      : []
+  );
+  const [isPinned, setIsPinned] = useState(postToEdit?.isPinned || false);
+  const [viewCount, setViewCount] = useState<number>(
+    postToEdit?.viewCount !== undefined ? postToEdit.viewCount : 392
+  );
+  const [tagsInput, setTagsInput] = useState(postToEdit?.tags ? postToEdit.tags.join(', ') : '');
 
   // Mode: Visual WYSIWYG vs Raw Code vs Preview
   const [editorMode, setEditorMode] = useState<'visual' | 'code' | 'preview'>('visual');
+  const prevEditorModeRef = useRef<'visual' | 'code' | 'preview'>('visual');
 
   // Map state
   const [showMapPanel, setShowMapPanel] = useState(false);
-  const [mapTitle, setMapTitle] = useState('');
-  const [mapAddress, setMapAddress] = useState('');
-  const [mapQuery, setMapQuery] = useState('');
-  const [hasAttachedMap, setHasAttachedMap] = useState(false);
+  const [mapTitle, setMapTitle] = useState(postToEdit?.mapLocation?.title || '');
+  const [mapAddress, setMapAddress] = useState(postToEdit?.mapLocation?.address || '');
+  const [mapQuery, setMapQuery] = useState(postToEdit?.mapLocation?.query || '');
+  const [hasAttachedMap, setHasAttachedMap] = useState(Boolean(postToEdit?.mapLocation));
 
   // References
   const editorRef = useRef<HTMLDivElement>(null);
@@ -99,6 +111,25 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
 
   // Track if initial HTML has been injected into editorRef
   const isInitializedRef = useRef(false);
+
+  // Callback ref to guarantee immediate HTML injection the moment the DOM element attaches
+  const setEditorElement = (node: HTMLDivElement | null) => {
+    (editorRef as any).current = node;
+    if (node && !isInitializedRef.current) {
+      const initialBody = postToEdit ? postToEdit.content : '';
+      const initialImgs = postToEdit?.images && postToEdit.images.length > 0
+        ? postToEdit.images
+        : postToEdit?.thumbnail
+        ? [postToEdit.thumbnail]
+        : [];
+      node.innerHTML = postContentToHtml(
+        initialBody,
+        initialImgs,
+        postToEdit?.mapLocation
+      );
+      isInitializedRef.current = true;
+    }
+  };
 
   // Scroll to top on mount
   useEffect(() => {
@@ -156,7 +187,7 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
     syncContentFromVisual();
   };
 
-  // Initialize or update fields when postToEdit changes
+  // Initialize or update fields when postToEdit prop changes
   useEffect(() => {
     if (postToEdit) {
       setTitle(postToEdit.title);
@@ -173,6 +204,11 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
         setMapAddress(postToEdit.mapLocation.address || '');
         setMapQuery(postToEdit.mapLocation.query || '');
         setHasAttachedMap(true);
+      } else {
+        setMapTitle('');
+        setMapAddress('');
+        setMapQuery('');
+        setHasAttachedMap(false);
       }
 
       const postImages = postToEdit.images && postToEdit.images.length > 0
@@ -194,7 +230,7 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
     } else {
       setTitle('');
       setCategory('공지사항');
-      setAuthor(user?.displayName || '오아시스 VIP');
+      setAuthor('오아시스 VIP');
       setSummary('');
       setContent('');
       setIsPinned(false);
@@ -211,19 +247,22 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
         isInitializedRef.current = true;
       }
     }
-  }, [postToEdit, user]);
+  }, [postToEdit?.id]);
 
-  // Keep editorRef innerHTML in sync if switching back from code mode
+  // Keep editorRef innerHTML in sync ONLY when user switches from code mode back to visual mode
   useEffect(() => {
+    const prevMode = prevEditorModeRef.current;
+    prevEditorModeRef.current = editorMode;
+
+    // Do nothing on initial mount or when mode hasn't changed
+    if (prevMode === editorMode) return;
+
     if (editorMode === 'visual' && editorRef.current) {
-      const currentVisualContent = htmlToPostContent(editorRef.current);
-      if (currentVisualContent !== content) {
-        editorRef.current.innerHTML = postContentToHtml(content, images, {
-          title: mapTitle,
-          address: mapAddress,
-          query: mapQuery,
-        });
-      }
+      editorRef.current.innerHTML = postContentToHtml(content, images, {
+        title: mapTitle,
+        address: mapAddress,
+        query: mapQuery,
+      });
     }
   }, [editorMode]);
 
@@ -245,7 +284,7 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
         if (!file.type.startsWith('image/')) {
           throw new Error('이미지 파일만 업로드할 수 있습니다 (JPG, PNG, WEBP 등).');
         }
-        return await compressImageFile(file, 720, 720, 0.65);
+        return await compressImageFile(file, 1600, 1600, 0.85);
       });
 
       const newBase64Images = await Promise.all(uploadPromises);
@@ -358,7 +397,7 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
         url.searchParams.delete('edit');
         const cleanSearch = url.searchParams.toString();
         const cleanUrl = url.pathname + (cleanSearch ? `?${cleanSearch}` : '') + (url.hash || '');
-        window.history.pushState({}, '', cleanUrl);
+        window.history.replaceState({}, '', cleanUrl);
       } catch {
         // ignore
       }
@@ -381,6 +420,48 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
     if (photoCard) {
       insertNodeAtCursor(photoCard);
     }
+  };
+
+  // 2. Insert Live HTML Table directly into WYSIWYG Editor
+  const insertTableIntoEditor = (rows = 3, cols = 3) => {
+    if (editorMode !== 'visual' || !editorRef.current) return;
+    editorRef.current.focus();
+    restoreSelection();
+
+    let tableHtml = `<div class="oasis-table-wrap overflow-x-auto my-4 max-w-full"><table class="oasis-table min-w-full border-collapse border border-slate-300 rounded-xl overflow-hidden text-sm"><thead><tr class="bg-slate-100 text-slate-800 font-bold">`;
+    for (let c = 0; c < cols; c++) {
+      const headerTitle = c === 0 ? '구분' : c === 1 ? '상세 내용' : c === 2 ? '혜택 및 조건' : `항목 ${c + 1}`;
+      tableHtml += `<th class="border border-slate-300 px-4 py-2.5 text-left bg-slate-100 text-slate-800 font-bold">${headerTitle}</th>`;
+    }
+    tableHtml += `</tr></thead><tbody>`;
+    for (let r = 0; r < rows; r++) {
+      const isEven = r % 2 === 1;
+      tableHtml += `<tr class="${isEven ? 'bg-slate-50' : 'bg-white'}">`;
+      for (let c = 0; c < cols; c++) {
+        let cellText = `내용 ${r + 1}-${c + 1}`;
+        if (r === 0 && c === 0) cellText = '오카다 VIP';
+        if (r === 0 && c === 1) cellText = '스위트룸 3박 무료 제공';
+        if (r === 0 && c === 2) cellText = '항공권 전액 지원';
+        if (r === 1 && c === 0) cellText = '솔레어 리조트';
+        if (r === 1 && c === 1) cellText = '롤링 1.5% 즉시 지급';
+        if (r === 1 && c === 2) cellText = '전담 버틀러 상시 케어';
+        if (r === 2 && c === 0) cellText = '클락 한 리조트';
+        if (r === 2 && c === 1) cellText = '프리미엄 골프 18홀 연계';
+        if (r === 2 && c === 2) cellText = '최고급 세단 의전 픽업';
+        tableHtml += `<td class="border border-slate-300 px-4 py-2.5 text-slate-700">${cellText}</td>`;
+      }
+      tableHtml += `</tr>`;
+    }
+    tableHtml += `</tbody></table></div><p><br></p>`;
+
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = tableHtml.trim();
+    const tableWrap = tempDiv.firstElementChild;
+    if (tableWrap) {
+      insertNodeAtCursor(tableWrap);
+    }
+    saveSelection();
+    syncContentFromVisual();
   };
 
   // 2. Insert Live Visual Map Card directly into WYSIWYG Editor
@@ -504,10 +585,24 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
         break;
       }
 
-      case 'size-normal':
-        document.execCommand('formatBlock', false, '<p>');
-        document.execCommand('fontSize', false, '3');
+      case 'size-normal': {
+        const sel = window.getSelection();
+        if (sel && !sel.isCollapsed && sel.rangeCount > 0) {
+          const range = sel.getRangeAt(0);
+          const span = document.createElement('span');
+          span.className = 'text-sm sm:text-base font-normal text-slate-800 leading-relaxed';
+          try {
+            const contents = range.extractContents();
+            span.appendChild(contents);
+            range.insertNode(span);
+          } catch {
+            document.execCommand('formatBlock', false, '<p>');
+          }
+        } else {
+          document.execCommand('formatBlock', false, '<p>');
+        }
         break;
+      }
 
       case 'size-sm': {
         const sel = window.getSelection();
@@ -520,10 +615,8 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
             span.appendChild(contents);
             range.insertNode(span);
           } catch {
-            document.execCommand('fontSize', false, '2');
+            // fallback
           }
-        } else {
-          document.execCommand('fontSize', false, '2');
         }
         break;
       }
@@ -594,20 +687,60 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
 
   // Insert gorgeous pre-formatted visual layout template directly into the editor
   const handleInsertTemplate = () => {
-    const templateContent = `## ✨ 2026 오아시스 VIP 카지노 특별 프로모션
+    const templateContent = `## ✨ 2026 오아시스 VIP 카지노 특별 프로모션 & 혜택 요약
 
-### 1. 행사 개요 및 주요 혜택
+### 1. 카지노별 VIP 전용 혜택 비교표
+<div class="oasis-table-wrap overflow-x-auto my-4 max-w-full">
+  <table class="oasis-table min-w-full border-collapse border border-slate-300 rounded-xl overflow-hidden text-sm">
+    <thead>
+      <tr class="bg-slate-100 text-slate-800 font-bold">
+        <th class="border border-slate-300 px-4 py-2.5 text-left bg-slate-100 text-slate-800 font-bold">호텔 / 리조트</th>
+        <th class="border border-slate-300 px-4 py-2.5 text-left bg-slate-100 text-slate-800 font-bold">제공 객실</th>
+        <th class="border border-slate-300 px-4 py-2.5 text-left bg-slate-100 text-slate-800 font-bold">롤링 커미션</th>
+        <th class="border border-slate-300 px-4 py-2.5 text-left bg-slate-100 text-slate-800 font-bold">특별 의전 혜택</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="border border-slate-300 px-4 py-2.5 font-bold text-slate-900">오카다 마닐라</td>
+        <td class="border border-slate-300 px-4 py-2.5">오션뷰 이그제큐티브 스위트</td>
+        <td class="border border-slate-300 px-4 py-2.5 font-bold text-[#b8860b]">최대 1.5% 즉시 지급</td>
+        <td class="border border-slate-300 px-4 py-2.5">공항 세단 픽업 + 패스트트랙</td>
+      </tr>
+      <tr class="bg-slate-50">
+        <td class="border border-slate-300 px-4 py-2.5 font-bold text-slate-900">솔레어 리조트</td>
+        <td class="border border-slate-300 px-4 py-2.5">스카이타워 프리미어 스위트</td>
+        <td class="border border-slate-300 px-4 py-2.5 font-bold text-[#b8860b]">최대 1.5% 즉시 지급</td>
+        <td class="border border-slate-300 px-4 py-2.5">24시 전담 한국인 버틀러</td>
+      </tr>
+      <tr>
+        <td class="border border-slate-300 px-4 py-2.5 font-bold text-slate-900">COD 마닐라</td>
+        <td class="border border-slate-300 px-4 py-2.5">누와/노부 럭셔리 스위트</td>
+        <td class="border border-slate-300 px-4 py-2.5 font-bold text-[#b8860b]">최대 1.4% 즉시 지급</td>
+        <td class="border border-slate-300 px-4 py-2.5">미슐랭 레스토랑 F&B 풀지원</td>
+      </tr>
+      <tr class="bg-slate-50">
+        <td class="border border-slate-300 px-4 py-2.5 font-bold text-slate-900">클락 한 리조트</td>
+        <td class="border border-slate-300 px-4 py-2.5">메리어트 / 스위스호텔 스위트</td>
+        <td class="border border-slate-300 px-4 py-2.5 font-bold text-[#b8860b]">최대 1.5% 즉시 지급</td>
+        <td class="border border-slate-300 px-4 py-2.5">명문 골프 클럽 18홀 무료 예약</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+### 2. 행사 개요 및 주요 혜택
 오아시스를 통해 예약하시는 모든 VIP 회원님께 **항공권 지원 및 롤링 1.5% 즉시 지급** 혜택을 제공합니다.
 [형광펜]24시간 한국인 전담 버틀러 서비스[/형광펜]와 최고급 세단 의전이 함께합니다.
 
-### 2. 특급 호텔 스위트룸 무료 숙박
+### 3. 특급 호텔 스위트룸 무료 숙박
 - 마닐라 오카다 / 솔레어 / COD 최고급 스위트룸 제공
 - 클락 한 리조트 / 디하이츠 프리미엄 빌라 연계
 - VIP 전용 라운지 무료 이용 및 식음료 풀서비스
 
 > "필리핀 최대의 신뢰와 전통, 오아시스가 가장 품격 있는 VIP 여정을 약속드립니다."
 
-### 3. 찾아오시는 길 및 공식 위치
+### 4. 찾아오시는 길 및 공식 위치
 [지도:오카다 마닐라]
 
 문의 사항은 24시간 카카오톡 또는 텔레그램으로 언제든 편하게 연락 주시기 바랍니다.`;
@@ -723,10 +856,10 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
   };
 
   return (
-    <div className="w-full bg-slate-100/60 min-h-screen pb-16 animate-in fade-in duration-200">
-      {/* 1. Sticky Top Navigation Bar */}
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/90 shadow-2xs">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3">
+    <div className="w-full min-h-screen lg:h-screen flex flex-col bg-slate-100/70 font-sans lg:overflow-hidden animate-in fade-in duration-200">
+      {/* 1. Top Navigation Bar (Fixed at top of studio) */}
+      <header className="h-16 shrink-0 bg-white/95 backdrop-blur-md border-b border-slate-200/90 shadow-2xs z-30">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center justify-between gap-3">
           {/* Left: Back button & Breadcrumb Title */}
           <div className="flex items-center gap-3 min-w-0">
             <button
@@ -819,508 +952,520 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
       </header>
 
       {/* 2. Main Studio Workspace Layout */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+      <div className="flex-1 min-h-0 w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-3 sm:py-4 flex flex-col lg:overflow-hidden">
         {/* Error Banner */}
         {uploadError && (
-          <div className="mb-6 p-4 rounded-2xl bg-red-50 border border-red-200 text-red-700 text-xs sm:text-sm flex items-center gap-2 animate-in fade-in">
-            <AlertCircle className="w-5 h-5 shrink-0" />
+          <div className="mb-3 shrink-0 p-3 rounded-2xl bg-red-50 border border-red-200 text-red-700 text-xs sm:text-sm flex items-center gap-2 animate-in fade-in">
+            <AlertCircle className="w-4 h-4 shrink-0" />
             <span>{uploadError}</span>
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
+        <form onSubmit={handleSubmit} className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 items-stretch">
           
           {/* LEFT COLUMN: Main WYSIWYG Writing Canvas (8 cols) */}
-          <div className="lg:col-span-8 space-y-6">
-            <div className="bg-white rounded-3xl border border-slate-200/90 shadow-sm p-6 sm:p-8 space-y-6">
-              
-              {/* Title Section */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <label className="block text-xs font-extrabold text-slate-500 uppercase tracking-wider">
-                    제목 <span className="text-red-500">*</span>
-                  </label>
-                  <span className="text-xs text-slate-400 font-mono">{title.length}/100자</span>
-                </div>
-                <input
-                  type="text"
-                  required
-                  maxLength={100}
-                  placeholder="게시글 제목을 입력하세요 (예: 2026 오카다 VIP 스위트룸 이용 후기 및 롤링 혜택 안내)"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  className="w-full text-xl sm:text-2xl md:text-3xl font-extrabold text-slate-900 border-0 border-b-2 border-slate-200 focus:border-[#30308A] focus:ring-0 px-0 py-2 sm:py-3 placeholder:text-slate-300 transition-colors bg-transparent leading-snug"
-                />
+          <div className="lg:col-span-8 flex flex-col h-full min-h-0 bg-white rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden">
+            
+            {/* Title Section (Fixed at top of left canvas, does not scroll away) */}
+            <div className="p-4 sm:p-6 pb-3 border-b border-slate-100 shrink-0 space-y-1.5 bg-white">
+              <div className="flex items-center justify-between">
+                <label className="block text-xs font-extrabold text-slate-500 uppercase tracking-wider">
+                  제목 <span className="text-red-500">*</span>
+                </label>
+                <span className="text-xs text-slate-400 font-mono">{title.length}/100자</span>
               </div>
+              <input
+                type="text"
+                required
+                maxLength={100}
+                placeholder="게시글 제목을 입력하세요 (예: 2026 오카다 VIP 스위트룸 이용 후기 및 롤링 혜택 안내)"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                className="w-full text-lg sm:text-2xl font-extrabold text-slate-900 border-0 border-b-2 border-slate-200 focus:border-[#30308A] focus:ring-0 px-0 py-1.5 placeholder:text-slate-300 transition-colors bg-transparent leading-snug"
+              />
+            </div>
 
-              {/* Real-time WYSIWYG Visual Formatting Toolbar */}
-              <div className="p-3 sm:p-4 bg-gradient-to-r from-slate-50 via-indigo-50/25 to-blue-50/30 rounded-2xl border border-slate-200/90 space-y-3 shadow-2xs">
-                {/* Row 1: Font Sizes, Boldness, Highlights, Colors */}
-                <div className="flex flex-wrap items-center justify-between gap-2.5 border-b border-slate-200/70 pb-3">
-                  <div className="flex flex-wrap items-center gap-2">
-                    
-                    {/* Font Size Group: Instant Headings */}
-                    <div className="flex items-center bg-white rounded-xl border border-slate-200 p-0.5 shadow-2xs">
-                      <span className="text-[11px] font-bold text-slate-500 px-2 flex items-center gap-1">
-                        <Type className="w-3.5 h-3.5 text-[#30308A]" />
-                        크기:
-                      </span>
-                      <button
-                        type="button"
-                        onMouseDown={(e) => e.preventDefault()}
-                        onClick={() => applyVisualFormat('size-lg')}
-                        className="px-2.5 py-1 hover:bg-slate-100 rounded-lg text-xs font-bold text-slate-800 transition-colors cursor-pointer"
-                        title="대제목 (Heading 2) - 선택 텍스트 또는 줄을 큰 제목 크기로 즉시 변환"
-                      >
-                        대
-                      </button>
-                      <button
-                        type="button"
-                        onMouseDown={(e) => e.preventDefault()}
-                        onClick={() => applyVisualFormat('size-md')}
-                        className="px-2.5 py-1 hover:bg-slate-100 rounded-lg text-xs font-semibold text-slate-800 transition-colors cursor-pointer"
-                        title="중제목 (Heading 3) - 선택 텍스트 또는 줄을 중간 소제목으로 즉시 변환"
-                      >
-                        중
-                      </button>
-                      <button
-                        type="button"
-                        onMouseDown={(e) => e.preventDefault()}
-                        onClick={() => applyVisualFormat('size-normal')}
-                        className="px-2.5 py-1 hover:bg-slate-100 rounded-lg text-xs font-normal text-slate-700 transition-colors cursor-pointer"
-                        title="보통 본문 (Paragraph) - 기본 텍스트 크기로 변환"
-                      >
-                        보통
-                      </button>
-                      <button
-                        type="button"
-                        onMouseDown={(e) => e.preventDefault()}
-                        onClick={() => applyVisualFormat('size-sm')}
-                        className="px-2 py-1 hover:bg-slate-100 rounded-lg text-[11px] text-slate-500 transition-colors cursor-pointer"
-                        title="작은 글씨 (Small note)"
-                      >
-                        소
-                      </button>
-                    </div>
-
-                    {/* Font Weight: Instant Bold */}
-                    <div className="flex items-center bg-white rounded-xl border border-slate-200 p-0.5 shadow-2xs">
-                      <button
-                        type="button"
-                        onMouseDown={(e) => e.preventDefault()}
-                        onClick={() => applyVisualFormat('bold')}
-                        className="px-3 py-1 hover:bg-slate-100 rounded-lg text-xs font-black text-slate-900 flex items-center gap-1.5 transition-colors cursor-pointer"
-                        title="굵게 (Bold) - 단축키 Ctrl+B (선택 즉시 굵어집니다)"
-                      >
-                        <Bold className="w-3.5 h-3.5 text-slate-900" />
-                        <span>굵게</span>
-                      </button>
-                      <button
-                        type="button"
-                        onMouseDown={(e) => e.preventDefault()}
-                        onClick={() => applyVisualFormat('underline')}
-                        className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-700 transition-colors cursor-pointer"
-                        title="밑줄 (Underline)"
-                      >
-                        <Underline className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-
-                    {/* Instant Live Highlight & Colors */}
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                      <button
-                        type="button"
-                        onMouseDown={(e) => e.preventDefault()}
-                        onClick={() => applyVisualFormat('highlight')}
-                        className="px-2.5 py-1 bg-amber-100 hover:bg-amber-200 border border-amber-300 rounded-xl text-xs font-bold text-amber-950 flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
-                        title="형광펜 강조 (선택 즉시 본문에서 노란색 형광펜이 칠해집니다)"
-                      >
-                        <Highlighter className="w-3.5 h-3.5 text-amber-700" />
-                        <span>형광펜</span>
-                      </button>
-
-                      <button
-                        type="button"
-                        onMouseDown={(e) => e.preventDefault()}
-                        onClick={() => applyVisualFormat('gold')}
-                        className="px-2.5 py-1 bg-amber-50 hover:bg-amber-100/80 border border-amber-200 rounded-xl text-xs font-bold text-amber-800 flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
-                        title="골드 포인트 컬러"
-                      >
-                        <span className="w-2 h-2 rounded-full bg-[#E5B54F] inline-block"></span>
-                        <span>골드</span>
-                      </button>
-
-                      <button
-                        type="button"
-                        onMouseDown={(e) => e.preventDefault()}
-                        onClick={() => applyVisualFormat('blue')}
-                        className="px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-xl text-xs font-bold text-[#30308A] flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
-                        title="네이비 블루 포인트 컬러"
-                      >
-                        <span className="w-2 h-2 rounded-full bg-[#30308A] inline-block"></span>
-                        <span>파랑</span>
-                      </button>
-
-                      <button
-                        type="button"
-                        onMouseDown={(e) => e.preventDefault()}
-                        onClick={() => applyVisualFormat('quote')}
-                        className="p-1.5 bg-white hover:bg-slate-100 border border-slate-200 rounded-xl text-slate-700 shadow-2xs transition-colors cursor-pointer"
-                        title="인용구 박스 삽입"
-                      >
-                        <Quote className="w-3.5 h-3.5" />
-                      </button>
-
-                      <button
-                        type="button"
-                        onMouseDown={(e) => e.preventDefault()}
-                        onClick={() => applyVisualFormat('bullet')}
-                        className="p-1.5 bg-white hover:bg-slate-100 border border-slate-200 rounded-xl text-slate-700 shadow-2xs transition-colors cursor-pointer"
-                        title="목록 기호"
-                      >
-                        <List className="w-3.5 h-3.5" />
-                      </button>
-
-                      <button
-                        type="button"
-                        onMouseDown={(e) => e.preventDefault()}
-                        onClick={() => applyVisualFormat('clear')}
-                        className="p-1.5 bg-white hover:bg-rose-50 border border-slate-200 hover:border-rose-200 rounded-xl text-slate-400 hover:text-rose-600 shadow-2xs transition-colors cursor-pointer"
-                        title="선택 텍스트 서식 지우기"
-                      >
-                        <Eraser className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Template Preset Button */}
-                  <button
-                    type="button"
-                    onMouseDown={(e) => e.preventDefault()}
-                    onClick={handleInsertTemplate}
-                    className="px-3 py-1 bg-white hover:bg-indigo-50/70 text-[#30308A] border border-indigo-200 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer ml-auto"
-                    title="서식이 완성된 추천 레이아웃 템플릿 즉시 삽입"
-                  >
-                    <LayoutTemplate className="w-3.5 h-3.5 text-[#30308A]" />
-                    <span>추천 서식 템플릿</span>
-                  </button>
-                </div>
-
-                {/* Row 2: Media & Maps Quick Insert directly into text */}
-                <div className="flex flex-wrap items-center justify-between gap-2.5">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    {/* Google Map Toggle Button */}
+            {/* Real-time WYSIWYG Visual Formatting Toolbar (Fixed at top of left canvas, does NOT scroll!) */}
+            <div className="px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-slate-50 via-indigo-50/25 to-blue-50/30 border-b border-slate-200/80 shrink-0 space-y-2.5 shadow-2xs z-10">
+              {/* Row 1: Font Sizes, Boldness, Highlights, Colors */}
+              <div className="flex flex-wrap items-center justify-between gap-2.5 border-b border-slate-200/70 pb-2.5">
+                <div className="flex flex-wrap items-center gap-2">
+                  
+                  {/* Font Size Group: Instant Headings (대, 중, 보통, 소) */}
+                  <div className="flex items-center bg-white rounded-xl border border-slate-200 p-0.5 shadow-2xs">
+                    <span className="text-[11px] font-bold text-slate-500 px-2 flex items-center gap-1">
+                      <Type className="w-3.5 h-3.5 text-[#30308A]" />
+                      크기:
+                    </span>
                     <button
                       type="button"
                       onMouseDown={(e) => e.preventDefault()}
-                      onClick={() => setShowMapPanel((prev) => !prev)}
-                      className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer border shadow-xs ${
-                        showMapPanel || hasAttachedMap
-                          ? 'bg-[#30308A] text-white border-[#30308A]'
-                          : 'bg-white text-slate-800 hover:bg-slate-50 border-slate-200 hover:border-[#30308A]'
-                      }`}
+                      onClick={() => applyVisualFormat('size-lg')}
+                      className="px-2.5 py-1 hover:bg-slate-100 rounded-lg text-xs font-bold text-slate-800 transition-colors cursor-pointer"
+                      title="대제목 (Heading 2) - 선택 텍스트 또는 줄을 큰 제목 크기로 즉시 변환"
                     >
-                      <MapPin className="w-3.5 h-3.5 text-[#E5B54F]" />
-                      <span>📍 구글 지도 등록 / 본문 삽입</span>
-                      {hasAttachedMap ? (
-                        <span className="px-1.5 py-0.2 rounded text-[10px] bg-emerald-500 text-white font-bold">
-                          등록됨
-                        </span>
-                      ) : (
-                        <ChevronDown className={`w-3 h-3 text-slate-400 transition-transform ${showMapPanel ? 'rotate-180' : ''}`} />
-                      )}
+                      대
                     </button>
-
-                    {/* Photo quick insert tags */}
-                    {images.length > 0 && (
-                      <div className="flex items-center gap-1.5 flex-wrap">
-                        <span className="text-[11px] font-bold text-slate-600 flex items-center gap-1 ml-1">
-                          <ImageIcon className="w-3.5 h-3.5 text-[#30308A]" />
-                          사진 본문 넣기:
-                        </span>
-                        {images.map((imgUrl, idx) => {
-                          const photoNum = idx + 1;
-                          const inserted = isPhotoInContent(content, idx);
-                          return (
-                            <button
-                              key={idx}
-                              type="button"
-                              onMouseDown={(e) => e.preventDefault()}
-                              onClick={() => insertPhotoIntoEditor(idx, imgUrl)}
-                              className="px-2.5 py-1 bg-white hover:bg-slate-50 text-slate-800 text-xs font-bold rounded-xl border border-slate-200 shadow-xs flex items-center gap-1 cursor-pointer transition-all hover:border-[#30308A]"
-                              title={`커서 위치에 사진 ${photoNum} 즉시 삽입 (미리보기 없이 바로 사진이 나타납니다)`}
-                            >
-                              <ImageDown className="w-3 h-3 text-[#30308A]" />
-                              <span>사진 {photoNum} 넣기</span>
-                              {inserted && (
-                                <span className="text-[10px] text-emerald-600 font-bold">✓</span>
-                              )}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    )}
+                    <button
+                      type="button"
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => applyVisualFormat('size-md')}
+                      className="px-2.5 py-1 hover:bg-slate-100 rounded-lg text-xs font-semibold text-slate-800 transition-colors cursor-pointer"
+                      title="중제목 (Heading 3) - 선택 텍스트 또는 줄을 중간 소제목으로 즉시 변환"
+                    >
+                      중
+                    </button>
+                    <button
+                      type="button"
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => applyVisualFormat('size-normal')}
+                      className="px-2.5 py-1 hover:bg-slate-100 rounded-lg text-xs font-normal text-slate-700 transition-colors cursor-pointer"
+                      title="보통 본문 (Paragraph) - 기본 텍스트 크기로 변환"
+                    >
+                      보통
+                    </button>
+                    <button
+                      type="button"
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => applyVisualFormat('size-sm')}
+                      className="px-2 py-1 hover:bg-slate-100 rounded-lg text-[11px] text-slate-500 transition-colors cursor-pointer"
+                      title="작은 글씨 (Small note)"
+                    >
+                      소
+                    </button>
                   </div>
 
-                  <span className="text-[11px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-lg border border-emerald-200 font-semibold hidden md:inline-flex items-center gap-1">
-                    <Check className="w-3 h-3" />
-                    <span>실시간 위지윅(WYSIWYG) - 폰트, 형광펜, 사진이 화면에 즉시 표시됩니다</span>
-                  </span>
+                  {/* Font Weight: Instant Bold */}
+                  <div className="flex items-center bg-white rounded-xl border border-slate-200 p-0.5 shadow-2xs">
+                    <button
+                      type="button"
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => applyVisualFormat('bold')}
+                      className="px-3 py-1 hover:bg-slate-100 rounded-lg text-xs font-black text-slate-900 flex items-center gap-1.5 transition-colors cursor-pointer"
+                      title="굵게 (Bold) - 단축키 Ctrl+B (선택 즉시 굵어집니다)"
+                    >
+                      <Bold className="w-3.5 h-3.5 text-slate-900" />
+                      <span>굵게</span>
+                    </button>
+                    <button
+                      type="button"
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => applyVisualFormat('underline')}
+                      className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-700 transition-colors cursor-pointer"
+                      title="밑줄 (Underline)"
+                    >
+                      <Underline className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+
+                  {/* Instant Live Highlight & Colors */}
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <button
+                      type="button"
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => applyVisualFormat('highlight')}
+                      className="px-2.5 py-1 bg-amber-100 hover:bg-amber-200 border border-amber-300 rounded-xl text-xs font-bold text-amber-950 flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
+                      title="형광펜 강조 (선택 즉시 본문에서 노란색 형광펜이 칠해집니다)"
+                    >
+                      <Highlighter className="w-3.5 h-3.5 text-amber-700" />
+                      <span>형광펜</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => applyVisualFormat('gold')}
+                      className="px-2.5 py-1 bg-amber-50 hover:bg-amber-100/80 border border-amber-200 rounded-xl text-xs font-bold text-amber-800 flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
+                      title="골드 포인트 컬러"
+                    >
+                      <span className="w-2 h-2 rounded-full bg-[#E5B54F] inline-block"></span>
+                      <span>골드</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => applyVisualFormat('blue')}
+                      className="px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-xl text-xs font-bold text-[#30308A] flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
+                      title="네이비 블루 포인트 컬러"
+                    >
+                      <span className="w-2 h-2 rounded-full bg-[#30308A] inline-block"></span>
+                      <span>파랑</span>
+                    </button>
+
+                    {/* Table Insertion Tool */}
+                    <button
+                      type="button"
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => insertTableIntoEditor(3, 3)}
+                      className="px-2.5 py-1 bg-white hover:bg-slate-100 border border-slate-200 rounded-xl text-slate-800 text-xs font-bold flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer hover:border-[#30308A]"
+                      title="표 삽입 (3x3 테이블 삽입 - 셀을 클릭하여 바로 텍스트 편집 및 서식 적용 가능)"
+                    >
+                      <Table className="w-3.5 h-3.5 text-[#30308A]" />
+                      <span>표 삽입</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => applyVisualFormat('quote')}
+                      className="p-1.5 bg-white hover:bg-slate-100 border border-slate-200 rounded-xl text-slate-700 shadow-2xs transition-colors cursor-pointer"
+                      title="인용구 박스 삽입"
+                    >
+                      <Quote className="w-3.5 h-3.5" />
+                    </button>
+
+                    <button
+                      type="button"
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => applyVisualFormat('bullet')}
+                      className="p-1.5 bg-white hover:bg-slate-100 border border-slate-200 rounded-xl text-slate-700 shadow-2xs transition-colors cursor-pointer"
+                      title="목록 기호"
+                    >
+                      <List className="w-3.5 h-3.5" />
+                    </button>
+
+                    <button
+                      type="button"
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => applyVisualFormat('clear')}
+                      className="p-1.5 bg-white hover:bg-rose-50 border border-slate-200 hover:border-rose-200 rounded-xl text-slate-400 hover:text-rose-600 shadow-2xs transition-colors cursor-pointer"
+                      title="선택 텍스트 서식 지우기"
+                    >
+                      <Eraser className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                 </div>
 
-                {/* Collapsible Google Maps System Panel */}
-                {showMapPanel && (
-                  <div className="p-4 sm:p-5 bg-white rounded-2xl border border-indigo-200 shadow-sm space-y-3.5 animate-in fade-in slide-in-from-top-2 duration-150">
-                    <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
-                      <div className="flex items-center gap-2">
-                        <div className="w-7 h-7 rounded-xl bg-[#30308A] flex items-center justify-center text-white">
-                          <MapPin className="w-4 h-4 text-[#E5B54F]" />
-                        </div>
-                        <div>
-                          <h4 className="text-xs sm:text-sm font-bold text-slate-900 flex items-center gap-1.5">
-                            구글 지도 (Google Maps) 시스템
-                            {hasAttachedMap && (
-                              <span className="text-[10px] text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                                ✓ 대표 위치 등록됨
-                              </span>
-                            )}
-                          </h4>
-                          <p className="text-[11px] text-slate-500">
-                            원하는 장소를 선택하면 글 본문 작성 위치에 실제 구글 지도가 즉시 삽입됩니다.
-                          </p>
-                        </div>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => setShowMapPanel(false)}
-                        className="text-slate-400 hover:text-slate-600 p-1 cursor-pointer"
-                        title="지도 패널 접기"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
-                    </div>
+                {/* Template Preset Button */}
+                <button
+                  type="button"
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={handleInsertTemplate}
+                  className="px-3 py-1 bg-white hover:bg-indigo-50/70 text-[#30308A] border border-indigo-200 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer ml-auto"
+                  title="서식이 완성된 추천 레이아웃 템플릿 즉시 삽입"
+                >
+                  <LayoutTemplate className="w-3.5 h-3.5 text-[#30308A]" />
+                  <span>추천 서식 템플릿</span>
+                </button>
+              </div>
 
-                    {/* 1-Click Popular Manila & Clark Presets */}
-                    <div className="space-y-1.5">
-                      <span className="text-[11px] font-bold text-slate-700 flex items-center gap-1">
-                        <span>💡 1초 빠른 등록 (인기 마닐라 / 클락 리조트):</span>
+              {/* Row 2: Media & Maps Quick Insert directly into text */}
+              <div className="flex flex-wrap items-center justify-between gap-2.5">
+                <div className="flex items-center gap-2 flex-wrap">
+                  {/* Google Map Toggle Button */}
+                  <button
+                    type="button"
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => setShowMapPanel((prev) => !prev)}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer border shadow-xs ${
+                      showMapPanel || hasAttachedMap
+                        ? 'bg-[#30308A] text-white border-[#30308A]'
+                        : 'bg-white text-slate-800 hover:bg-slate-50 border-slate-200 hover:border-[#30308A]'
+                    }`}
+                  >
+                    <MapPin className="w-3.5 h-3.5 text-[#E5B54F]" />
+                    <span>📍 구글 지도 등록 / 본문 삽입</span>
+                    {hasAttachedMap ? (
+                      <span className="px-1.5 py-0.2 rounded text-[10px] bg-emerald-500 text-white font-bold">
+                        등록됨
                       </span>
-                      <div className="flex flex-wrap gap-1.5">
-                        {POPULAR_MAP_PRESETS.map((preset, idx) => (
+                    ) : (
+                      <ChevronDown className={`w-3 h-3 text-slate-400 transition-transform ${showMapPanel ? 'rotate-180' : ''}`} />
+                    )}
+                  </button>
+
+                  {/* Photo quick insert tags */}
+                  {images.length > 0 && (
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className="text-[11px] font-bold text-slate-600 flex items-center gap-1 ml-1">
+                        <ImageIcon className="w-3.5 h-3.5 text-[#30308A]" />
+                        사진 본문 넣기:
+                      </span>
+                      {images.map((imgUrl, idx) => {
+                        const photoNum = idx + 1;
+                        const inserted = isPhotoInContent(content, idx);
+                        return (
                           <button
                             key={idx}
                             type="button"
-                            onClick={() => handleSelectPreset(preset)}
-                            className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition-all cursor-pointer flex items-center gap-1.5 ${
-                              mapTitle === preset.title
-                                ? 'bg-[#30308A] text-white border-[#30308A] shadow-xs'
-                                : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200'
-                            }`}
+                            onMouseDown={(e) => e.preventDefault()}
+                            onClick={() => insertPhotoIntoEditor(idx, imgUrl)}
+                            className="px-2.5 py-1 bg-white hover:bg-slate-50 text-slate-800 text-xs font-bold rounded-xl border border-slate-200 shadow-xs flex items-center gap-1 cursor-pointer transition-all hover:border-[#30308A]"
+                            title={`커서 위치에 사진 ${photoNum} 즉시 삽입 (미리보기 없이 바로 사진이 나타납니다)`}
                           >
-                            <span className="text-[10px] px-1 py-0.2 rounded bg-slate-200/70 text-slate-600 font-mono">
-                              {preset.tag}
-                            </span>
-                            <span>{preset.title.split(' ')[0]}</span>
+                            <ImageDown className="w-3 h-3 text-[#30308A]" />
+                            <span>사진 {photoNum} 넣기</span>
+                            {inserted && (
+                              <span className="text-[10px] text-emerald-600 font-bold">✓</span>
+                            )}
                           </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Custom Inputs */}
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
-                      <div>
-                        <label className="block text-[11px] font-bold text-slate-600 mb-1">장소 / 호텔명</label>
-                        <input
-                          type="text"
-                          placeholder="예: 오카다 마닐라"
-                          value={mapTitle}
-                          onChange={(e) => {
-                            setMapTitle(e.target.value);
-                            setHasAttachedMap(true);
-                          }}
-                          className="w-full text-xs p-2.5 rounded-xl border border-slate-200 focus:border-[#30308A] outline-none"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-[11px] font-bold text-slate-600 mb-1">상세 주소 (선택)</label>
-                        <input
-                          type="text"
-                          placeholder="예: New Seaside Dr, Parañaque"
-                          value={mapAddress}
-                          onChange={(e) => setMapAddress(e.target.value)}
-                          className="w-full text-xs p-2.5 rounded-xl border border-slate-200 focus:border-[#30308A] outline-none"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-[11px] font-bold text-slate-600 mb-1">구글 검색어</label>
-                        <input
-                          type="text"
-                          placeholder="예: Okada Manila Entertainment City"
-                          value={mapQuery}
-                          onChange={(e) => {
-                            setMapQuery(e.target.value);
-                            setHasAttachedMap(true);
-                          }}
-                          className="w-full text-xs p-2.5 rounded-xl border border-slate-200 focus:border-[#30308A] outline-none"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Map Action Buttons */}
-                    <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-100">
-                      <div className="flex items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() => insertMapIntoEditor()}
-                          disabled={!mapTitle.trim() && !mapQuery.trim()}
-                          className="px-3.5 py-1.5 rounded-xl bg-[#30308A] hover:bg-[#25256e] disabled:opacity-50 text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-xs"
-                        >
-                          <MapPin className="w-3.5 h-3.5 text-[#E5B54F]" />
-                          <span>본문에 지도 즉시 삽입</span>
-                        </button>
-                        {hasAttachedMap && (
-                          <button
-                            type="button"
-                            onClick={handleClearMap}
-                            className="px-3 py-1.5 rounded-xl border border-slate-200 hover:bg-slate-100 text-slate-600 text-xs font-bold cursor-pointer"
-                          >
-                            지도 초기화
-                          </button>
-                        )}
-                      </div>
-                      {(mapQuery.trim() || mapTitle.trim()) && (
-                        <span className="text-[11px] text-slate-500 font-mono">
-                          미리보기: {mapTitle || mapQuery}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Writing Canvas: Real-time WYSIWYG vs Code vs Preview */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <label className="block text-xs font-extrabold text-slate-500 uppercase tracking-wider flex items-center gap-2">
-                    <span>본문 내용</span>
-                    <span className="text-red-500">*</span>
-                    {editorMode === 'visual' && (
-                      <span className="text-[11px] text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded font-bold">
-                        실시간 비주얼 에디터 활성화
-                      </span>
-                    )}
-                    {editorMode === 'code' && (
-                      <span className="text-[11px] text-slate-500 bg-slate-100 px-2 py-0.5 rounded font-bold">
-                        태그 직접 편집 모드
-                      </span>
-                    )}
-                  </label>
-
-                  <div className="flex items-center gap-3">
-                    <span className="text-xs text-slate-400 font-mono">
-                      {content.length.toLocaleString()}자 작성됨
-                    </span>
-                  </div>
-                </div>
-
-                {/* 1. VISUAL WYSIWYG EDITOR (Primary Real-time Canvas) */}
-                {editorMode === 'visual' && (
-                  <div
-                    ref={editorRef}
-                    contentEditable
-                    suppressContentEditableWarning
-                    onInput={handleEditorInput}
-                    onBlur={() => {
-                      saveSelection();
-                      syncContentFromVisual();
-                    }}
-                    onKeyUp={saveSelection}
-                    onMouseUp={saveSelection}
-                    onClick={handleEditorClick}
-                    onKeyDown={handleEditorKeyDown}
-                    data-placeholder="이곳에 내용을 자유롭게 작성하세요. 상단 툴바의 굵게(B), 글자 크기, 형광펜, 사진 넣기를 누르면 미리보기 없이 화면에 즉시 반영됩니다..."
-                    className="w-full min-h-[580px] p-5 sm:p-7 rounded-2xl bg-white border border-slate-200 focus:border-[#30308A] focus:ring-2 focus:ring-[#30308A]/10 outline-none text-slate-800 text-base leading-relaxed overflow-y-auto transition-all shadow-inner empty:before:content-[attr(data-placeholder)] empty:before:text-slate-300 empty:before:pointer-events-none [&_h2]:text-xl [&_h2]:sm:text-2xl [&_h2]:font-bold [&_h2]:text-slate-900 [&_h2]:mt-4 [&_h2]:mb-2 [&_h2]:pb-1 [&_h2]:border-b [&_h2]:border-slate-100 [&_h3]:text-lg [&_h3]:sm:text-xl [&_h3]:font-bold [&_h3]:text-slate-900 [&_h3]:mt-3 [&_h3]:mb-1.5 [&_blockquote]:my-3 [&_blockquote]:pl-4 [&_blockquote]:py-2 [&_blockquote]:border-l-4 [&_blockquote]:border-[#30308A] [&_blockquote]:bg-slate-50 [&_blockquote]:text-slate-700 [&_blockquote]:italic [&_blockquote]:rounded-r-lg [&_blockquote]:font-medium [&_ul]:list-disc [&_ul]:ml-6 [&_ul]:my-2 [&_mark]:bg-amber-200 [&_mark]:text-amber-950 [&_mark]:px-1.5 [&_mark]:py-0.5 [&_mark]:rounded [&_mark]:font-medium [&_mark]:border [&_mark]:border-amber-300/60"
-                  />
-                )}
-
-                {/* 2. RAW CODE / TAG MODE (For power users) */}
-                {editorMode === 'code' && (
-                  <textarea
-                    ref={rawTextareaRef}
-                    rows={20}
-                    value={content}
-                    onChange={(e) => setContent(e.target.value)}
-                    placeholder="본문 내용을 입력하세요..."
-                    className="w-full min-h-[580px] p-5 sm:p-7 rounded-2xl bg-slate-900 text-emerald-400 font-mono text-sm leading-relaxed border border-slate-700 focus:border-[#30308A] focus:ring-0 outline-none resize-y transition-all shadow-inner"
-                  />
-                )}
-
-                {/* 3. FULL ARTICLE PREVIEW (Simulates public post detail layout) */}
-                {editorMode === 'preview' && (
-                  <div className="w-full min-h-[580px] p-6 sm:p-8 rounded-2xl bg-white border border-slate-200 space-y-6">
-                    <div className="border-b border-slate-100 pb-4">
-                      <span className="inline-block px-2.5 py-1 rounded-full text-xs font-bold bg-[#30308A]/10 text-[#30308A] mb-2">
-                        {category}
-                      </span>
-                      <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900">
-                        {title || '제목 미리보기'}
-                      </h2>
-                      <div className="text-xs text-slate-400 mt-2 flex items-center gap-3">
-                        <span>작성자: {author || '오아시스 VIP'}</span>
-                        <span>•</span>
-                        <span>조회수: {viewCount.toLocaleString()}</span>
-                      </div>
-                    </div>
-
-                    <div className="space-y-4">
-                      {parsePostContent(
-                        content,
-                        images,
-                        hasAttachedMap ? { title: mapTitle, address: mapAddress, query: mapQuery } : undefined
-                      ).map((seg, idx) => {
-                        if (seg.type === 'text') {
-                          return <FormattedPostContent key={idx} content={seg.text || ''} />;
-                        }
-                        if (seg.type === 'image' && seg.imageUrl) {
-                          return (
-                            <div key={idx} className="my-4 rounded-2xl overflow-hidden border border-slate-200 shadow-sm">
-                              <img src={seg.imageUrl} alt="사진" className="w-full max-h-96 object-cover" />
-                            </div>
-                          );
-                        }
-                        if (seg.type === 'map' && seg.mapQuery) {
-                          return (
-                            <div key={idx} className="my-4">
-                              <GoogleMapEmbed query={seg.mapQuery} title={seg.mapTitle} address={seg.mapAddress} />
-                            </div>
-                          );
-                        }
-                        return null;
+                        );
                       })}
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
+
+                <span className="text-[11px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-lg border border-emerald-200 font-semibold hidden md:inline-flex items-center gap-1">
+                  <Check className="w-3 h-3" />
+                  <span>실시간 위지윅(WYSIWYG) - 폰트, 형광펜, 사진이 화면에 즉시 표시됩니다</span>
+                </span>
               </div>
 
-              {/* Bottom Quick Tips */}
-              <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200/80 text-xs text-slate-600 flex flex-wrap items-center justify-between gap-3">
-                <div className="flex items-center gap-2">
-                  <span className="font-bold text-slate-900">💡 위지윅 팁:</span>
-                  <span>단축키 <code className="bg-white px-1.5 py-0.5 rounded border border-slate-200 font-mono text-slate-800">Ctrl+B</code>로 즉시 굵게 적용됩니다.</span>
+              {/* Collapsible Google Maps System Panel */}
+              {showMapPanel && (
+                <div className="max-h-64 overflow-y-auto custom-editor-scrollbar p-3.5 sm:p-4 bg-white rounded-2xl border border-indigo-200 shadow-sm space-y-3 animate-in fade-in slide-in-from-top-2 duration-150">
+                  <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                    <div className="flex items-center gap-2">
+                      <div className="w-7 h-7 rounded-xl bg-[#30308A] flex items-center justify-center text-white">
+                        <MapPin className="w-4 h-4 text-[#E5B54F]" />
+                      </div>
+                      <div>
+                        <h4 className="text-xs sm:text-sm font-bold text-slate-900 flex items-center gap-1.5">
+                          구글 지도 (Google Maps) 시스템
+                          {hasAttachedMap && (
+                            <span className="text-[10px] text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                              ✓ 대표 위치 등록됨
+                            </span>
+                          )}
+                        </h4>
+                        <p className="text-[11px] text-slate-500">
+                          원하는 장소를 선택하면 글 본문 작성 위치에 실제 구글 지도가 즉시 삽입됩니다.
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setShowMapPanel(false)}
+                      className="text-slate-400 hover:text-slate-600 p-1 cursor-pointer"
+                      title="지도 패널 접기"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  {/* 1-Click Popular Manila & Clark Presets */}
+                  <div className="space-y-1.5">
+                    <span className="text-[11px] font-bold text-slate-700 flex items-center gap-1">
+                      <span>💡 1초 빠른 등록 (인기 마닐라 / 클락 리조트):</span>
+                    </span>
+                    <div className="flex flex-wrap gap-1.5">
+                      {POPULAR_MAP_PRESETS.map((preset, idx) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => handleSelectPreset(preset)}
+                          className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition-all cursor-pointer flex items-center gap-1.5 ${
+                            mapTitle === preset.title
+                              ? 'bg-[#30308A] text-white border-[#30308A] shadow-xs'
+                              : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200'
+                          }`}
+                        >
+                          <span className="text-[10px] px-1 py-0.2 rounded bg-slate-200/70 text-slate-600 font-mono">
+                            {preset.tag}
+                          </span>
+                          <span>{preset.title.split(' ')[0]}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Custom Inputs */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-600 mb-1">장소 / 호텔명</label>
+                      <input
+                        type="text"
+                        placeholder="예: 오카다 마닐라"
+                        value={mapTitle}
+                        onChange={(e) => {
+                          setMapTitle(e.target.value);
+                          setHasAttachedMap(true);
+                        }}
+                        className="w-full text-xs p-2 rounded-xl border border-slate-200 focus:border-[#30308A] outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-600 mb-1">상세 주소 (선택)</label>
+                      <input
+                        type="text"
+                        placeholder="예: New Seaside Dr, Parañaque"
+                        value={mapAddress}
+                        onChange={(e) => setMapAddress(e.target.value)}
+                        className="w-full text-xs p-2 rounded-xl border border-slate-200 focus:border-[#30308A] outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-600 mb-1">구글 검색어</label>
+                      <input
+                        type="text"
+                        placeholder="예: Okada Manila Entertainment City"
+                        value={mapQuery}
+                        onChange={(e) => {
+                          setMapQuery(e.target.value);
+                          setHasAttachedMap(true);
+                        }}
+                        className="w-full text-xs p-2 rounded-xl border border-slate-200 focus:border-[#30308A] outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Map Action Buttons */}
+                  <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-100">
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => insertMapIntoEditor()}
+                        disabled={!mapTitle.trim() && !mapQuery.trim()}
+                        className="px-3 py-1.5 rounded-xl bg-[#30308A] hover:bg-[#25256e] disabled:opacity-50 text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-xs"
+                      >
+                        <MapPin className="w-3.5 h-3.5 text-[#E5B54F]" />
+                        <span>본문에 지도 즉시 삽입</span>
+                      </button>
+                      {hasAttachedMap && (
+                        <button
+                          type="button"
+                          onClick={handleClearMap}
+                          className="px-3 py-1.5 rounded-xl border border-slate-200 hover:bg-slate-100 text-slate-600 text-xs font-bold cursor-pointer"
+                        >
+                          지도 초기화
+                        </button>
+                      )}
+                    </div>
+                    {(mapQuery.trim() || mapTitle.trim()) && (
+                      <span className="text-[11px] text-slate-500 font-mono">
+                        미리보기: {mapTitle || mapQuery}
+                      </span>
+                    )}
+                  </div>
                 </div>
-                <div className="text-slate-500">
-                  우측 사진 목록에서 <strong className="text-slate-700">[사진 넣기]</strong>를 누르면 본문 작성 위치에 바로 사진이 삽입됩니다.
+              )}
+            </div>
+
+            {/* DEDICATED SCROLLABLE BODY CONTENT AREA: 본문 내용만 따로 스크롤! */}
+            <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6 space-y-3 custom-editor-scrollbar bg-white focus-within:ring-1 focus-within:ring-[#30308A]/10">
+              <div className="flex items-center justify-between">
+                <label className="block text-xs font-extrabold text-slate-500 uppercase tracking-wider flex items-center gap-2">
+                  <span>본문 내용</span>
+                  <span className="text-red-500">*</span>
+                  {editorMode === 'visual' && (
+                    <span className="text-[11px] text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded font-bold">
+                      실시간 비주얼 에디터 (본문 독립 스크롤)
+                    </span>
+                  )}
+                  {editorMode === 'code' && (
+                    <span className="text-[11px] text-slate-500 bg-slate-100 px-2 py-0.5 rounded font-bold">
+                      태그 직접 편집 모드
+                    </span>
+                  )}
+                </label>
+
+                <div className="flex items-center gap-3">
+                  <span className="text-xs text-slate-400 font-mono">
+                    {content.length.toLocaleString()}자 작성됨
+                  </span>
                 </div>
               </div>
+
+              {/* 1. VISUAL WYSIWYG EDITOR (Primary Real-time Canvas) */}
+              {editorMode === 'visual' && (
+                <div
+                  ref={setEditorElement}
+                  contentEditable
+                  suppressContentEditableWarning
+                  onInput={handleEditorInput}
+                  onBlur={() => {
+                    saveSelection();
+                    syncContentFromVisual();
+                  }}
+                  onKeyUp={saveSelection}
+                  onMouseUp={saveSelection}
+                  onClick={handleEditorClick}
+                  onKeyDown={handleEditorKeyDown}
+                  data-placeholder="이곳에 내용을 자유롭게 작성하세요. 상단 툴바의 글자 크기(대/중/보통/소), 굵게(B), 형광펜, 표 삽입, 사진 넣기는 항상 상단에 고정되어 있으며 본문만 자유롭게 스크롤됩니다..."
+                  className="oasis-article-content visual-editor-canvas w-full min-h-[360px] outline-none text-slate-800 text-base leading-relaxed empty:before:content-[attr(data-placeholder)] empty:before:text-slate-300 empty:before:pointer-events-none [&_h2]:text-xl [&_h2]:sm:text-2xl [&_h2]:font-bold [&_h2]:text-slate-900 [&_h2]:mt-4 [&_h2]:mb-2 [&_h2]:pb-1 [&_h2]:border-b [&_h2]:border-slate-100 [&_h3]:text-lg [&_h3]:sm:text-xl [&_h3]:font-bold [&_h3]:text-slate-900 [&_h3]:mt-3 [&_h3]:mb-1.5 [&_blockquote]:my-3 [&_blockquote]:pl-4 [&_blockquote]:py-2 [&_blockquote]:border-l-4 [&_blockquote]:border-[#30308A] [&_blockquote]:bg-slate-50 [&_blockquote]:text-slate-700 [&_blockquote]:italic [&_blockquote]:rounded-r-lg [&_blockquote]:font-medium [&_ul]:list-disc [&_ul]:ml-6 [&_ul]:my-2 [&_mark]:bg-amber-200 [&_mark]:text-amber-950 [&_mark]:px-1.5 [&_mark]:py-0.5 [&_mark]:rounded [&_mark]:font-medium [&_mark]:border [&_mark]:border-amber-300/60"
+                />
+              )}
+
+              {/* 2. RAW CODE / TAG MODE (For power users) */}
+              {editorMode === 'code' && (
+                <textarea
+                  ref={rawTextareaRef}
+                  rows={20}
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  placeholder="본문 내용을 입력하세요..."
+                  className="w-full h-full min-h-[360px] p-4 rounded-xl bg-slate-900 text-emerald-400 font-mono text-sm leading-relaxed border border-slate-700 outline-none resize-none shadow-inner"
+                />
+              )}
+
+              {/* 3. FULL ARTICLE PREVIEW (Simulates public post detail layout) */}
+              {editorMode === 'preview' && (
+                <div className="w-full min-h-[360px] p-4 sm:p-6 rounded-2xl bg-white border border-slate-200 space-y-6">
+                  <div className="border-b border-slate-100 pb-4">
+                    <span className="inline-block px-2.5 py-1 rounded-full text-xs font-bold bg-[#30308A]/10 text-[#30308A] mb-2">
+                      {category}
+                    </span>
+                    <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900">
+                      {title || '제목 미리보기'}
+                    </h2>
+                    <div className="text-xs text-slate-400 mt-2 flex items-center gap-3">
+                      <span>작성자: {author || '오아시스 VIP'}</span>
+                      <span>•</span>
+                      <span>조회수: {viewCount.toLocaleString()}</span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    {parsePostContent(
+                      content,
+                      images,
+                      hasAttachedMap ? { title: mapTitle, address: mapAddress, query: mapQuery } : undefined
+                    ).map((seg, idx) => {
+                      if (seg.type === 'text') {
+                        return <FormattedPostContent key={idx} content={seg.text || ''} />;
+                      }
+                      if (seg.type === 'image' && seg.imageUrl) {
+                        return (
+                          <div key={idx} className="my-4 rounded-2xl overflow-hidden border border-slate-200 shadow-sm">
+                            <img src={seg.imageUrl} alt="사진" className="w-full max-h-96 object-contain bg-slate-950/5 mx-auto" />
+                          </div>
+                        );
+                      }
+                      if (seg.type === 'map' && seg.mapQuery) {
+                        return (
+                          <div key={idx} className="my-4">
+                            <GoogleMapEmbed query={seg.mapQuery} title={seg.mapTitle} address={seg.mapAddress} />
+                          </div>
+                        );
+                      }
+                      return null;
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
+
+            {/* Bottom Quick Tips (Fixed at bottom of left canvas) */}
+            <div className="px-4 sm:px-6 py-2.5 bg-slate-50/90 border-t border-slate-200/80 shrink-0 text-xs text-slate-500 flex flex-wrap items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-slate-700">💡 위지윅 팁:</span>
+                <span>상단 툴바에서 <strong>글자 크기(대/중/보통/소)</strong>와 <strong>굵게/형광펜</strong>을 언제든지 바로 적용할 수 있습니다.</span>
+              </div>
+              <div className="text-slate-400 hidden sm:block">
+                본문 영역만 단독으로 스크롤됩니다.
+              </div>
+            </div>
+
           </div>
 
           {/* RIGHT COLUMN: Sidebar Metadata & Image Attachments (4 cols) */}
-          <div className="lg:col-span-4 space-y-6 lg:sticky lg:top-24">
+          {/* 우측 게시글 발행설정 및 사진첨부: 본문 스크롤과 완전히 분리되어 고정 및 독립 스크롤 */}
+          <div className="lg:col-span-4 flex flex-col h-full min-h-0 overflow-y-auto pr-1 space-y-4 custom-editor-scrollbar">
             
             {/* 1. Publication Meta Settings Card */}
-            <div className="bg-white rounded-3xl border border-slate-200/90 shadow-sm p-5 sm:p-6 space-y-5">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+            <div className="bg-white rounded-3xl border border-slate-200/90 shadow-sm p-4 sm:p-5 space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
                 <h3 className="text-sm font-extrabold text-slate-900 flex items-center gap-2">
                   <Sliders className="w-4 h-4 text-[#30308A]" />
                   <span>게시글 발행 설정</span>
@@ -1357,7 +1502,7 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
                     value={author}
                     onChange={(e) => setAuthor(e.target.value)}
                     placeholder="오아시스 VIP"
-                    className="w-full text-xs p-2.5 rounded-xl border border-slate-200 focus:border-[#30308A] outline-none"
+                    className="w-full text-xs p-2 rounded-xl border border-slate-200 focus:border-[#30308A] outline-none"
                   />
                 </div>
                 <div>
@@ -1367,13 +1512,13 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
                     value={viewCount}
                     onChange={(e) => setViewCount(Number(e.target.value))}
                     min={0}
-                    className="w-full text-xs p-2.5 rounded-xl border border-slate-200 focus:border-[#30308A] outline-none"
+                    className="w-full text-xs p-2 rounded-xl border border-slate-200 focus:border-[#30308A] outline-none"
                   />
                 </div>
               </div>
 
               {/* Top Pin Toggle */}
-              <div className="flex items-center justify-between p-3 rounded-2xl bg-amber-50/70 border border-amber-200/80">
+              <div className="flex items-center justify-between p-2.5 rounded-2xl bg-amber-50/70 border border-amber-200/80">
                 <div className="flex items-center gap-2">
                   <Pin className="w-4 h-4 text-amber-600" />
                   <div>
@@ -1399,7 +1544,7 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
                   value={summary}
                   onChange={(e) => setSummary(e.target.value)}
                   placeholder="목록 카드 및 검색엔진 메타태그에 노출될 요약글..."
-                  className="w-full text-xs p-2.5 rounded-xl border border-slate-200 focus:border-[#30308A] outline-none"
+                  className="w-full text-xs p-2 rounded-xl border border-slate-200 focus:border-[#30308A] outline-none"
                 />
               </div>
 
@@ -1411,14 +1556,14 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
                   value={tagsInput}
                   onChange={(e) => setTagsInput(e.target.value)}
                   placeholder="마닐라카지노, 오카다, 롤링, VIP의전"
-                  className="w-full text-xs p-2.5 rounded-xl border border-slate-200 focus:border-[#30308A] outline-none"
+                  className="w-full text-xs p-2 rounded-xl border border-slate-200 focus:border-[#30308A] outline-none"
                 />
               </div>
             </div>
 
             {/* 2. Photo Attachments & 1-Click Placement Card */}
-            <div className="bg-white rounded-3xl border border-slate-200/90 shadow-sm p-5 sm:p-6 space-y-4">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+            <div className="bg-white rounded-3xl border border-slate-200/90 shadow-sm p-4 sm:p-5 space-y-3.5">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
                 <div className="flex items-center gap-2">
                   <ImageIcon className="w-4 h-4 text-[#30308A]" />
                   <h3 className="text-sm font-extrabold text-slate-900">사진 첨부 (최대 6장)</h3>
@@ -1432,7 +1577,7 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
                 onClick={() => fileInputRef.current?.click()}
-                className={`p-5 rounded-2xl border-2 border-dashed text-center transition-all cursor-pointer ${
+                className={`p-4 rounded-2xl border-2 border-dashed text-center transition-all cursor-pointer ${
                   isDragging
                     ? 'border-[#30308A] bg-indigo-50/50'
                     : 'border-slate-200 hover:border-[#30308A] hover:bg-slate-50'
@@ -1446,19 +1591,19 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
                   onChange={(e) => e.target.files && handleFiles(e.target.files)}
                   className="hidden"
                 />
-                <div className="flex flex-col items-center gap-2">
-                  <div className="w-10 h-10 rounded-2xl bg-indigo-50 text-[#30308A] flex items-center justify-center">
+                <div className="flex flex-col items-center gap-1.5">
+                  <div className="w-9 h-9 rounded-2xl bg-indigo-50 text-[#30308A] flex items-center justify-center">
                     {isUploading ? (
-                      <Loader2 className="w-5 h-5 animate-spin" />
+                      <Loader2 className="w-4 h-4 animate-spin" />
                     ) : (
-                      <UploadCloud className="w-5 h-5" />
+                      <UploadCloud className="w-4 h-4" />
                     )}
                   </div>
                   <div>
                     <span className="text-xs font-bold text-[#30308A]">클릭하여 사진 추가</span>
                     <span className="text-xs text-slate-500"> 또는 드래그 앤 드롭</span>
                   </div>
-                  <span className="text-[11px] text-slate-400">JPG, PNG, WEBP 지원 (자동 720p 최적화)</span>
+                  <span className="text-[10px] text-slate-400">고해상도 WebP/JPG 자동 최적화</span>
                 </div>
               </div>
 
@@ -1485,7 +1630,7 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
                   <button
                     type="button"
                     onClick={handleAddManualUrl}
-                    className="px-3 py-2 bg-[#30308A] text-white rounded-lg text-xs font-bold cursor-pointer"
+                    className="px-3 py-1.5 bg-[#30308A] text-white rounded-lg text-xs font-bold cursor-pointer"
                   >
                     추가
                   </button>
@@ -1494,9 +1639,9 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
 
               {/* Attached Photos List with 1-Click WYSIWYG Placement */}
               {images.length > 0 && (
-                <div className="space-y-2.5 pt-2">
+                <div className="space-y-2 pt-1">
                   <span className="text-[11px] font-bold text-slate-500">등록된 사진 목록:</span>
-                  <div className="grid grid-cols-1 gap-2.5">
+                  <div className="grid grid-cols-1 gap-2">
                     {images.map((imgSrc, idx) => {
                       const photoNum = idx + 1;
                       const isInserted = isPhotoInContent(content, idx);
@@ -1506,8 +1651,8 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
                           className="flex items-center justify-between p-2 rounded-xl border border-slate-200 bg-slate-50 gap-2.5 hover:border-slate-300 transition-colors"
                         >
                           <div className="flex items-center gap-2.5 min-w-0">
-                            <div className="w-12 h-12 rounded-lg overflow-hidden bg-slate-900 shrink-0 border border-slate-200">
-                              <img src={imgSrc} alt="" className="w-full h-full object-cover" />
+                            <div className="w-11 h-11 rounded-lg overflow-hidden bg-slate-900 shrink-0 border border-slate-200 flex items-center justify-center p-0.5">
+                              <img src={imgSrc} alt="" className="w-full h-full object-contain mx-auto" />
                             </div>
                             <div className="min-w-0">
                               <div className="flex items-center gap-1.5">
@@ -1528,23 +1673,23 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
                             </div>
                           </div>
 
-                          <div className="flex items-center gap-1.5 shrink-0">
+                          <div className="flex items-center gap-1 shrink-0">
                             <button
                               type="button"
                               onClick={() => insertPhotoIntoEditor(idx, imgSrc)}
-                              className="px-2.5 py-1.5 rounded-lg bg-white hover:bg-slate-100 text-[#30308A] text-xs font-bold border border-slate-200 shadow-2xs transition-all cursor-pointer flex items-center gap-1"
+                              className="px-2 py-1 rounded-lg bg-white hover:bg-slate-100 text-[#30308A] text-xs font-bold border border-slate-200 shadow-2xs transition-all cursor-pointer flex items-center gap-1"
                               title="현재 본문 커서 위치에 바로 삽입 (미리보기 없이 사진이 즉시 나타납니다)"
                             >
-                              <ImageDown className="w-3.5 h-3.5" />
+                              <ImageDown className="w-3 h-3" />
                               <span>본문 넣기</span>
                             </button>
                             <button
                               type="button"
                               onClick={() => handleRemoveImage(idx)}
-                              className="p-1.5 rounded-lg hover:bg-rose-50 text-slate-400 hover:text-rose-600 transition-colors cursor-pointer"
+                              className="p-1 rounded-lg hover:bg-rose-50 text-slate-400 hover:text-rose-600 transition-colors cursor-pointer"
                               title="사진 삭제"
                             >
-                              <Trash2 className="w-4 h-4" />
+                              <Trash2 className="w-3.5 h-3.5" />
                             </button>
                           </div>
                         </div>
@@ -1556,12 +1701,12 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
             </div>
 
             {/* Save Action for Sidebar */}
-            <div className="pt-2">
+            <div className="pt-1">
               <button
                 type="button"
                 onClick={() => handleSubmit()}
                 disabled={isSubmitting || !title.trim()}
-                className="w-full py-3.5 rounded-2xl bg-[#30308A] hover:bg-[#25256e] disabled:opacity-50 text-white font-extrabold text-sm flex items-center justify-center gap-2 shadow-md transition-all cursor-pointer active:scale-[0.98]"
+                className="w-full py-3 rounded-2xl bg-[#30308A] hover:bg-[#25256e] disabled:opacity-50 text-white font-extrabold text-sm flex items-center justify-center gap-2 shadow-md transition-all cursor-pointer active:scale-[0.98]"
               >
                 {isSubmitting ? (
                   <>

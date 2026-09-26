@@ -98,6 +98,16 @@ export const AdminDashboard: React.FC = () => {
 
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
+  // In-app Confirmation Modal (replaces browser window.confirm which is blocked in iframes)
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    confirmText?: string;
+    confirmColor?: string;
+    onConfirm: () => void | Promise<void>;
+  } | null>(null);
+
   if (!isAdminOpen) return null;
 
   const showToast = (msg: string) => {
@@ -1579,12 +1589,19 @@ Sitemap: https://oasis46.com/sitemap.xml`}
                           </button>
                           <button
                             onClick={() => {
-                              if (confirm(`'${casino.name}' 카지노를 삭제하시겠습니까?`)) {
-                                deleteCasino(casino.id);
-                                showToast('카지노가 삭제되었습니다.');
-                              }
+                              setConfirmModal({
+                                isOpen: true,
+                                title: '카지노 삭제',
+                                message: `'${casino.name}' 카지노를 목록에서 삭제하시겠습니까?`,
+                                confirmText: '삭제',
+                                confirmColor: 'bg-red-600 hover:bg-red-700',
+                                onConfirm: () => {
+                                  deleteCasino(casino.id);
+                                  showToast('카지노가 삭제되었습니다.');
+                                },
+                              });
                             }}
-                            className="px-3 py-1 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg text-xs font-bold flex items-center gap-1"
+                            className="px-3 py-1 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg text-xs font-bold flex items-center gap-1 cursor-pointer"
                           >
                             <Trash2 className="w-3 h-3" />
                             삭제
@@ -1710,12 +1727,19 @@ Sitemap: https://oasis46.com/sitemap.xml`}
                         </button>
                         <button
                           onClick={() => {
-                            if (confirm(`'${spot.title}' 소개 카드를 삭제하시겠습니까?`)) {
-                              deletePhilippineSpot(spot.id);
-                              showToast('카드가 삭제되었습니다.');
-                            }
+                            setConfirmModal({
+                              isOpen: true,
+                              title: '소개 카드 삭제',
+                              message: `'${spot.title}' 소개 카드를 삭제하시겠습니까?`,
+                              confirmText: '삭제',
+                              confirmColor: 'bg-red-600 hover:bg-red-700',
+                              onConfirm: () => {
+                                deletePhilippineSpot(spot.id);
+                                showToast('카드가 삭제되었습니다.');
+                              },
+                            });
                           }}
-                          className="px-3 py-1 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg text-xs font-bold flex items-center gap-1"
+                          className="px-3 py-1 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg text-xs font-bold flex items-center gap-1 cursor-pointer"
                         >
                           <Trash2 className="w-3 h-3" />
                           삭제
@@ -2006,13 +2030,21 @@ Sitemap: https://oasis46.com/sitemap.xml`}
                             수정
                           </button>
                           <button
+                            type="button"
                             onClick={() => {
-                              if (confirm(`'${post.title}' 글을 삭제하시겠습니까?`)) {
-                                deletePost(post.id);
-                                showToast('게시글이 삭제되었습니다.');
-                              }
+                              setConfirmModal({
+                                isOpen: true,
+                                title: '게시글 영구 삭제',
+                                message: `'${post.title}' 게시글을 삭제하시겠습니까? 삭제 후에는 목록과 상세 화면에서 즉시 영구 삭제됩니다.`,
+                                confirmText: '게시글 삭제',
+                                confirmColor: 'bg-red-600 hover:bg-red-700',
+                                onConfirm: () => {
+                                  deletePost(post.id);
+                                  showToast('게시글이 영구 삭제되었습니다.');
+                                },
+                              });
                             }}
-                            className="px-2.5 py-1 rounded bg-red-50 hover:bg-red-100 text-red-600 text-[11px] font-bold"
+                            className="px-2.5 py-1 rounded bg-red-50 hover:bg-red-100 text-red-600 text-[11px] font-bold cursor-pointer"
                           >
                             삭제
                           </button>
@@ -2076,13 +2108,21 @@ Sitemap: https://oasis46.com/sitemap.xml`}
                             <option value="상담완료">상담완료</option>
                           </select>
                           <button
+                            type="button"
                             onClick={() => {
-                              if (confirm('이 상담 내역을 삭제하시겠습니까?')) {
-                                deleteInquiry(lead.id);
-                                showToast('상담 내역이 삭제되었습니다.');
-                              }
+                              setConfirmModal({
+                                isOpen: true,
+                                title: '상담 내역 삭제',
+                                message: '이 상담 접수 내역을 삭제하시겠습니까?',
+                                confirmText: '삭제',
+                                confirmColor: 'bg-red-600 hover:bg-red-700',
+                                onConfirm: () => {
+                                  deleteInquiry(lead.id);
+                                  showToast('상담 내역이 삭제되었습니다.');
+                                },
+                              });
                             }}
-                            className="p-1.5 text-slate-400 hover:text-red-600 rounded-lg"
+                            className="p-1.5 text-slate-400 hover:text-red-600 rounded-lg cursor-pointer transition-colors"
                             title="삭제"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -2208,13 +2248,21 @@ Sitemap: https://oasis46.com/sitemap.xml`}
                       </p>
                     </div>
                     <button
+                      type="button"
                       onClick={() => {
-                        if (confirm('모든 데이터가 초기 샘플 상태로 리셋됩니다. 계속하시겠습니까?')) {
-                          resetToDefaults();
-                          showToast('초기 데이터로 리셋되었습니다.');
-                        }
+                        setConfirmModal({
+                          isOpen: true,
+                          title: '전체 데이터 초기화',
+                          message: '모든 설정과 데이터가 초기 공장 샘플 상태로 리셋됩니다. 계속하시겠습니까?',
+                          confirmText: '초기화 실행',
+                          confirmColor: 'bg-red-600 hover:bg-red-700',
+                          onConfirm: async () => {
+                            await resetToDefaults();
+                            showToast('초기 데이터로 리셋되었습니다.');
+                          },
+                        });
                       }}
-                      className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold whitespace-nowrap"
+                      className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold whitespace-nowrap cursor-pointer shadow-xs"
                     >
                       기본값으로 전체 리셋
                     </button>
@@ -2257,6 +2305,48 @@ Sitemap: https://oasis46.com/sitemap.xml`}
               }
             }}
           />
+        )}
+
+        {/* In-App Confirmation Modal (Works 100% reliably inside iframes with no browser popup blocks) */}
+        {confirmModal && confirmModal.isOpen && (
+          <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-150">
+            <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-4 animate-in zoom-in-95 duration-150">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-rose-50 border border-rose-100 flex items-center justify-center shrink-0">
+                  <Trash2 className="w-5 h-5 text-rose-600" />
+                </div>
+                <div>
+                  <h4 className="text-base font-bold text-slate-900">{confirmModal.title}</h4>
+                  <p className="text-xs text-slate-500">진행하시려면 확인을 눌러주세요</p>
+                </div>
+              </div>
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                {confirmModal.message}
+              </p>
+              <div className="flex items-center justify-end gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setConfirmModal(null)}
+                  className="px-4 py-2 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors cursor-pointer"
+                >
+                  취소
+                </button>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    const action = confirmModal.onConfirm;
+                    setConfirmModal(null);
+                    await action();
+                  }}
+                  className={`px-4 py-2 rounded-xl text-xs font-bold text-white transition-all shadow-xs cursor-pointer ${
+                    confirmModal.confirmColor || 'bg-rose-600 hover:bg-rose-700'
+                  }`}
+                >
+                  {confirmModal.confirmText || '확인'}
+                </button>
+              </div>
+            </div>
+          </div>
         )}
 
       </div>

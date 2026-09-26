@@ -12,6 +12,11 @@
     word-break: keep-all;
     overflow-wrap: break-word;
   }
+
+  img {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: auto;
+  }
 }
 
 .font-serif-luxury {
@@ -36,5 +41,72 @@
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #30308A;
+}
+
+/* Slim custom scrollbar for post editor canvas & right sidebar */
+.custom-editor-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+.custom-editor-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.custom-editor-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-editor-scrollbar::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+.custom-editor-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Responsive Article Table Styles */
+.oasis-article-content table,
+.visual-editor-canvas table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  border-radius: 0.75rem;
+  border: 1px solid #cbd5e1;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  background-color: #ffffff;
+}
+
+.oasis-article-content thead,
+.visual-editor-canvas thead {
+  background-color: #f8fafc;
+  border-bottom: 2px solid #cbd5e1;
+}
+
+.oasis-article-content th,
+.visual-editor-canvas th {
+  padding: 0.75rem 1rem;
+  font-weight: 700;
+  color: #0f172a;
+  border: 1px solid #cbd5e1;
+  text-align: left;
+  background-color: #f8fafc;
+}
+
+.oasis-article-content td,
+.visual-editor-canvas td {
+  padding: 0.75rem 1rem;
+  border: 1px solid #e2e8f0;
+  color: #334155;
+  background-color: #ffffff;
+}
+
+.oasis-article-content tbody tr:nth-child(even) td,
+.visual-editor-canvas tbody tr:nth-child(even) td {
+  background-color: #f8fafc;
+}
+
+.oasis-article-content tbody tr:hover td,
+.visual-editor-canvas tbody tr:hover td {
+  background-color: #f1f5f9;
 }
 

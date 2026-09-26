@@ -14,10 +14,10 @@ import {
   MapPin,
 } from 'lucide-react';
 import { getPostUrl } from '../../utils/seo';
-import { isMapInContent } from '../../utils/postContent';
+import { isMapInContent, stripFormattingTags } from '../../utils/postContent';
 import { getResponsiveImageProps } from '../../utils/imageOptimizer';
 
-const POSTS_PER_PAGE = 8;
+const POSTS_PER_PAGE = 9;
 
 export const CommunitySection: React.FC = () => {
   const { posts, setSelectedPost, incrementPostView, siteConfig } = useSite();
@@ -120,16 +120,19 @@ export const CommunitySection: React.FC = () => {
             ))}
           </div>
 
-          {/* Search Input */}
-          <div className="relative w-full sm:w-72">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              placeholder="제목, 내용 검색..."
-              value={searchQuery}
-              onChange={(e) => handleSearchChange(e.target.value)}
-              className="w-full pl-9 pr-4 py-1.5 sm:py-2 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#30308A] focus:bg-white transition-all"
-            />
+          {/* Search Bar */}
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            {/* Search Input */}
+            <div className="relative flex-1 sm:w-72">
+              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                placeholder="제목, 내용 검색..."
+                value={searchQuery}
+                onChange={(e) => handleSearchChange(e.target.value)}
+                className="w-full pl-9 pr-4 py-1.5 sm:py-2 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#30308A] focus:bg-white transition-all"
+              />
+            </div>
           </div>
         </div>
 
@@ -142,7 +145,7 @@ export const CommunitySection: React.FC = () => {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-6">
+            <div className="grid grid-cols-1 min-[520px]:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-6">
             {paginatedPosts.map((post) => {
               const cardImage = (post.images && post.images.length > 0) ? post.images[0] : post.thumbnail;
               const hasMultiplePhotos = (post.images && post.images.length > 1);
@@ -161,7 +164,7 @@ export const CommunitySection: React.FC = () => {
                 >
                   {/* Thumbnail if present */}
                   {cardImage && (
-                    <div className="relative h-28 sm:h-48 w-full overflow-hidden bg-slate-900">
+                    <div className="relative h-36 min-[520px]:h-40 sm:h-48 w-full overflow-hidden bg-slate-900">
                       <img
                         {...getResponsiveImageProps(cardImage, 600, '(max-width: 640px) 380px, (max-width: 1024px) 50vw, 380px')}
                         alt={post.title}
@@ -207,7 +210,7 @@ export const CommunitySection: React.FC = () => {
                   )}
 
                   {/* Card Content */}
-                  <div className="p-2.5 sm:p-6 flex-1 flex flex-col justify-between space-y-2 sm:space-y-4">
+                  <div className="p-3.5 sm:p-5 flex-1 flex flex-col justify-between space-y-2 sm:space-y-3.5">
                     <div className="space-y-1 sm:space-y-2">
                       {!cardImage && (
                         <div className="flex items-center gap-1 sm:gap-1.5 mb-1.5 sm:mb-2 flex-wrap">
@@ -233,12 +236,12 @@ export const CommunitySection: React.FC = () => {
                         </div>
                       )}
 
-                      <h3 className="text-xs sm:text-base lg:text-lg font-bold text-slate-900 group-hover:text-[#30308A] transition-colors leading-snug line-clamp-2">
+                      <h3 className="text-sm sm:text-base lg:text-lg font-bold text-slate-900 group-hover:text-[#30308A] transition-colors leading-snug line-clamp-2">
                         {post.title}
                       </h3>
 
-                      <p className="text-[11px] sm:text-xs text-slate-600 line-clamp-1 sm:line-clamp-2 leading-relaxed">
-                        {post.summary || post.content}
+                      <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">
+                        {stripFormattingTags(post.summary || post.content)}
                       </p>
                     </div>
 

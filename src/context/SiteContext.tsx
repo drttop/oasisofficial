@@ -59,6 +59,11 @@ interface SiteContextType {
   deletePost: (id: string) => Promise<void> | void;
   incrementPostView: (id: string) => Promise<void> | void;
   
+  isPostEditorOpen: boolean;
+  editingPost: PostItem | null;
+  openPostEditor: (post?: PostItem | null) => void;
+  closePostEditor: () => void;
+  
   inquiryLeads: InquiryLead[];
   addInquiryLead: (lead: Omit<InquiryLead, 'id' | 'createdAt' | 'status'>) => Promise<void> | void;
   updateInquiryStatus: (id: string, status: InquiryLead['status']) => Promise<void> | void;
@@ -170,8 +175,11 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!saved) return initialPosts;
     try {
       const parsed: PostItem[] = JSON.parse(saved);
+      const existingIds = new Set(parsed.map((p) => p.id));
+      const missingInitial = initialPosts.filter((ip) => !existingIds.has(ip.id));
+      const combined = [...parsed, ...missingInitial];
       // Ensure initial sample posts inherit map data if user had old localStorage
-      return parsed.map((p) => {
+      return combined.map((p) => {
         const matchingInitial = initialPosts.find((ip) => ip.id === p.id);
         if (matchingInitial?.mapLocation && !p.mapLocation) {
           return {
@@ -225,6 +233,33 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [selectedCasino, setSelectedCasino] = useState<CasinoItem | null>(null);
   const [activeSection, setActiveSection] = useState('home');
   const [isCloudSynced, setIsCloudSynced] = useState(false);
+
+  const [isPostEditorOpen, setIsPostEditorOpen] = useState(false);
+  const [editingPost, setEditingPost] = useState<PostItem | null>(null);
+
+  const openPostEditor = (post: PostItem | null = null) => {
+    setEditingPost(post);
+    setIsPostEditorOpen(true);
+  };
+
+  const closePostEditor = () => {
+    setIsPostEditorOpen(false);
+    setEditingPost(null);
+    if (typeof window !== 'undefined') {
+      try {
+        const url = new URL(window.location.href);
+        if (url.searchParams.has('action') || url.searchParams.has('edit')) {
+          url.searchParams.delete('action');
+          url.searchParams.delete('edit');
+          const cleanSearch = url.searchParams.toString();
+          const cleanUrl = url.pathname + (cleanSearch ? `?${cleanSearch}` : '') + (url.hash || '');
+          window.history.pushState({}, '', cleanUrl);
+        }
+      } catch {
+        // fallback
+      }
+    }
+  };
 
   // 1. Setup Firestore Realtime Listeners (Deferred until idle to maximize PageSpeed & minimize TBT)
   useEffect(() => {
@@ -937,6 +972,10 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
         updatePost,
         deletePost,
         incrementPostView,
+        isPostEditorOpen,
+        editingPost,
+        openPostEditor,
+        closePostEditor,
         inquiryLeads,
         addInquiryLead,
         updateInquiryStatus,

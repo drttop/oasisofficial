@@ -1,4 +1,5 @@
 import { PostItem, SiteConfig } from '../types';
+import { stripFormattingTags } from './postContent';
 
 /**
  * Utility to dynamically update meta tags in the document head
@@ -76,7 +77,8 @@ export function applySEO(post: PostItem | null, siteConfig: SiteConfig) {
   if (post) {
     // 1. Single Post SEO
     const postTitle = `${post.title} | ${siteConfig.siteName || '마닐라 오아시스에이전시'}`;
-    const postDesc = post.summary || (post.content ? post.content.slice(0, 160).replace(/\n/g, ' ') : defaultDesc);
+    const cleanContent = post.content ? stripFormattingTags(post.content).slice(0, 160).replace(/\n/g, ' ') : '';
+    const postDesc = post.summary ? stripFormattingTags(post.summary) : (cleanContent || defaultDesc);
     const postKeywords = [...(post.tags || []), post.category, siteConfig.siteName || '마닐라 오아시스에이전시'].join(', ');
     const postUrl = getPostUrl(post.id);
     const postImage = post.thumbnail || defaultImage;

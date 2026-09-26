@@ -17,7 +17,7 @@ import {
   MapPin,
 } from 'lucide-react';
 import { getPostUrl } from '../../utils/seo';
-import { parsePostContent } from '../../utils/postContent';
+import { parsePostContent, FormattedPostContent } from '../../utils/postContent';
 import { GoogleMapEmbed } from '../community/GoogleMapEmbed';
 import { getOptimizedImageUrl } from '../../utils/imageOptimizer';
 
@@ -240,9 +240,11 @@ export const PostDetailModal: React.FC = () => {
             {contentSegments.map((segment, idx) => {
               if (segment.type === 'text') {
                 return (
-                  <div key={idx} className="whitespace-pre-line leading-relaxed">
-                    {segment.text}
-                  </div>
+                  <FormattedPostContent
+                    key={idx}
+                    content={segment.text || ''}
+                    className="whitespace-normal leading-relaxed"
+                  />
                 );
               }
 

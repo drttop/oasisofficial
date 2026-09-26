@@ -3,7 +3,6 @@ import { useSite } from '../../context/SiteContext';
 import { PostItem, CasinoItem, BannerSlide, PhilippineTourSpot } from '../../types';
 import { initialSiteConfig } from '../../data/initialData';
 import { OasisLogoHorizontal } from '../OasisLogoHorizontal';
-import { PostEditorModal } from './PostEditorModal';
 import { CasinoEditorModal } from './CasinoEditorModal';
 import { PhilippineSpotEditorModal } from './PhilippineSpotEditorModal';
 import {
@@ -69,6 +68,7 @@ export const AdminDashboard: React.FC = () => {
     deleteFaq,
     posts,
     deletePost,
+    openPostEditor,
     inquiryLeads,
     updateInquiryStatus,
     deleteInquiry,
@@ -90,9 +90,6 @@ export const AdminDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'general' | 'about' | 'seo' | 'banners' | 'casinos' | 'philippines' | 'process' | 'posts' | 'leads' | 'backup'>('general');
 
   // Modals state
-  const [postModalOpen, setPostModalOpen] = useState(false);
-  const [editingPost, setEditingPost] = useState<PostItem | null>(null);
-  
   const [casinoModalOpen, setCasinoModalOpen] = useState(false);
   const [editingCasino, setEditingCasino] = useState<CasinoItem | null>(null);
 
@@ -1945,8 +1942,8 @@ Sitemap: https://oasis46.com/sitemap.xml`}
                 </div>
                 <button
                   onClick={() => {
-                    setEditingPost(null);
-                    setPostModalOpen(true);
+                    setIsAdminOpen(false);
+                    openPostEditor(null);
                   }}
                   className="px-4 py-2 bg-[#30308A] hover:bg-[#25256e] text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow cursor-pointer"
                 >
@@ -2001,8 +1998,8 @@ Sitemap: https://oasis46.com/sitemap.xml`}
                         <td className="p-3.5 text-right whitespace-nowrap space-x-1.5">
                           <button
                             onClick={() => {
-                              setEditingPost(post);
-                              setPostModalOpen(true);
+                              setIsAdminOpen(false);
+                              openPostEditor(post);
                             }}
                             className="px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-bold"
                           >
@@ -2228,18 +2225,6 @@ Sitemap: https://oasis46.com/sitemap.xml`}
           )}
 
         </div>
-
-        {/* Post Modal */}
-        {postModalOpen && (
-          <PostEditorModal
-            postToEdit={editingPost}
-            onClose={() => {
-              setPostModalOpen(false);
-              setEditingPost(null);
-              showToast('게시글이 저장되었습니다.');
-            }}
-          />
-        )}
 
         {/* Casino Modal */}
         {casinoModalOpen && (

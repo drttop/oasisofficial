@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite --port=3000 --host=0.0.0.0",
     "sync-seo": "NODE_ENV=production node scripts/sync-seo.js",
-    "build": "NODE_ENV=production node scripts/sync-seo.js && NODE_ENV=production vite build --mode production",
+    "verify-seo": "node scripts/verify-seo-score.js",
+    "build": "NODE_ENV=production node scripts/sync-seo.js && node scripts/verify-seo-score.js && NODE_ENV=production vite build --mode production",
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit"

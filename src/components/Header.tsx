@@ -3,7 +3,13 @@ import { useSite } from '../context/SiteContext';
 import { Menu, X, ChevronRight } from 'lucide-react';
 
 export const Header: React.FC = () => {
-  const { siteConfig } = useSite();
+  const {
+    siteConfig,
+    selectedPost,
+    setSelectedPost,
+    isPostEditorOpen,
+    closePostEditor,
+  } = useSite();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -33,6 +39,47 @@ export const Header: React.FC = () => {
   const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault();
     setMobileMenuOpen(false);
+
+    if (selectedPost || isPostEditorOpen) {
+      if (selectedPost) setSelectedPost(null);
+      if (isPostEditorOpen) closePostEditor();
+
+      if (typeof window !== 'undefined') {
+        const cleanUrl = href === '#home' ? window.location.pathname : `${window.location.pathname}${href}`;
+        window.history.pushState({}, '', cleanUrl);
+      }
+
+      if (href === '#home') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
+
+      // Smoothly scroll to the target section once the main landing page elements are mounted
+      let attempts = 0;
+      const tryScroll = () => {
+        const element = document.querySelector(href);
+        if (element) {
+          const headerOffset = 80;
+          const elementPosition = element.getBoundingClientRect().top;
+          const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth',
+          });
+        } else if (attempts < 12) {
+          attempts++;
+          setTimeout(tryScroll, 50);
+        }
+      };
+      setTimeout(tryScroll, 50);
+      return;
+    }
+
+    if (href === '#home') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
     const element = document.querySelector(href);
     if (element) {
       const headerOffset = 80;

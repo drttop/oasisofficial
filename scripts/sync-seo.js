@@ -41,12 +41,23 @@ async function syncSEO() {
     return;
   }
 
+  const cleanSnippet = (text) => {
+    if (!text) return '';
+    return text
+      .replace(/\[[^\]]+\]/g, ' ')
+      .replace(/\*\*/g, '')
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/[\r\n\t]+/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+  };
+
   // 1. Generate postMap dictionary for index.html inline script
   const postMapEntries = posts.map((post) => {
     const title = `${(post.title || '').replace(/'/g, "\\'")} | 오아시스`;
-    let rawSummary = (post.summary || '').trim();
+    let rawSummary = cleanSnippet(post.summary);
     if (rawSummary.length < 50 && post.content) {
-      const cleanContent = post.content.replace(/<[^>]+>/g, ' ').replace(/[\r\n\t]+/g, ' ').replace(/\s+/g, ' ').trim();
+      const cleanContent = cleanSnippet(post.content);
       rawSummary = (rawSummary ? `${rawSummary} - ` : '') + cleanContent;
     }
     const cleanDesc = rawSummary.slice(0, 160).replace(/'/g, "\\'");
@@ -55,9 +66,9 @@ async function syncSEO() {
 
   // 2. Generate noscript HTML articles
   const noscriptArticles = posts.map((post) => {
-    let rawSummary = (post.summary || '').trim();
+    let rawSummary = cleanSnippet(post.summary);
     if (rawSummary.length < 60 && post.content) {
-      const cleanContent = post.content.replace(/<[^>]+>/g, ' ').replace(/[\r\n\t]+/g, ' ').replace(/\s+/g, ' ').trim();
+      const cleanContent = cleanSnippet(post.content);
       rawSummary = (rawSummary ? `${rawSummary} - ` : '') + cleanContent;
     }
     const cleanDesc = rawSummary.slice(0, 180);

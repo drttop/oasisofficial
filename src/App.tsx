@@ -12,15 +12,18 @@ import { BottomFloatingBar } from './components/BottomFloatingBar';
 import { SEOManager } from './components/SEOManager';
 import { Settings } from 'lucide-react';
 
-// Code-split heavy modals to minimize initial JavaScript bundle and main-thread execution time
-const PostDetailModal = React.lazy(() =>
-  import('./components/modals/PostDetailModal').then((m) => ({ default: m.PostDetailModal }))
-);
+// Code-split heavy modals and pages to minimize initial JavaScript bundle and main-thread execution time
 const CasinoDetailModal = React.lazy(() =>
   import('./components/modals/CasinoDetailModal').then((m) => ({ default: m.CasinoDetailModal }))
 );
 const AdminDashboard = React.lazy(() =>
   import('./components/admin/AdminDashboard').then((m) => ({ default: m.AdminDashboard }))
+);
+const PostDetailPage = React.lazy(() =>
+  import('./components/community/PostDetailPage').then((m) => ({ default: m.PostDetailPage }))
+);
+const PostEditorPage = React.lazy(() =>
+  import('./components/community/PostEditorPage').then((m) => ({ default: m.PostEditorPage }))
 );
 
 const preloadAdmin = () => {
@@ -28,7 +31,45 @@ const preloadAdmin = () => {
 };
 
 const MainAppContent: React.FC = () => {
-  const { isAdminOpen, setIsAdminOpen, selectedPost, selectedCasino } = useSite();
+  const {
+    isAdminOpen,
+    setIsAdminOpen,
+    selectedPost,
+    setSelectedPost,
+    selectedCasino,
+    isPostEditorOpen,
+    editingPost,
+    openPostEditor,
+    closePostEditor,
+  } = useSite();
+
+  const handleBackToCommunity = () => {
+    setSelectedPost(null);
+    setTimeout(() => {
+      const element = document.getElementById('community');
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 60);
+  };
+
+  const handleCloseEditor = () => {
+    closePostEditor();
+    if (typeof window !== 'undefined') {
+      window.history.pushState({}, '', window.location.pathname);
+    }
+    setTimeout(() => {
+      const element = document.getElementById('community');
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 100);
+  };
+
+  const handleSavedPost = (savedPost: any) => {
+    closePostEditor();
+    setSelectedPost(savedPost);
+  };
 
   return (
     <div className="min-h-screen bg-white text-slate-900 flex flex-col relative selection:bg-[#30308A] selection:text-white">
@@ -38,25 +79,59 @@ const MainAppContent: React.FC = () => {
       {/* Top Header */}
       <Header />
 
-      {/* Main Content Sections */}
+      {/* Main Content Area: Dedicated Standard Pages or Main Landing Sections */}
       <main className="flex-1 w-full">
-        {/* Hero Slider (LCP Priority Element) */}
-        <HeroSection />
+        {isPostEditorOpen ? (
+          /* 1. Dedicated Full-Page Post Editor (Admin Only Studio UX) */
+          <Suspense
+            fallback={
+              <div className="min-h-[70vh] flex items-center justify-center bg-slate-50">
+                <div className="w-8 h-8 border-3 border-[#30308A] border-t-transparent rounded-full animate-spin" />
+              </div>
+            }
+          >
+            <PostEditorPage
+              postToEdit={editingPost}
+              onClose={handleCloseEditor}
+              onSaved={handleSavedPost}
+            />
+          </Suspense>
+        ) : selectedPost ? (
+          /* 2. Dedicated Full-Page Post Detail (Standard Article Page & SEO Perfect) */
+          <Suspense
+            fallback={
+              <div className="min-h-[70vh] flex items-center justify-center bg-slate-50">
+                <div className="w-8 h-8 border-3 border-[#30308A] border-t-transparent rounded-full animate-spin" />
+              </div>
+            }
+          >
+            <PostDetailPage
+              post={selectedPost}
+              onBack={handleBackToCommunity}
+            />
+          </Suspense>
+        ) : (
+          /* 3. Main Landing Page Sections */
+          <>
+            {/* Hero Slider (LCP Priority Element) */}
+            <HeroSection />
 
-        {/* 1. 커뮤니티 (Community & Official Board) */}
-        <CommunitySection />
+            {/* 1. 커뮤니티 (Community & Official Board) */}
+            <CommunitySection />
 
-        {/* 2. 오아시스 소개 (About Oasis) */}
-        <AboutSection />
+            {/* 2. 오아시스 소개 (About Oasis) */}
+            <AboutSection />
 
-        {/* 3. 카지노 소개 (Casino Intro) */}
-        <CasinoSection />
+            {/* 3. 카지노 소개 (Casino Intro) */}
+            <CasinoSection />
 
-        {/* 4. 필리핀 소개 (Philippines Travel & Golf) */}
-        <PhilippinesSection />
+            {/* 4. 필리핀 소개 (Philippines Travel & Golf) */}
+            <PhilippinesSection />
 
-        {/* 5. 이용방법 (Process & FAQ) */}
-        <ProcessSection />
+            {/* 5. 이용방법 (Process & FAQ) */}
+            <ProcessSection />
+          </>
+        )}
       </main>
 
       {/* Footer */}
@@ -67,7 +142,6 @@ const MainAppContent: React.FC = () => {
 
       {/* Modals & Dialogs (Loaded on-demand to optimize First Contentful Paint & TTI) */}
       <Suspense fallback={null}>
-        {selectedPost && <PostDetailModal />}
         {selectedCasino && <CasinoDetailModal />}
         {isAdminOpen && <AdminDashboard />}
       </Suspense>

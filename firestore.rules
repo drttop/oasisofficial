@@ -42,5 +42,10 @@ service cloud.firestore {
       allow read: if true;
       allow write: if true;
     }
+
+    // Deleted posts tombstone
+    match /deleted_posts/{docId} {
+      allow read, write: if true;
+    }
   }
 }

@@ -105,11 +105,37 @@ const STORAGE_KEYS = {
   FAQS: 'oasis_faqs_v8',
 };
 
+/**
+ * Safely sanitizes an object before writing to Firestore:
+ * Strips all undefined fields recursively so Firestore never throws
+ * "Unsupported field value: undefined"
+ */
+const sanitizeForFirestore = (obj: any): any => {
+  if (obj === undefined) return null;
+  if (Array.isArray(obj)) {
+    return obj.map(sanitizeForFirestore).filter((v) => v !== undefined);
+  }
+  if (obj !== null && typeof obj === 'object') {
+    const cleaned: Record<string, any> = {};
+    for (const [key, value] of Object.entries(obj)) {
+      if (value !== undefined) {
+        cleaned[key] = sanitizeForFirestore(value);
+      }
+    }
+    return cleaned;
+  }
+  return obj;
+};
+
 export const getDeletedPostIds = (): Set<string> => {
   if (typeof window === 'undefined') return new Set();
   try {
     const saved = localStorage.getItem(STORAGE_KEYS.DELETED_POSTS);
-    return saved ? new Set(JSON.parse(saved)) : new Set();
+    if (!saved) return new Set();
+    const parsed: string[] = JSON.parse(saved);
+    // CRITICAL: Only hardcoded demo posts ('post-1' ~ 'post-6') should ever be filtered by DELETED_POSTS!
+    // User-created posts live in Firestore and should NEVER be blacklisted or auto-deleted by this mechanism.
+    return new Set(parsed.filter((id) => /^post-[1-6]$/.test(id)));
   } catch {
     return new Set();
   }
@@ -603,20 +629,15 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const dateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
     const timestamp = Date.now();
     
-    // Find next safe unique ID
-    let nextNum = 1;
-    posts.forEach((p) => {
-      const match = p.id.match(/^post-(\d+)$/);
-      if (match) {
-        const n = parseInt(match[1], 10);
-        if (n >= nextNum && n < 100000) {
-          nextNum = n + 1;
-        }
-      }
-    });
-    // Ensure ID doesn't clash with any existing document
-    const candidateId = `post-${nextNum}`;
-    const newId = posts.some((p) => p.id === candidateId) ? `post-${timestamp}` : candidateId;
+    // Generate a unique ID using timestamp to completely eliminate collisions with deleted demo IDs
+    const newId = `post-${timestamp}-${Math.random().toString(36).substring(2, 6)}`;
+
+    // Ensure new ID is definitely NOT in deleted IDs
+    const currentDeleted = getDeletedPostIds();
+    if (currentDeleted.has(newId)) {
+      currentDeleted.delete(newId);
+      safeStorageSet(STORAGE_KEYS.DELETED_POSTS, JSON.stringify(Array.from(currentDeleted)));
+    }
 
     const initialViews = typeof post.viewCount === 'number' && !isNaN(post.viewCount) && post.viewCount >= 0
       ? post.viewCount
@@ -644,18 +665,10 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
 
     try {
-      const cleanDoc: Record<string, any> = {};
-      Object.entries(newPost).forEach(([k, v]) => {
-        if (v !== undefined) {
-          cleanDoc[k] = v;
-        }
-      });
+      const cleanDoc = sanitizeForFirestore(newPost);
       const { db, fs } = await loadFirebase();
       const docRef = fs.doc(db, 'posts', newId);
-      await Promise.race([
-        fs.setDoc(docRef, cleanDoc),
-        new Promise((resolve) => setTimeout(resolve, 2500)),
-      ]);
+      await fs.setDoc(docRef, cleanDoc);
       console.log('Post successfully saved to Firestore:', newId);
     } catch (err) {
       console.error('Failed to add post to Firestore:', err);
@@ -682,18 +695,10 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     try {
-      const cleanPartial: Record<string, any> = {};
-      Object.entries(partial).forEach(([k, v]) => {
-        if (v !== undefined) {
-          cleanPartial[k] = v;
-        }
-      });
+      const cleanPartial = sanitizeForFirestore(partial);
       const { db, fs } = await loadFirebase();
       const docRef = fs.doc(db, 'posts', id);
-      await Promise.race([
-        fs.setDoc(docRef, cleanPartial, { merge: true }),
-        new Promise((resolve) => setTimeout(resolve, 2500)),
-      ]);
+      await fs.setDoc(docRef, cleanPartial, { merge: true });
       console.log('Post successfully updated in Firestore:', id);
     } catch (err) {
       console.error('Failed to update post in Firestore:', err);
@@ -701,10 +706,20 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const deletePost = async (id: string) => {
-    // 1. Immediately record in deleted IDs set to prevent resurrection
-    const currentDeleted = getDeletedPostIds();
-    currentDeleted.add(id);
-    safeStorageSet(STORAGE_KEYS.DELETED_POSTS, JSON.stringify(Array.from(currentDeleted)));
+    // 1. Only record in deleted IDs if it's one of the initial hardcoded demo posts ('post-1' ~ 'post-6')
+    // to prevent code reactivation upon refresh
+    if (/^post-[1-6]$/.test(id)) {
+      const currentDeleted = getDeletedPostIds();
+      currentDeleted.add(id);
+      safeStorageSet(STORAGE_KEYS.DELETED_POSTS, JSON.stringify(Array.from(currentDeleted)));
+    } else {
+      // For custom posts, ensure it's removed from DELETED_POSTS if it was ever placed there by old code
+      const currentDeleted = getDeletedPostIds();
+      if (currentDeleted.has(id)) {
+        currentDeleted.delete(id);
+        safeStorageSet(STORAGE_KEYS.DELETED_POSTS, JSON.stringify(Array.from(currentDeleted)));
+      }
+    }
 
     // 2. Optimistic local state update and storage sync
     setPostsState((prev) => {
@@ -721,20 +736,12 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
       closePostEditor();
     }
 
-    // 5. Delete and tombstone in Firestore
+    // 5. Delete in Firestore
     try {
       const { db, fs } = await loadFirebase();
       const docRef = fs.doc(db, 'posts', id);
-      await Promise.race([
-        fs.deleteDoc(docRef),
-        new Promise((resolve) => setTimeout(resolve, 2500)),
-      ]);
-      const tombstoneRef = fs.doc(db, 'deleted_posts', id);
-      await Promise.race([
-        fs.setDoc(tombstoneRef, { id, deletedAt: Date.now() }),
-        new Promise((resolve) => setTimeout(resolve, 1500)),
-      ]);
-      console.log('Post deleted successfully:', id);
+      await fs.deleteDoc(docRef);
+      console.log('Post deleted successfully from Firestore:', id);
     } catch (err) {
       console.error('Failed to delete post from Firestore:', err);
     }

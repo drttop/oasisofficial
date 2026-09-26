@@ -806,27 +806,34 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
       const mapLocationPayload =
         hasAttachedMap && (mapQuery.trim() || mapTitle.trim())
           ? {
-              title: mapTitle.trim() || undefined,
-              address: mapAddress.trim() || undefined,
+              ...(mapTitle.trim() ? { title: mapTitle.trim() } : {}),
+              ...(mapAddress.trim() ? { address: mapAddress.trim() } : {}),
               query: (mapQuery.trim() || mapTitle.trim()),
             }
           : undefined;
 
       const cleanSummary = summary.trim() || stripFormattingTags(finalContent).slice(0, 100) + '...';
 
-      const payload = {
+      const payload: any = {
         title: title.trim(),
         category,
         author: author.trim() || '오아시스 VIP',
         summary: cleanSummary,
         content: finalContent.trim(),
-        thumbnail: primaryThumbnail,
-        images: optimizedImages.length > 0 ? optimizedImages : undefined,
         isPinned,
         tags,
         viewCount: Number(viewCount) >= 0 ? Number(viewCount) : (postToEdit?.viewCount || 392),
-        mapLocation: mapLocationPayload,
       };
+
+      if (primaryThumbnail) {
+        payload.thumbnail = primaryThumbnail;
+      }
+      if (optimizedImages.length > 0) {
+        payload.images = optimizedImages;
+      }
+      if (mapLocationPayload) {
+        payload.mapLocation = mapLocationPayload;
+      }
 
       if (postToEdit) {
         await updatePost(postToEdit.id, payload);

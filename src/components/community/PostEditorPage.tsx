@@ -29,7 +29,7 @@ import {
   Check,
   Table,
 } from 'lucide-react';
-import { compressImageFile, optimizeDataUrl, createMiniThumbnail } from '../../utils/imageUpload';
+import { compressImageFile, optimizeDataUrl, optimizePostImages, createMiniThumbnail } from '../../utils/imageUpload';
 import { GoogleMapEmbed } from './GoogleMapEmbed';
 import {
   isPhotoInContent,
@@ -794,9 +794,9 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
     setUploadError(null);
 
     try {
-      const optimizedImages = await Promise.all(
-        images.map((img) => optimizeDataUrl(img, 720, 720, 0.65))
-      );
+      // Dynamically optimize attached images to high resolution (up to 1600px WebP)
+      // while safely guarding Firestore document capacity (under 800KB total images payload)
+      const optimizedImages = await optimizePostImages(images);
 
       let primaryThumbnail: string | undefined = undefined;
       if (optimizedImages.length > 0) {
@@ -1603,8 +1603,19 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
                     <span className="text-xs font-bold text-[#30308A]">클릭하여 사진 추가</span>
                     <span className="text-xs text-slate-500"> 또는 드래그 앤 드롭</span>
                   </div>
-                  <span className="text-[10px] text-slate-400">고해상도 WebP/JPG 자동 최적화</span>
+                  <span className="text-[10px] text-slate-400">선명한 FHD/2K급 WebP 자동 최적화</span>
                 </div>
+              </div>
+
+              {/* High Definition Quality Guarantee Notice */}
+              <div className="p-2.5 rounded-2xl bg-gradient-to-r from-amber-50/60 to-indigo-50/50 border border-amber-200/60 text-slate-700 space-y-1">
+                <div className="flex items-center gap-1.5 font-bold text-xs text-slate-900">
+                  <Sparkles className="w-3.5 h-3.5 text-[#b8860b]" />
+                  <span>원본급 선명도 보존 & 초고속 로딩</span>
+                </div>
+                <p className="text-[10.5px] text-slate-500 leading-relaxed">
+                  2K급 고해상도(최대 1600px)와 모던 WebP 압축을 적용하여 원본 사진의 뭉개짐 없이 깨끗한 화질을 유지하며 사이트 용량 부담을 최소화합니다.
+                </p>
               </div>
 
               {/* Manual URL Input Toggle */}

@@ -66,8 +66,8 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
   const { addPost, updatePost } = useSite();
 
   const [title, setTitle] = useState(postToEdit?.title || '');
-  const [category, setCategory] = useState<'공지사항' | '프로모션' | 'VIP매거진'>(
-    (postToEdit?.category as any) || '공지사항'
+  const [category, setCategory] = useState<'커뮤니티' | '프로모션' | 'VIP매거진' | '공지사항'>(
+    (postToEdit?.category as any) || '커뮤니티'
   );
   const [author, setAuthor] = useState(postToEdit?.author || '오아시스 VIP');
   const [summary, setSummary] = useState(postToEdit?.summary || '');
@@ -1596,8 +1596,8 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
               {/* Category */}
               <div>
                 <label className="block text-xs font-bold text-slate-600 mb-1.5">카테고리</label>
-                <div className="grid grid-cols-3 gap-2">
-                  {(['공지사항', '프로모션', 'VIP매거진'] as const).map((cat) => (
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  {(['커뮤니티', '프로모션', 'VIP매거진', '공지사항'] as const).map((cat) => (
                     <button
                       key={cat}
                       type="button"

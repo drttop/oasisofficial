@@ -21,20 +21,22 @@ const POSTS_PER_PAGE = 9;
 
 export const CommunitySection: React.FC = () => {
   const { posts, setSelectedPost, incrementPostView, siteConfig } = useSite();
-  const [selectedCategory, setSelectedCategory] = useState<string>('전체');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [currentPage, setCurrentPage] = useState<number>(1);
 
-  const categories = ['전체', '공지사항', '프로모션', 'VIP매거진'];
+  // Exclude '공지사항' and '프로모션' (프로모션 is in its own dedicated board)
+  const communityPosts = posts.filter(
+    (post) => post.category !== '공지사항' && post.category !== '프로모션'
+  );
 
-  const filteredPosts = posts.filter((post) => {
-    const matchCategory = selectedCategory === '전체' || post.category === selectedCategory;
-    const matchSearch =
-      searchQuery.trim() === '' ||
-      post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      post.summary.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      post.content.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchCategory && matchSearch;
+  const filteredPosts = communityPosts.filter((post) => {
+    if (!searchQuery.trim()) return true;
+    const q = searchQuery.toLowerCase();
+    return (
+      post.title.toLowerCase().includes(q) ||
+      post.summary.toLowerCase().includes(q) ||
+      post.content.toLowerCase().includes(q)
+    );
   });
 
   const totalPages = Math.max(1, Math.ceil(filteredPosts.length / POSTS_PER_PAGE));
@@ -43,11 +45,6 @@ export const CommunitySection: React.FC = () => {
     (validCurrentPage - 1) * POSTS_PER_PAGE,
     validCurrentPage * POSTS_PER_PAGE
   );
-
-  const handleCategoryChange = (cat: string) => {
-    setSelectedCategory(cat);
-    setCurrentPage(1);
-  };
 
   const handleSearchChange = (query: string) => {
     setSearchQuery(query);
@@ -75,9 +72,9 @@ export const CommunitySection: React.FC = () => {
 
   const categoryColorMap: Record<string, string> = {
     커뮤니티: 'bg-blue-100 text-blue-900 border-blue-300 font-bold',
-    공지사항: 'bg-red-100 text-red-900 border-red-300 font-bold',
-    프로모션: 'bg-amber-100 text-amber-950 border-amber-300 font-bold',
     VIP매거진: 'bg-purple-100 text-purple-900 border-purple-300 font-bold',
+    카지노소식: 'bg-indigo-100 text-indigo-900 border-indigo-300 font-bold',
+    여행정보: 'bg-emerald-100 text-emerald-900 border-emerald-300 font-bold',
   };
 
   return (
@@ -88,57 +85,33 @@ export const CommunitySection: React.FC = () => {
         <div className="text-center max-w-3xl mx-auto space-y-2 mb-6 sm:mb-10">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold tracking-wider text-[#30308A] bg-[#30308A]/10 uppercase font-montserrat">
             <FileText className="w-3.5 h-3.5" />
-            <span>OASIS VIP COMMUNITY & MAGAZINE</span>
+            <span>OASIS VIP COMMUNITY</span>
           </div>
           <h2 className="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-snug">
-            <span className="sm:hidden">
-              오아시스 공지사항 &amp;
-              <br />
-              프로모션 소식
-            </span>
-            <span className="hidden sm:inline">
-              {(!siteConfig.communityTitle || siteConfig.communityTitle === '오아시스 공식 커뮤니티 & VIP 소식')
-                ? '오아시스 공지사항 & 프로모션 소식'
-                : siteConfig.communityTitle}
-            </span>
+            {siteConfig.communityTitle &&
+            siteConfig.communityTitle !== '오아시스 공지사항 & 프로모션 소식' &&
+            siteConfig.communityTitle !== '오아시스 공식 커뮤니티 & VIP 소식'
+              ? siteConfig.communityTitle
+              : '오아시스 VIP 커뮤니티'}
           </h2>
           <p className="text-xs sm:text-sm text-slate-600 leading-relaxed text-balance mx-auto">
-            {siteConfig.communitySubtitle || '최신 카지노 프로모션, 특급 호텔 이벤트, 마닐라/클락 VIP 여행 팁 및 공식 공지사항을 확인하세요.'}
+            {siteConfig.communitySubtitle && !siteConfig.communitySubtitle.includes('공지사항')
+              ? siteConfig.communitySubtitle
+              : '마닐라 & 클락 VIP 호텔, 골프, 파인다이닝 여행 정보 및 현지 생생한 소식을 확인하세요.'}
           </p>
         </div>
 
-        {/* Filter & Search Bar */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 sm:gap-4 mb-3.5 sm:mb-6 pb-2.5 sm:pb-3.5 border-b border-slate-100">
-          {/* Categories */}
-          <div className="flex items-center gap-1.5 sm:gap-4 w-full sm:w-auto">
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => handleCategoryChange(cat)}
-                className={`flex-1 sm:flex-none px-2 sm:px-7 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-bold min-w-0 sm:min-w-[104px] text-center whitespace-nowrap transition-all cursor-pointer tracking-tight min-[390px]:tracking-normal sm:tracking-[0.1em] ${
-                  selectedCategory === cat
-                    ? 'bg-[#30308A] text-white shadow-sm'
-                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200/90 border border-slate-200/60'
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
-
-          {/* Search Bar */}
-          <div className="flex items-center gap-2 w-full sm:w-auto">
-            {/* Search Input */}
-            <div className="relative flex-1 sm:w-72">
-              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-              <input
-                type="text"
-                placeholder="제목, 내용 검색..."
-                value={searchQuery}
-                onChange={(e) => handleSearchChange(e.target.value)}
-                className="w-full pl-9 pr-4 py-1.5 sm:py-2 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#30308A] focus:bg-white transition-all"
-              />
-            </div>
+        {/* Search Bar (Category filter buttons removed per user requirement) */}
+        <div className="flex items-center justify-end mb-4 sm:mb-6">
+          <div className="relative w-full sm:w-72">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              placeholder="커뮤니티 검색..."
+              value={searchQuery}
+              onChange={(e) => handleSearchChange(e.target.value)}
+              className="w-full pl-9 pr-4 py-1.5 sm:py-2 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#30308A] focus:bg-white transition-all"
+            />
           </div>
         </div>
 

@@ -146,6 +146,9 @@ const sanitizeConfig = (cfg: Partial<SiteConfig>): SiteConfig => {
   if (!merged.headerLogo || merged.headerLogo.includes('oasis_gold_logo') || merged.headerLogo.includes('oasis_logo_official')) {
     merged.headerLogo = '/images/oasis_header_logo.webp';
   }
+  if (!merged.navMenu3 || merged.navMenu3 === '투어 서비스' || merged.navMenu3 === '투어서비스' || merged.navMenu3 === '필리핀 소개') {
+    merged.navMenu3 = 'VIP 서비스';
+  }
   return merged;
 };
 

@@ -2,10 +2,11 @@ import React, { Suspense } from 'react';
 import { SiteProvider, useSite } from './context/SiteContext';
 import { Header } from './components/Header';
 import { HeroSection } from './components/sections/HeroSection';
-import { CommunitySection } from './components/sections/CommunitySection';
 import { AboutSection } from './components/sections/AboutSection';
 import { CasinoSection } from './components/sections/CasinoSection';
 import { PhilippinesSection } from './components/sections/PhilippinesSection';
+import { PromotionSection } from './components/sections/PromotionSection';
+import { CommunitySection } from './components/sections/CommunitySection';
 import { ProcessSection } from './components/sections/ProcessSection';
 import { Footer } from './components/Footer';
 import { BottomFloatingBar } from './components/BottomFloatingBar';
@@ -44,11 +45,14 @@ const MainAppContent: React.FC = () => {
   } = useSite();
 
   const handleBackToCommunity = () => {
+    const isPromotion = selectedPost?.category === '프로모션';
     setSelectedPost(null);
     if (typeof window !== 'undefined') {
-      window.history.replaceState({}, '', `${window.location.pathname}#community`);
+      const targetHash = isPromotion ? '#promotion' : '#community';
+      window.history.replaceState({}, '', `${window.location.pathname}${targetHash}`);
       requestAnimationFrame(() => {
-        const element = document.getElementById('community');
+        const targetId = isPromotion ? 'promotion' : 'community';
+        const element = document.getElementById(targetId);
         if (element) {
           const headerOffset = 80;
           const elementPosition = element.getBoundingClientRect().top;
@@ -133,19 +137,22 @@ const MainAppContent: React.FC = () => {
             {/* Hero Slider (LCP Priority Element) */}
             <HeroSection />
 
-            {/* 1. 커뮤니티 (Community & Official Board) */}
-            <CommunitySection />
-
-            {/* 2. 오아시스 소개 (About Oasis) */}
+            {/* 1. 오아시스 소개 (About Oasis) */}
             <AboutSection />
 
-            {/* 3. 카지노 소개 (Casino Intro) */}
+            {/* 2. 카지노 서비스 (Casino Intro) */}
             <CasinoSection />
 
-            {/* 4. 필리핀 소개 (Philippines Travel & Golf) */}
+            {/* 3. VIP 서비스 (Philippines Travel & VIP Care) */}
             <PhilippinesSection />
 
-            {/* 5. 이용방법 (Process & FAQ) */}
+            {/* 4. 프로모션 (Promotion Board) */}
+            <PromotionSection />
+
+            {/* 5. 커뮤니티 (Community Board) */}
+            <CommunitySection />
+
+            {/* 6. 이용방법 (Process & FAQ) */}
             <ProcessSection />
           </>
         )}

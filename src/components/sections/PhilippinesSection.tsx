@@ -6,9 +6,9 @@ import { getResponsiveImageProps } from '../../utils/imageOptimizer';
 export const PhilippinesSection: React.FC = () => {
   const { philippineSpots, siteConfig } = useSite();
 
-  const philippinesBadge = siteConfig.philippinesBadge || 'PHILIPPINES VIP TRAVEL & GOLF';
-  const philippinesTitle = siteConfig.philippinesTitle || '필리핀 VIP 라이프스타일 & 여행 가이드';
-  const philippinesSubtitle = siteConfig.philippinesSubtitle || '화려한 마닐라의 도심 라이프와 클락의 여유로운 명문 골프 코스까지,\n오아시스가 엄선한 프리미엄 필리핀 투어 정보를 안내해 드립니다.';
+  const philippinesBadge = siteConfig.philippinesBadge || 'OASIS VIP SERVICE & CARE';
+  const philippinesTitle = siteConfig.philippinesTitle || '오아시스 VIP 서비스';
+  const philippinesSubtitle = siteConfig.philippinesSubtitle || '최고급 호텔 프리룸부터 전용 의전 세단, 명문 골프 및 24시간 프라이빗 케어까지,\n오아시스 VIP 회원님만을 위한 특별한 서비스를 제공합니다.';
 
   return (
     <section id="philippines" className="py-20 sm:py-28 bg-white text-slate-900 scroll-mt-20">
@@ -46,7 +46,8 @@ export const PhilippinesSection: React.FC = () => {
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   referrerPolicy="no-referrer"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent" />
+                {/* Desktop: Title & Subtitle overlay on Image */}
+                <div className="hidden sm:block absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent" />
                 
                 <div className="absolute top-2 left-2 sm:top-3.5 sm:left-3.5">
                   <span className="px-1.5 sm:px-3 py-0.5 sm:py-1 rounded-md bg-[#1E1E4F] text-white text-[9px] sm:text-xs font-bold flex items-center gap-0.5 sm:gap-1 shadow-md">
@@ -55,22 +56,38 @@ export const PhilippinesSection: React.FC = () => {
                   </span>
                 </div>
 
-                <div className="absolute bottom-2 left-2 right-2 sm:bottom-3.5 sm:left-4 sm:right-4 text-white">
-                  <h3 className="text-xs min-[360px]:text-sm sm:text-xl font-bold tracking-tight text-white drop-shadow truncate">
+                {/* Desktop Only: Title & Subtitle overlay on Image */}
+                <div className="hidden sm:block absolute bottom-3.5 left-4 right-4 text-white">
+                  <h3 className="text-xl font-bold tracking-tight text-white drop-shadow truncate">
                     {spot.title}
                   </h3>
-                  <p className="text-[9px] sm:text-xs text-slate-300 font-medium mt-0.5 truncate">
+                  <p className="text-xs text-slate-300 font-medium mt-0.5 truncate">
                     {spot.subtitle}
                   </p>
                 </div>
               </div>
 
               <div className="p-2.5 sm:p-6 flex-1 flex flex-col justify-between space-y-2 sm:space-y-4">
-                <p className="text-[11px] sm:text-xs sm:text-sm text-slate-600 line-clamp-2 leading-relaxed">
-                  {spot.description}
-                </p>
+                <div className="space-y-1 sm:space-y-2">
+                  {/* Mobile Only: Main Title & Subtitle moved to description area */}
+                  <div className="block sm:hidden space-y-0.5">
+                    <h3 className="text-xs min-[360px]:text-sm font-bold text-slate-900 tracking-tight leading-snug line-clamp-1">
+                      {spot.title}
+                    </h3>
+                    {spot.subtitle && (
+                      <p className="text-[10px] min-[360px]:text-[11px] text-slate-500 font-medium line-clamp-1">
+                        {spot.subtitle}
+                      </p>
+                    )}
+                  </div>
 
-                <div className="flex flex-wrap gap-1 sm:gap-1.5 pt-1 sm:pt-2">
+                  <p className="text-[11px] sm:text-xs sm:text-sm text-slate-600 line-clamp-2 leading-relaxed">
+                    {spot.description}
+                  </p>
+                </div>
+
+                {/* Hashtags: Hidden on Mobile, Visible on Desktop (sm:flex) */}
+                <div className="hidden sm:flex flex-wrap gap-1 sm:gap-1.5 pt-1 sm:pt-2">
                   {spot.tags.map((tag, tIdx) => (
                     <span
                       key={tIdx}

@@ -5,6 +5,7 @@ import { initialSiteConfig } from '../../data/initialData';
 import { OasisLogoHorizontal } from '../OasisLogoHorizontal';
 import { CasinoEditorModal } from './CasinoEditorModal';
 import { PhilippineSpotEditorModal } from './PhilippineSpotEditorModal';
+import { compressImageFile } from '../../utils/imageUpload';
 import {
   X,
   Palette,
@@ -377,7 +378,7 @@ export const AdminDashboard: React.FC = () => {
             }`}
           >
             <Compass className="w-4 h-4" />
-            필리핀 소개/투어 카드 ({philippineSpots.length})
+            VIP 서비스 카드 ({philippineSpots.length})
           </button>
           <button
             onClick={() => setActiveTab('process')}
@@ -571,49 +572,58 @@ export const AdminDashboard: React.FC = () => {
 
                   <div className="pt-4 border-t border-slate-100">
                     <label className="block text-xs font-bold text-slate-700 mb-3">네비게이션 카테고리명 변경 (상단 메뉴)</label>
-                    <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
                       <div>
-                        <span className="text-[10px] text-slate-500 block mb-1">메뉴 1</span>
+                        <span className="text-[10px] text-slate-500 block mb-1">메뉴 1 (오아시스)</span>
                         <input
                           type="text"
-                          value={siteConfig.navMenu1 || '오아시스 소개'}
+                          value={siteConfig.navMenu1 || '오아시스'}
                           onChange={(e) => updateSiteConfig({ navMenu1: e.target.value })}
                           className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded focus:ring-2 focus:ring-[#30308A]"
                         />
                       </div>
                       <div>
-                        <span className="text-[10px] text-slate-500 block mb-1">메뉴 2</span>
+                        <span className="text-[10px] text-slate-500 block mb-1">메뉴 2 (카지노 서비스)</span>
                         <input
                           type="text"
-                          value={siteConfig.navMenu2 || '카지노 소개'}
+                          value={siteConfig.navMenu2 || '카지노 서비스'}
                           onChange={(e) => updateSiteConfig({ navMenu2: e.target.value })}
                           className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded focus:ring-2 focus:ring-[#30308A]"
                         />
                       </div>
                       <div>
-                        <span className="text-[10px] text-slate-500 block mb-1">메뉴 3</span>
+                        <span className="text-[10px] text-slate-500 block mb-1">메뉴 3 (VIP 서비스)</span>
                         <input
                           type="text"
-                          value={siteConfig.navMenu3 || '필리핀 소개'}
+                          value={siteConfig.navMenu3 || 'VIP 서비스'}
                           onChange={(e) => updateSiteConfig({ navMenu3: e.target.value })}
                           className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded focus:ring-2 focus:ring-[#30308A]"
                         />
                       </div>
                       <div>
-                        <span className="text-[10px] text-slate-500 block mb-1">메뉴 4</span>
+                        <span className="text-[10px] text-slate-500 block mb-1">메뉴 4 (프로모션)</span>
                         <input
                           type="text"
-                          value={siteConfig.navMenu4 || '이용방법'}
+                          value={siteConfig.navMenu4 || '프로모션'}
                           onChange={(e) => updateSiteConfig({ navMenu4: e.target.value })}
                           className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded focus:ring-2 focus:ring-[#30308A]"
                         />
                       </div>
                       <div>
-                        <span className="text-[10px] text-slate-500 block mb-1">메뉴 5</span>
+                        <span className="text-[10px] text-slate-500 block mb-1">메뉴 5 (커뮤니티)</span>
                         <input
                           type="text"
                           value={siteConfig.navMenu5 || '커뮤니티'}
                           onChange={(e) => updateSiteConfig({ navMenu5: e.target.value })}
+                          className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded focus:ring-2 focus:ring-[#30308A]"
+                        />
+                      </div>
+                      <div>
+                        <span className="text-[10px] text-slate-500 block mb-1">메뉴 6 (이용방법)</span>
+                        <input
+                          type="text"
+                          value={siteConfig.navMenu6 || '이용방법'}
+                          onChange={(e) => updateSiteConfig({ navMenu6: e.target.value })}
                           className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded focus:ring-2 focus:ring-[#30308A]"
                         />
                       </div>
@@ -1409,22 +1419,59 @@ Sitemap: https://oasis46.com/sitemap.xml`}
 
                     <div>
                       <div className="flex items-center justify-between mb-1">
-                        <label className="block text-xs font-bold text-slate-700">배경 이미지 URL</label>
+                        <label className="block text-xs font-bold text-slate-700">배경 이미지 (파일 직접 업로드 또는 URL)</label>
                         <button
                           type="button"
                           onClick={() => updateBannerSlide(slide.id, { bgImage: sIdx === 0 ? '/images/hero_bg.jpg' : '/images/casino_table.jpg' })}
-                          className="text-[10px] text-[#30308A] hover:underline font-bold"
+                          className="text-[10px] text-[#30308A] hover:underline font-bold cursor-pointer"
                         >
                           기본 고화질 카지노 배경으로 리셋
                         </button>
                       </div>
-                      <input
-                        type="text"
-                        value={slide.bgImage}
-                        onChange={(e) => updateBannerSlide(slide.id, { bgImage: e.target.value })}
-                        placeholder="/images/hero_bg.jpg 또는 이미지 URL"
-                        className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded-lg"
-                      />
+                      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 mb-2">
+                        <label className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-bold cursor-pointer transition-colors shadow-xs shrink-0">
+                          <Upload className="w-3.5 h-3.5 text-[#E5B54F]" />
+                          <span>사진 파일 업로드</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={async (e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                try {
+                                  const compressed = await compressImageFile(file, 1920, 1080, 0.86);
+                                  updateBannerSlide(slide.id, { bgImage: compressed });
+                                  showToast('배경 이미지가 업로드되었습니다.');
+                                } catch (err) {
+                                  console.error(err);
+                                  showToast('이미지 업로드에 실패했습니다.');
+                                }
+                              }
+                            }}
+                            className="hidden"
+                          />
+                        </label>
+                        <input
+                          type="text"
+                          value={slide.bgImage?.startsWith('data:') ? '' : (slide.bgImage || '')}
+                          onChange={(e) => updateBannerSlide(slide.id, { bgImage: e.target.value })}
+                          placeholder={slide.bgImage?.startsWith('data:') ? '내 기기에서 사진 직접 업로드됨' : '/images/hero_bg.jpg 또는 이미지 URL'}
+                          className="flex-1 px-3 py-1.5 text-xs border border-slate-300 rounded-lg"
+                        />
+                      </div>
+                      {slide.bgImage && (
+                        <div className="h-20 w-full rounded-lg overflow-hidden border border-slate-200 bg-slate-100 relative">
+                          <img
+                            src={slide.bgImage}
+                            alt="배경 미리보기"
+                            className="w-full h-full object-cover"
+                            referrerPolicy="no-referrer"
+                          />
+                          <span className="absolute bottom-1 right-2 text-[9px] bg-black/70 text-white px-1.5 py-0.5 rounded">
+                            {slide.bgImage.startsWith('data:') ? '직접 업로드된 이미지' : '웹 이미지'}
+                          </span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -1622,7 +1669,7 @@ Sitemap: https://oasis46.com/sitemap.xml`}
               <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
                 <h3 className="text-base font-bold text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-3">
                   <Compass className="w-4 h-4 text-[#30308A]" />
-                  필리핀 소개 섹션 메인 타이틀 및 소개글 직접 수정
+                  VIP 서비스 섹션 메인 타이틀 및 소개글 직접 수정
                 </h3>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -1630,9 +1677,9 @@ Sitemap: https://oasis46.com/sitemap.xml`}
                     <label className="block text-xs font-bold text-slate-700 mb-1">상단 영문 배지 문구</label>
                     <input
                       type="text"
-                      value={siteConfig.philippinesBadge || 'PHILIPPINES VIP TRAVEL & GOLF'}
+                      value={siteConfig.philippinesBadge || 'OASIS VIP SERVICE & CARE'}
                       onChange={(e) => updateSiteConfig({ philippinesBadge: e.target.value })}
-                      placeholder="PHILIPPINES VIP TRAVEL & GOLF"
+                      placeholder="OASIS VIP SERVICE & CARE"
                       className="w-full px-3.5 py-2 text-xs border border-slate-300 rounded-lg"
                     />
                   </div>
@@ -1641,9 +1688,9 @@ Sitemap: https://oasis46.com/sitemap.xml`}
                     <label className="block text-xs font-bold text-slate-700 mb-1">메인 타이틀 (Heading)</label>
                     <input
                       type="text"
-                      value={siteConfig.philippinesTitle || '필리핀 VIP 라이프스타일 & 여행 가이드'}
+                      value={siteConfig.philippinesTitle || '오아시스 VIP 서비스'}
                       onChange={(e) => updateSiteConfig({ philippinesTitle: e.target.value })}
-                      placeholder="필리핀 VIP 라이프스타일 & 여행 가이드"
+                      placeholder="오아시스 VIP 서비스"
                       className="w-full px-3.5 py-2 text-xs border border-slate-300 rounded-lg font-bold"
                     />
                   </div>
@@ -1656,7 +1703,7 @@ Sitemap: https://oasis46.com/sitemap.xml`}
                       rows={3}
                       value={siteConfig.philippinesSubtitle || ''}
                       onChange={(e) => updateSiteConfig({ philippinesSubtitle: e.target.value })}
-                      placeholder="화려한 마닐라의 도심 라이프와 클락의 여유로운 명문 골프 코스까지,\n오아시스가 엄선한 프리미엄 필리핀 투어 정보를 안내해 드립니다."
+                      placeholder="최고급 호텔 프리룸부터 전용 의전 세단, 명문 골프 및 24시간 프라이빗 케어까지,\n오아시스 VIP 회원님만을 위한 특별한 서비스를 제공합니다."
                       className="w-full px-3.5 py-2 text-xs border border-slate-300 rounded-lg resize-y"
                     />
                   </div>
@@ -1666,10 +1713,10 @@ Sitemap: https://oasis46.com/sitemap.xml`}
               <div className="flex justify-between items-center">
                 <div>
                   <h3 className="text-base font-bold text-slate-900">
-                    필리핀 VIP 투어/라이프스타일 카드 리스트 ({philippineSpots.length}개)
+                    VIP 서비스 카드 리스트 ({philippineSpots.length}개)
                   </h3>
                   <p className="text-xs text-slate-500">
-                    호텔, 골프, 다이닝 등 필리핀 소개 카드를 직접 추가, 수정, 삭제할 수 있습니다.
+                    호텔, 의전, 골프, 다이닝 등 오아시스 VIP 서비스 카드를 직접 추가, 수정, 삭제할 수 있습니다.
                   </p>
                 </div>
                 <button
@@ -1677,10 +1724,10 @@ Sitemap: https://oasis46.com/sitemap.xml`}
                     setEditingSpot(null);
                     setSpotModalOpen(true);
                   }}
-                  className="px-4 py-2 bg-[#30308A] hover:bg-[#25256e] text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow"
+                  className="px-4 py-2 bg-[#30308A] hover:bg-[#25256e] text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow cursor-pointer"
                 >
                   <Plus className="w-4 h-4" />
-                  <span>새 소개 카드 추가</span>
+                  <span>새 VIP 서비스 카드 추가</span>
                 </button>
               </div>
 
@@ -1729,13 +1776,13 @@ Sitemap: https://oasis46.com/sitemap.xml`}
                           onClick={() => {
                             setConfirmModal({
                               isOpen: true,
-                              title: '소개 카드 삭제',
-                              message: `'${spot.title}' 소개 카드를 삭제하시겠습니까?`,
+                              title: 'VIP 서비스 카드 삭제',
+                              message: `'${spot.title}' VIP 서비스 카드를 삭제하시겠습니까?`,
                               confirmText: '삭제',
                               confirmColor: 'bg-red-600 hover:bg-red-700',
                               onConfirm: () => {
                                 deletePhilippineSpot(spot.id);
-                                showToast('카드가 삭제되었습니다.');
+                                showToast('VIP 서비스 카드가 삭제되었습니다.');
                               },
                             });
                           }}
@@ -1927,7 +1974,44 @@ Sitemap: https://oasis46.com/sitemap.xml`}
           {activeTab === 'posts' && (
             <div className="max-w-5xl mx-auto space-y-6">
               
-              {/* Header Editor */}
+              {/* Promotion Header Editor */}
+              <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                <h3 className="text-base font-bold text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-3">
+                  <Sparkles className="w-4 h-4 text-[#E5B54F]" />
+                  프로모션 섹션 타이틀 및 문구 관리
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">프로모션 섹션 메인 타이틀</label>
+                    <input
+                      type="text"
+                      value={siteConfig.promotionTitle || '오아시스 VIP 특별 프로모션'}
+                      onChange={(e) => updateSiteConfig({ promotionTitle: e.target.value })}
+                      className="w-full px-3.5 py-2 text-xs border border-slate-300 rounded-lg font-bold"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">상단 배지 영문 텍스트</label>
+                    <input
+                      type="text"
+                      value={siteConfig.promotionBadge || 'EXCLUSIVE PROMOTIONS & EVENTS'}
+                      onChange={(e) => updateSiteConfig({ promotionBadge: e.target.value })}
+                      className="w-full px-3.5 py-2 text-xs border border-slate-300 rounded-lg"
+                    />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <label className="block text-xs font-bold text-slate-700 mb-1">프로모션 섹션 서브 설명문</label>
+                    <textarea
+                      rows={2}
+                      value={siteConfig.promotionSubtitle || '특급 호텔 스위트룸 무료 숙박 바우처, 항공권 페이백, 롤링 1.5% 정산 등 오아시스 VIP 회원님만의 한정 혜택을 확인하세요.'}
+                      onChange={(e) => updateSiteConfig({ promotionSubtitle: e.target.value })}
+                      className="w-full px-3.5 py-2 text-xs border border-slate-300 rounded-lg resize-y"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Community Header Editor */}
               <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
                 <h3 className="text-base font-bold text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-3">
                   <FileText className="w-4 h-4 text-[#30308A]" />
@@ -1938,7 +2022,7 @@ Sitemap: https://oasis46.com/sitemap.xml`}
                     <label className="block text-xs font-bold text-slate-700 mb-1">커뮤니티 섹션 메인 타이틀</label>
                     <input
                       type="text"
-                      value={siteConfig.communityTitle || '오아시스 공식 커뮤니티 & VIP 소식'}
+                      value={siteConfig.communityTitle || '오아시스 VIP 커뮤니티'}
                       onChange={(e) => updateSiteConfig({ communityTitle: e.target.value })}
                       className="w-full px-3.5 py-2 text-xs border border-slate-300 rounded-lg font-bold"
                     />
@@ -1947,7 +2031,7 @@ Sitemap: https://oasis46.com/sitemap.xml`}
                     <label className="block text-xs font-bold text-slate-700 mb-1">커뮤니티 섹션 서브 설명문</label>
                     <textarea
                       rows={2}
-                      value={siteConfig.communitySubtitle || '최신 카지노 프로모션, 특급 호텔 이벤트, 마닐라/클락 VIP 여행 팁 및 공식 공지사항을 확인하세요.'}
+                      value={siteConfig.communitySubtitle || '마닐라 & 클락 VIP 호텔, 골프, 파인다이닝 여행 정보 및 현지 생생한 소식을 확인하세요.'}
                       onChange={(e) => updateSiteConfig({ communitySubtitle: e.target.value })}
                       className="w-full px-3.5 py-2 text-xs border border-slate-300 rounded-lg resize-y"
                     />

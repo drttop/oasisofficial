@@ -1,4 +1,4 @@
-export type MenuCategory = 'about' | 'casino' | 'philippines' | 'process' | 'community';
+export type MenuCategory = 'about' | 'casino' | 'philippines' | 'promotion' | 'community' | 'process';
 
 export interface SiteConfig {
   siteName: string;
@@ -11,6 +11,7 @@ export interface SiteConfig {
   navMenu3?: string;
   navMenu4?: string;
   navMenu5?: string;
+  navMenu6?: string;
   kakaoId: string;
   kakaoUrl: string;
   telegramId: string;
@@ -67,6 +68,11 @@ export interface SiteConfig {
   // FAQ Section Config
   faqTitle?: string;
   faqSubtitle?: string;
+
+  // Promotion Section Config
+  promotionBadge?: string;
+  promotionTitle?: string;
+  promotionSubtitle?: string;
 
   // Community Section Config
   communityTitle?: string;

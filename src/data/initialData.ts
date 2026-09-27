@@ -49,16 +49,27 @@ export const initialSiteConfig: SiteConfig = {
   casinoTitle: '필리핀 메이저 카지노 제휴 라인업',
   casinoSubtitle: '오아시스가 엄선한 마닐라 & 클락 최고급 5성급 복합 리조트 카지노를 소개합니다.',
 
-  // Philippines Section Config
-  philippinesBadge: 'PHILIPPINES VIP TRAVEL & GOLF',
-  philippinesTitle: '필리핀 VIP 투어 가이드',
-  philippinesSubtitle: '오아시스가 엄선한 프리미엄 필리핀 투어 정보를 안내해 드립니다.',
+  // Philippines / VIP Service Section Config
+  philippinesBadge: 'OASIS VIP SERVICE & CARE',
+  philippinesTitle: '오아시스 VIP 서비스',
+  philippinesSubtitle: '최고급 호텔 프리룸부터 전용 의전 세단, 명문 골프 및 24시간 프라이빗 케어까지,\n오아시스 VIP 회원님만을 위한 특별한 서비스를 제공합니다.',
+
+  // Promotion Section Config
+  promotionBadge: 'EXCLUSIVE PROMOTIONS & EVENTS',
+  promotionTitle: '오아시스 VIP 특별 프로모션',
+  promotionSubtitle: '특급 호텔 스위트룸 무료 숙박 바우처, 항공권 페이백, 롤링 1.5% 정산 등 오아시스 VIP 회원님만의 한정 혜택을 확인하세요.',
+
+  // Community Section Config
+  communityTitle: '오아시스 VIP 커뮤니티',
+  communitySubtitle: '마닐라 & 클락 VIP 호텔, 골프, 파인다이닝 여행 정보 및 현지 생생한 소식을 확인하세요.',
 
   // Process and Nav Menu Config
-  communityTitle: '오아시스 공지사항 & 프로모션 소식',
   navMenu1: '오아시스',
   navMenu2: '카지노 서비스',
-  navMenu3: '투어 서비스',
+  navMenu3: 'VIP 서비스',
+  navMenu4: '프로모션',
+  navMenu5: '커뮤니티',
+  navMenu6: '이용방법',
   headerLogo: '/images/oasis_header_logo.webp',
 };
 

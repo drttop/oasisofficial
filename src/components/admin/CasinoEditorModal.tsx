@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useSite } from '../../context/SiteContext';
 import { CasinoItem } from '../../types';
-import { X, Save, Sparkles, Building2 } from 'lucide-react';
+import { X, Save, Sparkles, Building2, Upload, Loader2, RefreshCw, Trash2, Link as LinkIcon, Image as ImageIcon } from 'lucide-react';
+import { compressImageFile } from '../../utils/imageUpload';
 
 interface CasinoEditorModalProps {
   casinoToEdit: CasinoItem | null;
@@ -23,6 +24,33 @@ export const CasinoEditorModal: React.FC<CasinoEditorModalProps> = ({ casinoToEd
   const [hotelRating, setHotelRating] = useState('5성급 특급 호텔');
   const [highlights, setHighlights] = useState('스위트룸 무료 숙박 및 전용 픽업 의전');
   const [isFeatured, setIsFeatured] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [showUrlInput, setShowUrlInput] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImageFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      alert('이미지 파일(JPG, PNG, WebP 등)만 업로드할 수 있습니다.');
+      return;
+    }
+
+    try {
+      setIsUploading(true);
+      const compressed = await compressImageFile(file, 1600, 1200, 0.86);
+      setImage(compressed);
+    } catch (err) {
+      console.error('카지노 이미지 업로드 실패:', err);
+      alert('이미지를 처리하는 중 오류가 발생했습니다.');
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
 
   useEffect(() => {
     if (casinoToEdit) {
@@ -164,18 +192,115 @@ export const CasinoEditorModal: React.FC<CasinoEditorModalProps> = ({ casinoToEd
             </div>
           </div>
 
-          <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1">
-              카지노 대표 이미지 URL <span className="text-red-500">*</span>
-            </label>
+          {/* Direct Image File Upload & Preview Section */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="block text-xs font-bold text-slate-700">
+                카지노 대표 이미지 등록 <span className="text-red-500">*</span>
+              </label>
+              <button
+                type="button"
+                onClick={() => setShowUrlInput(!showUrlInput)}
+                className="text-[11px] text-[#30308A] hover:underline flex items-center gap-1 font-semibold cursor-pointer"
+              >
+                <LinkIcon className="w-3 h-3" />
+                <span>{showUrlInput ? 'URL 입력창 접기' : '또는 웹 이미지 URL로 입력'}</span>
+              </button>
+            </div>
+
+            {/* Hidden file input */}
             <input
-              type="url"
-              required
-              placeholder="https://..."
-              value={image}
-              onChange={(e) => setImage(e.target.value)}
-              className="w-full px-3.5 py-2 text-xs border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30308A]"
+              type="file"
+              ref={fileInputRef}
+              accept="image/*"
+              onChange={handleImageFileChange}
+              className="hidden"
             />
+
+            {/* Upload Dropzone / Trigger */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {/* 1. File Upload Area */}
+              <div
+                onClick={() => !isUploading && fileInputRef.current?.click()}
+                className={`border-2 border-dashed rounded-xl p-4 flex flex-col items-center justify-center text-center cursor-pointer transition-all ${
+                  isUploading
+                    ? 'border-[#30308A] bg-blue-50/50 cursor-wait'
+                    : 'border-slate-300 hover:border-[#30308A] hover:bg-slate-50'
+                }`}
+              >
+                {isUploading ? (
+                  <div className="py-2 flex flex-col items-center gap-2">
+                    <Loader2 className="w-6 h-6 text-[#30308A] animate-spin" />
+                    <span className="text-xs font-bold text-[#30308A]">고화질 압축 변환 중...</span>
+                  </div>
+                ) : (
+                  <>
+                    <div className="w-9 h-9 rounded-full bg-[#30308A]/10 flex items-center justify-center mb-1.5">
+                      <Upload className="w-4 h-4 text-[#30308A]" />
+                    </div>
+                    <span className="text-xs font-bold text-slate-900 mb-0.5">
+                      내 기기에서 사진 직접 업로드
+                    </span>
+                    <p className="text-[10px] text-slate-500">
+                      클릭하여 사진 선택 (JPG, PNG, WebP)
+                    </p>
+                  </>
+                )}
+              </div>
+
+              {/* 2. Image Preview */}
+              <div className="h-28 sm:h-auto min-h-[90px] rounded-xl overflow-hidden border border-slate-200 bg-slate-100 relative group">
+                {image ? (
+                  <>
+                    <img
+                      src={image}
+                      alt="카지노 미리보기"
+                      className="w-full h-full object-cover"
+                      referrerPolicy="no-referrer"
+                    />
+                    <div className="absolute inset-0 bg-slate-950/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 p-2">
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="px-2.5 py-1.5 rounded-lg bg-white/90 hover:bg-white text-slate-900 font-bold text-[11px] flex items-center gap-1 shadow cursor-pointer"
+                      >
+                        <RefreshCw className="w-3 h-3" />
+                        <span>사진 변경</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setImage('')}
+                        className="px-2.5 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white font-bold text-[11px] flex items-center gap-1 shadow cursor-pointer"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                        <span>삭제</span>
+                      </button>
+                    </div>
+                    <span className="absolute bottom-1 right-1.5 text-[9px] bg-black/70 text-white font-semibold px-1.5 py-0.5 rounded backdrop-blur-xs">
+                      {image.startsWith('data:') ? '직접 업로드됨' : '웹 이미지'}
+                    </span>
+                  </>
+                ) : (
+                  <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 p-2">
+                    <ImageIcon className="w-5 h-5 mb-1 opacity-50" />
+                    <span className="text-[10px]">등록된 이미지가 없습니다</span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Optional Direct URL Input Field */}
+            {showUrlInput && (
+              <div className="pt-1.5 animate-in fade-in duration-150">
+                <input
+                  type="text"
+                  placeholder="https://images.unsplash.com/..."
+                  value={image.startsWith('data:') ? '' : image}
+                  onChange={(e) => setImage(e.target.value)}
+                  className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30308A] font-mono text-[11px]"
+                />
+              </div>
+            )}
           </div>
 
           <div>

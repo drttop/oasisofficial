@@ -29,11 +29,21 @@ export const Header: React.FC = () => {
   }, []);
 
   const navItems = [
-    { label: siteConfig.navMenu1 || '오아시스 소개', href: '#about', id: 'nav-about' },
-    { label: siteConfig.navMenu2 || '카지노 소개', href: '#casino', id: 'nav-casino' },
-    { label: siteConfig.navMenu3 || '필리핀 소개', href: '#philippines', id: 'nav-philippines' },
-    { label: siteConfig.navMenu4 || '이용방법', href: '#process', id: 'nav-process' },
+    { label: siteConfig.navMenu1 || '오아시스', href: '#about', id: 'nav-about' },
+    { label: siteConfig.navMenu2 || '카지노 서비스', href: '#casino', id: 'nav-casino' },
+    { label: siteConfig.navMenu3 || 'VIP 서비스', href: '#philippines', id: 'nav-philippines' },
+    { label: siteConfig.navMenu4 || '프로모션', href: '#promotion', id: 'nav-promotion' },
     { label: siteConfig.navMenu5 || '커뮤니티', href: '#community', id: 'nav-community' },
+    { label: siteConfig.navMenu6 || '이용방법', href: '#process', id: 'nav-process' },
+  ];
+
+  // Mobile horizontal bar: 홈 삭제, 이용방법 제외(상단 삼선에서만 표시)
+  const mobileHorizontalNavItems = [
+    { label: siteConfig.navMenu1 || '오아시스', href: '#about', id: 'mob-horiz-about' },
+    { label: siteConfig.navMenu2 || '카지노서비스', href: '#casino', id: 'mob-horiz-casino' },
+    { label: siteConfig.navMenu3 || 'VIP서비스', href: '#philippines', id: 'mob-horiz-philippines' },
+    { label: siteConfig.navMenu4 || '프로모션', href: '#promotion', id: 'mob-horiz-promotion' },
+    { label: siteConfig.navMenu5 || '커뮤니티', href: '#community', id: 'mob-horiz-community' },
   ];
 
   const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
@@ -137,9 +147,9 @@ export const Header: React.FC = () => {
             </a>
           </div>
 
-          {/* Desktop 5 Menu Categories (Centered with widened letter-spacing) */}
+          {/* Desktop 6 Menu Categories */}
           <nav
-            className="hidden lg:flex items-center justify-center absolute left-1/2 -translate-x-1/2 space-x-2 xl:space-x-5"
+            className="hidden lg:flex items-center justify-center absolute left-1/2 -translate-x-1/2 space-x-1 xl:space-x-3.5"
             aria-label="메인 메뉴"
           >
             {navItems.map((item) => (
@@ -148,7 +158,7 @@ export const Header: React.FC = () => {
                 id={item.id}
                 href={item.href}
                 onClick={(e) => scrollToSection(e, item.href)}
-                className="px-3.5 xl:px-4 py-2 text-sm sm:text-[15px] font-bold text-white/90 hover:text-white transition-colors rounded-lg hover:bg-white/10 relative group tracking-[0.06em]"
+                className="px-2.5 xl:px-3.5 py-2 text-xs sm:text-[14px] xl:text-[15px] font-bold text-white/90 hover:text-white transition-colors rounded-lg hover:bg-white/10 relative group tracking-[0.04em] whitespace-nowrap"
               >
                 {item.label}
                 <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-[#E5B54F] transition-all duration-200 group-hover:w-3/4 rounded-full" />
@@ -161,7 +171,7 @@ export const Header: React.FC = () => {
             <div className="hidden lg:block w-[180px] xl:w-[220px] pointer-events-none" aria-hidden="true" />
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-lg text-white hover:bg-white/10 lg:hidden"
+              className="p-2 rounded-lg text-white hover:bg-white/10 lg:hidden cursor-pointer"
               aria-label="모바일 메뉴 열기"
               id="btn-mobile-menu-toggle"
             >
@@ -170,22 +180,15 @@ export const Header: React.FC = () => {
           </div>
         </div>
 
-        {/* Mobile Horizontal Navigation (Category Bar) */}
+        {/* Mobile Horizontal Navigation (Category Bar - 홈 삭제, 이용방법은 상단 삼선에서만 표시) */}
         <div className="lg:hidden w-full border-t border-slate-800/50 px-2 sm:px-4">
-          <nav className="flex items-center justify-between w-full py-2.5">
-            <a
-              href="#home"
-              onClick={(e) => scrollToSection(e, '#home')}
-              className="text-[11px] min-[360px]:text-[11.5px] min-[390px]:text-[13px] font-semibold text-white/85 hover:text-white transition-colors whitespace-nowrap tracking-tighter min-[390px]:tracking-tight px-0.5"
-            >
-              홈
-            </a>
-            {navItems.map((item) => (
+          <nav className="flex items-center justify-around sm:justify-between w-full py-2.5">
+            {mobileHorizontalNavItems.map((item) => (
               <a
                 key={`horiz-${item.id}`}
                 href={item.href}
                 onClick={(e) => scrollToSection(e, item.href)}
-                className="text-[11px] min-[360px]:text-[11.5px] min-[390px]:text-[13px] font-semibold text-white/85 hover:text-white transition-colors whitespace-nowrap tracking-tighter min-[390px]:tracking-tight px-0.5"
+                className="text-[12px] min-[360px]:text-[12.5px] min-[390px]:text-[14px] font-bold text-white/90 hover:text-white transition-colors whitespace-nowrap tracking-tight px-1 py-0.5"
               >
                 {item.label}
               </a>

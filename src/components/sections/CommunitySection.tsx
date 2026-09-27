@@ -58,12 +58,18 @@ export const CommunitySection: React.FC = () => {
     setCurrentPage(page);
     const element = document.getElementById('community');
     if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      const headerOffset = 80;
+      const elementPosition = element.getBoundingClientRect().top;
+      const offsetPosition = Math.max(0, elementPosition + window.pageYOffset - headerOffset);
+      window.scrollTo({ top: offsetPosition, behavior: 'instant' as ScrollBehavior });
     }
   };
 
   const handleOpenPost = (post: PostItem) => {
     incrementPostView(post.id);
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
+    }
     setSelectedPost(post);
   };
 
@@ -145,7 +151,7 @@ export const CommunitySection: React.FC = () => {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 min-[520px]:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-6">
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-6">
             {paginatedPosts.map((post) => {
               const cardImage = (post.images && post.images.length > 0) ? post.images[0] : post.thumbnail;
               const hasMultiplePhotos = (post.images && post.images.length > 1);
@@ -164,7 +170,7 @@ export const CommunitySection: React.FC = () => {
                 >
                   {/* Thumbnail if present */}
                   {cardImage && (
-                    <div className="relative h-36 min-[520px]:h-40 sm:h-48 w-full overflow-hidden bg-slate-900">
+                    <div className="relative h-28 min-[420px]:h-36 sm:h-48 w-full overflow-hidden bg-slate-900">
                       <img
                         {...getResponsiveImageProps(cardImage, 600, '(max-width: 640px) 380px, (max-width: 1024px) 50vw, 380px')}
                         alt={post.title}
@@ -175,16 +181,16 @@ export const CommunitySection: React.FC = () => {
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         referrerPolicy="no-referrer"
                       />
-                      <div className="absolute top-2 sm:top-3 left-2 sm:left-3 flex items-center gap-1 sm:gap-1.5 flex-wrap">
+                      <div className="absolute top-1.5 sm:top-3 left-1.5 sm:left-3 flex items-center gap-1 sm:gap-1.5 flex-wrap">
                         <span
-                          className={`px-1.5 sm:px-2.5 py-0.5 rounded-full text-[10px] sm:text-[11px] font-bold border ${
+                          className={`px-1.5 sm:px-2.5 py-0.5 rounded-full text-[9px] min-[400px]:text-[10px] sm:text-[11px] font-bold border ${
                             categoryColorMap[post.category] || 'bg-slate-100 text-slate-700'
                           }`}
                         >
                           {post.category}
                         </span>
                         {post.isPinned && (
-                          <span className="inline-flex items-center gap-0.5 sm:gap-1 text-[10px] sm:text-[11px] font-bold text-white bg-red-600 px-1.5 sm:px-2 py-0.5 rounded-full shadow">
+                          <span className="inline-flex items-center gap-0.5 sm:gap-1 text-[9px] min-[400px]:text-[10px] sm:text-[11px] font-bold text-white bg-red-600 px-1.5 sm:px-2 py-0.5 rounded-full shadow">
                             <Pin className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                             <span className="hidden min-[380px]:inline">중요</span>
                           </span>
@@ -199,7 +205,7 @@ export const CommunitySection: React.FC = () => {
 
                       {/* Multiple Photos Indicator Badge */}
                       {hasMultiplePhotos && (
-                        <div className="absolute bottom-2 sm:bottom-3 right-2 sm:right-3">
+                        <div className="absolute bottom-1.5 sm:bottom-3 right-1.5 sm:right-3">
                           <span className="inline-flex items-center gap-0.5 sm:gap-1 text-[9px] sm:text-[10px] font-bold text-white bg-slate-900/80 backdrop-blur-sm px-1.5 sm:px-2 py-0.5 rounded-full shadow">
                             <Camera className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-[#E5B54F]" />
                             <span>사진 {post.images!.length}장</span>
@@ -210,25 +216,25 @@ export const CommunitySection: React.FC = () => {
                   )}
 
                   {/* Card Content */}
-                  <div className="p-3.5 sm:p-5 flex-1 flex flex-col justify-between space-y-2 sm:space-y-3.5">
+                  <div className="p-2.5 min-[400px]:p-3.5 sm:p-5 flex-1 flex flex-col justify-between space-y-1.5 sm:space-y-3.5">
                     <div className="space-y-1 sm:space-y-2">
                       {!cardImage && (
-                        <div className="flex items-center gap-1 sm:gap-1.5 mb-1.5 sm:mb-2 flex-wrap">
+                        <div className="flex items-center gap-1 sm:gap-1.5 mb-1 sm:mb-2 flex-wrap">
                           <span
-                            className={`px-1.5 sm:px-2.5 py-0.5 rounded-full text-[10px] sm:text-[11px] font-bold border ${
+                            className={`px-1.5 sm:px-2.5 py-0.5 rounded-full text-[9px] min-[400px]:text-[10px] sm:text-[11px] font-bold border ${
                               categoryColorMap[post.category] || 'bg-slate-100 text-slate-700'
                             }`}
                           >
                             {post.category}
                           </span>
                           {post.isPinned && (
-                            <span className="inline-flex items-center gap-0.5 sm:gap-1 text-[10px] sm:text-[11px] font-bold text-red-600 bg-red-50 px-1.5 sm:px-2 py-0.5 rounded-full border border-red-100">
+                            <span className="inline-flex items-center gap-0.5 sm:gap-1 text-[9px] min-[400px]:text-[10px] sm:text-[11px] font-bold text-red-600 bg-red-50 px-1.5 sm:px-2 py-0.5 rounded-full border border-red-100">
                               <Pin className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                               <span className="hidden min-[380px]:inline">중요</span>
                             </span>
                           )}
                           {hasMap && (
-                            <span className="inline-flex items-center gap-0.5 text-[10px] sm:text-[11px] font-bold text-[#30308A] bg-blue-50 px-1.5 sm:px-2 py-0.5 rounded-full border border-blue-200/60">
+                            <span className="inline-flex items-center gap-0.5 text-[9px] sm:text-[11px] font-bold text-[#30308A] bg-blue-50 px-1.5 sm:px-2 py-0.5 rounded-full border border-blue-200/60">
                               <MapPin className="w-2.5 h-2.5 text-[#E5B54F]" />
                               <span>지도</span>
                             </span>
@@ -236,17 +242,17 @@ export const CommunitySection: React.FC = () => {
                         </div>
                       )}
 
-                      <h3 className="text-sm sm:text-base lg:text-lg font-bold text-slate-900 group-hover:text-[#30308A] transition-colors leading-snug line-clamp-2">
+                      <h3 className="text-xs min-[400px]:text-sm sm:text-base lg:text-lg font-bold text-slate-900 group-hover:text-[#30308A] transition-colors leading-snug line-clamp-2">
                         {post.title}
                       </h3>
 
-                      <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">
+                      <p className="text-[11px] min-[400px]:text-xs text-slate-600 line-clamp-2 leading-relaxed">
                         {stripFormattingTags(post.summary || post.content)}
                       </p>
                     </div>
 
                     {/* Meta footer */}
-                    <div className="pt-2 sm:pt-3 border-t border-slate-200/80 flex items-center justify-between text-[10px] sm:text-xs text-slate-600 font-medium">
+                    <div className="pt-1.5 sm:pt-3 border-t border-slate-200/80 flex items-center justify-between text-[10px] sm:text-xs text-slate-600 font-medium">
                       <div className="flex items-center gap-1 sm:gap-3 truncate">
                         <span className="flex items-center gap-0.5 sm:gap-1">
                           <Eye className="w-3 h-3 text-slate-500" />
@@ -258,7 +264,7 @@ export const CommunitySection: React.FC = () => {
                         </span>
                       </div>
 
-                      <span className="text-[#30308A] font-bold flex items-center gap-0.5 group-hover:translate-x-1 transition-transform text-[11px] sm:text-xs flex-shrink-0">
+                      <span className="text-[#30308A] font-bold flex items-center gap-0.5 group-hover:translate-x-1 transition-transform text-[10px] sm:text-xs flex-shrink-0">
                         읽기
                         <ChevronRight className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                       </span>

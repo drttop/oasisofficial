@@ -50,11 +50,11 @@ export const Header: React.FC = () => {
       }
 
       if (href === '#home') {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
         return;
       }
 
-      // Smoothly scroll to the target section once the main landing page elements are mounted
+      // Instantly jump to the target section once the main landing page elements are mounted
       let attempts = 0;
       const tryScroll = () => {
         const targetId = href.replace(/^#/, '');
@@ -62,25 +62,25 @@ export const Header: React.FC = () => {
         if (element) {
           const headerOffset = 80;
           const elementPosition = element.getBoundingClientRect().top;
-          const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+          const offsetPosition = Math.max(0, elementPosition + window.pageYOffset - headerOffset);
           window.scrollTo({
             top: offsetPosition,
-            behavior: 'smooth',
+            behavior: 'instant' as ScrollBehavior,
           });
         } else if (attempts < 20) {
           attempts++;
-          setTimeout(tryScroll, 50);
+          setTimeout(tryScroll, 16);
         }
       };
       // Give React an animation frame to mount landing sections
       requestAnimationFrame(() => {
-        setTimeout(tryScroll, 30);
+        tryScroll();
       });
       return;
     }
 
     if (href === '#home') {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
       return;
     }
 
@@ -89,10 +89,10 @@ export const Header: React.FC = () => {
     if (element) {
       const headerOffset = 80;
       const elementPosition = element.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+      const offsetPosition = Math.max(0, elementPosition + window.pageYOffset - headerOffset);
       window.scrollTo({
         top: offsetPosition,
-        behavior: 'smooth',
+        behavior: 'instant' as ScrollBehavior,
       });
     }
   };

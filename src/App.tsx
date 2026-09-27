@@ -45,25 +45,38 @@ const MainAppContent: React.FC = () => {
 
   const handleBackToCommunity = () => {
     setSelectedPost(null);
-    setTimeout(() => {
-      const element = document.getElementById('community');
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-    }, 60);
+    if (typeof window !== 'undefined') {
+      window.history.replaceState({}, '', `${window.location.pathname}#community`);
+      requestAnimationFrame(() => {
+        const element = document.getElementById('community');
+        if (element) {
+          const headerOffset = 80;
+          const elementPosition = element.getBoundingClientRect().top;
+          const offsetPosition = Math.max(0, elementPosition + window.pageYOffset - headerOffset);
+          window.scrollTo({ top: offsetPosition, behavior: 'instant' as ScrollBehavior });
+        } else {
+          window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
+        }
+      });
+    }
   };
 
   const handleCloseEditor = () => {
     closePostEditor();
     if (typeof window !== 'undefined') {
       window.history.replaceState({}, '', `${window.location.pathname}#community`);
+      requestAnimationFrame(() => {
+        const element = document.getElementById('community');
+        if (element) {
+          const headerOffset = 80;
+          const elementPosition = element.getBoundingClientRect().top;
+          const offsetPosition = Math.max(0, elementPosition + window.pageYOffset - headerOffset);
+          window.scrollTo({ top: offsetPosition, behavior: 'instant' as ScrollBehavior });
+        } else {
+          window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
+        }
+      });
     }
-    setTimeout(() => {
-      const element = document.getElementById('community');
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-    }, 80);
   };
 
   const handleSavedPost = (savedPost: any) => {

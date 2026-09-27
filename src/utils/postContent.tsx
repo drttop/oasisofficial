@@ -395,21 +395,87 @@ function renderInlineContent(text: string, keyPrefix = 'inline'): React.ReactNod
  * Supports HTML tables, rich HTML formatting, headings, bullet points, quotes, dividers, and legacy tags.
  * Strictly avoids rendering `<h1>` tags to protect the 100-point SEO single-H1 rule!
  */
-export const FormattedPostContent: React.FC<{ content: string; className?: string }> = ({
+export const FormattedPostContent: React.FC<{
+  content: string;
+  images?: string[];
+  defaultMap?: PostMapLocation;
+  className?: string;
+  onImageClick?: (src: string) => void;
+}> = ({
   content,
+  images = [],
+  defaultMap,
   className = '',
+  onImageClick,
 }) => {
   if (!content) return null;
 
-  const html = postContentToHtml(content);
+  const html = postContentToHtml(content, images, defaultMap, false /* viewer mode */);
+
+  const handleClick = (e: React.MouseEvent) => {
+    const target = e.target as HTMLElement;
+    const zoomEl = target.closest('[data-zoom-src]') as HTMLElement;
+    if (zoomEl) {
+      const src = zoomEl.getAttribute('data-zoom-src');
+      if (src && onImageClick) onImageClick(src);
+      return;
+    }
+    if (target.tagName === 'IMG') {
+      const src = (target as HTMLImageElement).src;
+      if (src && !src.includes('google.com/maps') && onImageClick) {
+        onImageClick(src);
+      }
+    }
+  };
 
   return (
     <div
-      className={`oasis-article-content oasis-post-body space-y-2.5 leading-relaxed text-slate-800 ${className}`}
+      className={`oasis-article-content oasis-post-body space-y-3 leading-relaxed text-slate-800 ${className}`}
       dangerouslySetInnerHTML={{ __html: html }}
+      onClick={handleClick}
     />
   );
 };
+
+/**
+ * Creates clean viewer HTML for an inline photo in published posts
+ */
+export function createViewerPhotoHtml(photoIndex: number, imageUrl: string): string {
+  const photoNum = photoIndex + 1;
+  return `<figure class="my-6 rounded-2xl overflow-hidden shadow-sm hover:shadow-md border border-slate-200 bg-slate-950 flex items-center justify-center p-1 sm:p-2 cursor-zoom-in transition-all relative group" data-zoom-src="${imageUrl}">
+    <img src="${imageUrl}" alt="사진 ${photoNum}" class="w-full h-auto max-h-[620px] object-contain mx-auto rounded-xl group-hover:scale-[1.01] transition-transform duration-300 pointer-events-none" loading="lazy" decoding="async" />
+    <div class="absolute top-3 left-3 flex items-center gap-1.5 pointer-events-none">
+      <span class="px-2.5 py-1 rounded-lg bg-slate-900/85 backdrop-blur-sm text-white text-xs font-bold flex items-center gap-1.5 shadow border border-white/10">
+        <span>📷</span> 사진 ${photoNum}
+      </span>
+    </div>
+    <div class="absolute inset-0 bg-black/0 group-hover:bg-black/25 transition-colors flex items-center justify-center pointer-events-none">
+      <span class="opacity-0 group-hover:opacity-100 transition-opacity px-3.5 py-2 rounded-xl bg-black/75 text-white text-xs font-bold flex items-center gap-2 backdrop-blur-sm shadow-lg border border-white/20">
+        🔍 클릭하여 사진 확대
+      </span>
+    </div>
+  </figure>`;
+}
+
+/**
+ * Creates clean viewer HTML for an inline map in published posts
+ */
+export function createViewerMapHtml(title: string, address?: string, query?: string): string {
+  const finalQuery = (query || (address ? `${title} ${address}` : title)).trim();
+  const safeQuery = encodeURIComponent(finalQuery);
+  return `<div class="my-6 rounded-2xl overflow-hidden border border-indigo-200 shadow-sm bg-white p-3.5 space-y-2.5">
+    <div class="flex items-center gap-2">
+      <span class="w-6 h-6 rounded-lg bg-[#30308A] text-white flex items-center justify-center text-xs font-bold">📍</span>
+      <div>
+        <div class="font-bold text-slate-900 text-sm leading-tight">${title || finalQuery}</div>
+        ${address ? `<div class="text-xs text-slate-500 leading-tight mt-0.5">${address}</div>` : ''}
+      </div>
+    </div>
+    <div class="rounded-xl overflow-hidden border border-slate-200 h-56 sm:h-64 bg-slate-100 relative">
+      <iframe src="https://maps.google.com/maps?q=${safeQuery}&t=&z=15&ie=UTF8&iwloc=&output=embed" class="w-full h-full border-0" loading="lazy"></iframe>
+    </div>
+  </div>`;
+}
 
 /**
  * Creates visual HTML for an inline photo card inside the WYSIWYG editor
@@ -456,163 +522,237 @@ export function createVisualMapHtml(title: string, address?: string, query?: str
 }
 
 /**
- * Converts post text (with [사진1], [형광펜], **bold**, ## Headings) into real visual WYSIWYG HTML
+ * Detects whether content is formatted as HTML (contains HTML tags)
  */
+export function isHtmlContent(str: string): boolean {
+  if (!str) return false;
+  return /<\/?(?:p|div|table|tbody|thead|tr|td|th|h[1-6]|ul|ol|li|blockquote|section|article|span|mark|strong|b|em|i|u|s|hr|img|iframe|font|center|figure|pre|code)\b/i.test(str);
+}
+
+/**
+ * Ensures any bare <table> in HTML is wrapped in a responsive container with styling classes.
+ * Uses DOMParser to avoid destroying inner tags, divs, and table structures.
+ */
+export function wrapTablesWithResponsiveContainer(html: string): string {
+  if (!html || !html.includes('<table')) return html;
+  if (typeof window === 'undefined') return html;
+
+  try {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(`<body>${html}</body>`, 'text/html');
+    const tables = doc.querySelectorAll('table');
+    if (tables.length === 0) return html;
+
+    tables.forEach((table) => {
+      table.classList.add('oasis-table');
+      if (!table.classList.contains('min-w-full')) {
+        table.classList.add('min-w-full', 'border-collapse', 'border', 'border-slate-300', 'rounded-xl', 'overflow-hidden', 'text-sm');
+      }
+
+      // Check if already in a responsive wrapper
+      const parent = table.parentElement;
+      if (
+        parent &&
+        (parent.classList.contains('oasis-table-wrap') ||
+          parent.classList.contains('table-responsive') ||
+          parent.classList.contains('overflow-x-auto'))
+      ) {
+        return;
+      }
+
+      const wrapper = doc.createElement('div');
+      wrapper.className = 'oasis-table-wrap overflow-x-auto my-4 max-w-full';
+      table.parentNode?.insertBefore(wrapper, table);
+      wrapper.appendChild(table);
+    });
+
+    return doc.body.innerHTML;
+  } catch {
+    return html;
+  }
+}
+
 /**
  * Converts post text (with HTML tables, rich formatting, [사진1], [형광펜], **bold**, ## Headings)
- * into real visual WYSIWYG HTML.
- * Completely compatible with user-written or pasted HTML tables, styling, spans, and markdown.
+ * into real visual WYSIWYG HTML or viewer HTML.
+ * Completely preserves user-written HTML, styling, tables, spans, and markdown without destructive stripping!
  */
 export function postContentToHtml(
   content: string,
   images: string[] = [],
-  defaultMap?: PostMapLocation
+  defaultMap?: PostMapLocation,
+  isEditorMode: boolean = false
 ): string {
   if (!content) return '<p><br></p>';
 
-  // 1. Protect & Extract HTML Tables so they aren't split by lines
-  const tablePlaceholders: string[] = [];
-  let processedContent = content;
-
-  // Regex to match existing wrapped tables or raw <table> elements
-  const tableRegex = /(?:<div[^>]*class="[^"]*(?:oasis-table-wrap|table-responsive)[^"]*"[^>]*>[\s\S]*?<\/div>|<table[\s\S]*?<\/table>)/gi;
-  processedContent = processedContent.replace(tableRegex, (match) => {
-    let cleanTable = match.trim();
-    // Ensure table is wrapped in a responsive horizontal-scroll container
-    if (!cleanTable.includes('oasis-table-wrap') && !cleanTable.includes('table-responsive')) {
-      // Ensure table has styling classes if not already styled
-      if (!cleanTable.includes('oasis-table')) {
-        cleanTable = cleanTable.replace(
-          /<table(\b[^>]*)>/i,
-          '<table class="oasis-table min-w-full border-collapse border border-slate-300 rounded-xl overflow-hidden text-sm"$1>'
-        );
+  // 1. Process inline Photo tags [사진1] ~ [사진6]
+  let processed = content.replace(
+    /\[(?:사진|이미지|image|IMAGE)[_\s]*([1-9][0-9]*)\]/gi,
+    (match, p1) => {
+      const photoNum = parseInt(p1, 10);
+      const idx = photoNum - 1;
+      const imgUrl = images[idx];
+      if (imgUrl) {
+        return isEditorMode
+          ? createVisualPhotoHtml(idx, imgUrl)
+          : createViewerPhotoHtml(idx, imgUrl);
       }
-      cleanTable = `<div class="oasis-table-wrap overflow-x-auto my-4 max-w-full">${cleanTable}</div>`;
+      if (isEditorMode) {
+        return `<p class="my-1.5 leading-relaxed text-slate-500 font-mono">[사진 ${photoNum} 미등록]</p>`;
+      }
+      return '';
     }
-    const placeholder = `___OASIS_TABLE_BLOCK_${tablePlaceholders.length}___`;
-    tablePlaceholders.push(cleanTable);
-    return `\n\n${placeholder}\n\n`;
-  });
+  );
 
-  const lines = processedContent.split('\n');
+  // 2. Process inline Map tags [지도:장소명|주소]
+  processed = processed.replace(
+    /\[(?:지도|구글지도|googlemap|google_map|map)(?::\s*([^\]]+))?\]/gi,
+    (match, arg) => {
+      const trimmedArg = arg?.trim();
+      let title = '';
+      let address = '';
+      let query = '';
+      if (trimmedArg) {
+        if (trimmedArg.includes('|')) {
+          const spl = trimmedArg.split('|').map((p: string) => p.trim());
+          title = spl[0];
+          address = spl[1] || '';
+          query = address ? `${title} ${address}` : title;
+        } else {
+          title = trimmedArg;
+          query = trimmedArg;
+        }
+      } else if (defaultMap) {
+        title = defaultMap.title || '대표 위치';
+        address = defaultMap.address || '';
+        query = defaultMap.query || title;
+      }
+      if (title || query) {
+        return isEditorMode
+          ? createVisualMapHtml(title || query, address, query)
+          : createViewerMapHtml(title || query, address, query);
+      }
+      return match;
+    }
+  );
+
+  // 3. Extract and protect all HTML block elements (tables, div wrappers, lists, blockquotes, pre, figure, existing p tags, etc.)
+  // This guarantees that pre-existing HTML is 100% preserved without double-wrapping or mangling.
+  const blockPlaceholders: string[] = [];
+  const protectBlock = (htmlBlock: string): string => {
+    let clean = htmlBlock.trim();
+    if (clean.includes('<table')) {
+      clean = wrapTablesWithResponsiveContainer(clean);
+    }
+    const token = `___OASIS_BLOCK_${blockPlaceholders.length}___`;
+    blockPlaceholders.push(clean);
+    return `\n\n${token}\n\n`;
+  };
+
+  // Protect responsive table wrappers and standalone tables
+  processed = processed.replace(
+    /(?:<div[^>]*class="[^"]*(?:oasis-table-wrap|table-responsive)[^"]*"[^>]*>[\s\S]*?<\/div>|<table[\s\S]*?<\/table>)/gi,
+    (match) => protectBlock(match)
+  );
+
+  // Protect visual photo/map cards if already rendered (e.g. from editor)
+  processed = processed.replace(
+    /<div[^>]*class="[^"]*(?:visual-photo-card|visual-map-card)[^"]*"[^>]*>[\s\S]*?<\/div>/gi,
+    (match) => protectBlock(match)
+  );
+
+  // Protect existing complete <p>...</p> tags
+  processed = processed.replace(
+    /<p\b[^>]*>[\s\S]*?<\/p>/gi,
+    (match) => protectBlock(match)
+  );
+
+  // Protect existing <ul>...</ul> and <ol>...</ol>
+  processed = processed.replace(
+    /<(?:ul|ol)\b[^>]*>[\s\S]*?<\/(?:ul|ol)>/gi,
+    (match) => protectBlock(match)
+  );
+
+  // Protect existing <blockquote>...</blockquote>
+  processed = processed.replace(
+    /<blockquote\b[^>]*>[\s\S]*?<\/blockquote>/gi,
+    (match) => protectBlock(match)
+  );
+
+  // Protect existing <figure>...</figure>
+  processed = processed.replace(
+    /<figure\b[^>]*>[\s\S]*?<\/figure>/gi,
+    (match) => protectBlock(match)
+  );
+
+  // Protect existing <pre>...</pre>
+  processed = processed.replace(
+    /<pre\b[^>]*>[\s\S]*?<\/pre>/gi,
+    (match) => protectBlock(match)
+  );
+
+  // 4. Now process remaining lines (headings, quotes, lists, dividers, and standard text)
+  const lines = processed.split('\n');
   const htmlParts: string[] = [];
 
   for (let i = 0; i < lines.length; i++) {
     const rawLine = lines[i];
     const trimmed = rawLine.trim();
 
-    // 1. Empty line
+    // Empty line
     if (trimmed === '') {
       htmlParts.push('<p><br></p>');
       continue;
     }
 
-    // 2. Table Block placeholder match
-    const tablePlaceholderMatch = trimmed.match(/^___OASIS_TABLE_BLOCK_(\d+)___$/);
-    if (tablePlaceholderMatch) {
-      const idx = parseInt(tablePlaceholderMatch[1], 10);
-      if (tablePlaceholders[idx]) {
-        htmlParts.push(tablePlaceholders[idx]);
+    // Protected block token match
+    const blockMatch = trimmed.match(/^___OASIS_BLOCK_(\d+)___$/);
+    if (blockMatch) {
+      const idx = parseInt(blockMatch[1], 10);
+      if (blockPlaceholders[idx] !== undefined) {
+        htmlParts.push(blockPlaceholders[idx]);
         htmlParts.push('<p><br></p>');
       }
       continue;
     }
 
-    // 3. Photo tag match [사진1] ~ [사진6] anywhere on line
-    const photoRegex = /\[(?:사진|이미지|image|IMAGE)[_\s]*([1-9][0-9]*)\]/i;
-    if (photoRegex.test(trimmed)) {
-      const parts = trimmed.split(photoRegex);
-      const match = trimmed.match(photoRegex);
-      if (match) {
-        const photoNum = parseInt(match[1], 10);
-        const idx = photoNum - 1;
-        const imgUrl = images[idx];
-        const beforeText = parts[0]?.trim();
-        const afterText = parts[2]?.trim();
-
-        if (beforeText) {
-          htmlParts.push(`<p class="my-1.5 leading-relaxed text-slate-800">${inlineTagsToHtml(beforeText)}</p>`);
-        }
-        if (imgUrl) {
-          htmlParts.push(createVisualPhotoHtml(idx, imgUrl));
-        } else {
-          htmlParts.push(`<p class="my-1.5 leading-relaxed text-slate-500 font-mono">[사진 ${photoNum} 미등록]</p>`);
-        }
-        if (afterText) {
-          htmlParts.push(`<p class="my-1.5 leading-relaxed text-slate-800">${inlineTagsToHtml(afterText)}</p>`);
-        }
-        continue;
-      }
-    }
-
-    // 4. Map tag match [지도:장소명|주소]
-    const mapRegex = /\[(?:지도|구글지도|googlemap|google_map|map)(?::\s*([^\]]+))?\]/i;
-    if (mapRegex.test(trimmed)) {
-      const match = trimmed.match(mapRegex);
-      if (match) {
-        const arg = match[1]?.trim();
-        let title = '';
-        let address = '';
-        let query = '';
-        if (arg) {
-          if (arg.includes('|')) {
-            const spl = arg.split('|').map((p) => p.trim());
-            title = spl[0];
-            address = spl[1] || '';
-            query = address ? `${title} ${address}` : title;
-          } else {
-            title = arg;
-            query = arg;
-          }
-        } else if (defaultMap) {
-          title = defaultMap.title || '대표 위치';
-          address = defaultMap.address || '';
-          query = defaultMap.query || title;
-        }
-        if (title || query) {
-          htmlParts.push(createVisualMapHtml(title || query, address, query));
-          continue;
-        }
-      }
-    }
-
-    // 5. Divider
+    // Divider
     if (/^(\-{3,}|\*{3,}|_{3,}|\[구분선\])$/.test(trimmed)) {
       htmlParts.push('<hr class="my-4 border-t border-slate-200" />');
       continue;
     }
 
-    // 6. Heading 2 (## Title or [크기:대][굵게]Title)
+    // Heading 2 (## Title or [크기:대][굵게]Title)
     const h2Match = rawLine.match(/^##\s+(.*)$/);
     if (h2Match) {
       const formatted = inlineTagsToHtml(h2Match[1]);
-      htmlParts.push(`<h2 class="text-xl sm:text-2xl font-bold text-slate-900 my-3 pb-1 border-b border-slate-100 flex items-center gap-2"><span class="w-1.5 h-5 bg-[#30308A] rounded-full inline-block shrink-0"></span><span>${formatted}</span></h2>`);
+      htmlParts.push(`<h2 class="text-xl sm:text-2xl font-bold text-slate-900 my-3 pb-1 border-b border-slate-100">${formatted}</h2>`);
       continue;
     }
 
     const h2TagMatch = trimmed.match(/^\[(?:크기|size):(대|large|lg|20)\](?:\[(?:굵게|bold)\])?([\s\S]*?)(?:\[\/(?:굵게|bold)\])?\[\/(?:크기|size)\]$/i);
     if (h2TagMatch) {
       const formatted = inlineTagsToHtml(h2TagMatch[2]);
-      htmlParts.push(`<h2 class="text-xl sm:text-2xl font-bold text-slate-900 my-3 pb-1 border-b border-slate-100 flex items-center gap-2"><span class="w-1.5 h-5 bg-[#30308A] rounded-full inline-block shrink-0"></span><span>${formatted}</span></h2>`);
+      htmlParts.push(`<h2 class="text-xl sm:text-2xl font-bold text-slate-900 my-3 pb-1 border-b border-slate-100">${formatted}</h2>`);
       continue;
     }
 
-    // 7. Heading 3 (### Title or [크기:중]Title)
+    // Heading 3 (### Title or [크기:중]Title)
     const h3Match = rawLine.match(/^###\s+(.*)$/);
     if (h3Match) {
       const formatted = inlineTagsToHtml(h3Match[1]);
-      htmlParts.push(`<h3 class="text-lg sm:text-xl font-bold text-slate-900 my-2.5 flex items-center gap-2"><span class="w-1.5 h-4 bg-[#E5B54F] rounded-full inline-block shrink-0"></span><span>${formatted}</span></h3>`);
+      htmlParts.push(`<h3 class="text-lg sm:text-xl font-bold text-slate-900 my-2.5">${formatted}</h3>`);
       continue;
     }
 
     const h3TagMatch = trimmed.match(/^\[(?:크기|size):(중|medium|md|17)\](?:\[(?:굵게|bold)\])?([\s\S]*?)(?:\[\/(?:굵게|bold)\])?\[\/(?:크기|size)\]$/i);
     if (h3TagMatch) {
       const formatted = inlineTagsToHtml(h3TagMatch[2]);
-      htmlParts.push(`<h3 class="text-lg sm:text-xl font-bold text-slate-900 my-2.5 flex items-center gap-2"><span class="w-1.5 h-4 bg-[#E5B54F] rounded-full inline-block shrink-0"></span><span>${formatted}</span></h3>`);
+      htmlParts.push(`<h3 class="text-lg sm:text-xl font-bold text-slate-900 my-2.5">${formatted}</h3>`);
       continue;
     }
 
-    // 8. Blockquote (> Quote)
+    // Blockquote (> Quote)
     const quoteMatch = rawLine.match(/^>\s*(.*)$/);
     if (quoteMatch) {
       const formatted = inlineTagsToHtml(quoteMatch[1]);
@@ -620,7 +760,7 @@ export function postContentToHtml(
       continue;
     }
 
-    // 9. Bullet List (- Item or • Item)
+    // Bullet List (- Item or • Item or * Item)
     const listMatch = rawLine.match(/^[-*•]\s+(.*)$/);
     if (listMatch) {
       const formatted = inlineTagsToHtml(listMatch[1]);
@@ -628,30 +768,33 @@ export function postContentToHtml(
       continue;
     }
 
-    // 10. Already an HTML block tag (h2, h3, h4, blockquote, ul, ol, div, p, hr, figure)
-    if (/^<(?:h[2-6]|blockquote|ul|ol|div|p|hr|figure|pre)\b/i.test(trimmed)) {
+    // Already an HTML block tag starting on this line
+    if (/^<(?:h[2-6]|blockquote|ul|ol|div|p|hr|figure|pre|table)\b/i.test(trimmed)) {
       htmlParts.push(inlineTagsToHtml(rawLine));
       continue;
     }
 
-    // 11. Standard Paragraph with inline tags & HTML formatting preserved
+    // Standard Paragraph with inline tags & HTML formatting preserved
     const formatted = inlineTagsToHtml(rawLine);
     htmlParts.push(`<p class="my-1.5 leading-relaxed text-slate-800">${formatted}</p>`);
   }
 
-  // Final restoration of any remaining table block tokens (safety net)
+  // 5. Restore any remaining block tokens (e.g. if inline or wrapped)
   let finalHtml = htmlParts.join('');
-  for (let idx = 0; idx < tablePlaceholders.length; idx++) {
+  for (let idx = 0; idx < blockPlaceholders.length; idx++) {
     finalHtml = finalHtml.replace(
-      new RegExp(`___OASIS_TABLE_BLOCK_${idx}___`, 'g'),
-      () => tablePlaceholders[idx]
+      new RegExp(`___OASIS_BLOCK_${idx}___`, 'g'),
+      () => blockPlaceholders[idx]
     );
   }
 
-  // Strictly avoid h1 in article body to preserve 100-point SEO single-H1 score
+  // 6. Strictly avoid h1 in article body to preserve 100-point SEO single-H1 score
   finalHtml = finalHtml.replace(/<h1(\b[^>]*)>/gi, '<h2$1>').replace(/<\/h1>/gi, '</h2>');
 
-  return finalHtml;
+  // 7. Clean up redundant adjacent empty paragraph spacers
+  finalHtml = finalHtml.replace(/(?:<p[^>]*><br\s*\/?>\s*<\/p>\s*){3,}/gi, '<p><br></p><p><br></p>');
+
+  return finalHtml.trim();
 }
 
 /**
@@ -700,174 +843,87 @@ function inlineTagsToHtml(text: string): string {
 
 /**
  * Converts visual WYSIWYG HTML from contentEditable back into clean, portable post content.
- * 100% preserves HTML tables, custom formatting, styles, and tags!
+ * 100% PRESERVES user HTML, tables, styling, tags, and formatting without destructive stripping!
  */
 export function htmlToPostContent(htmlOrElement: HTMLElement | string): string {
-  let doc: Document;
+  if (!htmlOrElement) return '';
+
+  let container: HTMLElement;
 
   if (typeof htmlOrElement === 'string') {
     const parser = new DOMParser();
-    doc = parser.parseFromString(`<div>${htmlOrElement}</div>`, 'text/html');
+    const doc = parser.parseFromString(`<div>${htmlOrElement}</div>`, 'text/html');
+    container = (doc.body.firstElementChild || doc.body) as HTMLElement;
   } else {
-    doc = htmlOrElement.ownerDocument || document;
+    // Clone node so we never mutate the live visual editor DOM
+    container = htmlOrElement.cloneNode(true) as HTMLElement;
   }
 
-  const root = typeof htmlOrElement === 'string' ? doc.body.firstElementChild || doc.body : htmlOrElement;
-
-  const serializeNode = (node: Node): string => {
-    // 1. Text node
-    if (node.nodeType === Node.TEXT_NODE) {
-      return node.textContent || '';
+  // 1. Convert visual photo cards back to portable [사진N] shortcodes
+  const photoCards = container.querySelectorAll('.visual-photo-card, [data-photo-idx]');
+  photoCards.forEach((card) => {
+    const idx = card.getAttribute('data-photo-idx');
+    const photoNum = idx !== null ? Number(idx) + 1 : 1;
+    const placeholder = document.createTextNode(`\n\n[사진${photoNum}]\n\n`);
+    // Remove immediately following empty spacer paragraph if present
+    const nextEl = card.nextElementSibling;
+    if (nextEl && nextEl.tagName === 'P' && (nextEl.innerHTML === '<br>' || nextEl.innerHTML.trim() === '')) {
+      nextEl.remove();
     }
+    card.parentNode?.replaceChild(placeholder, card);
+  });
 
-    if (node.nodeType !== Node.ELEMENT_NODE) {
-      return '';
+  // 2. Convert visual map cards back to portable [지도:...] shortcodes
+  const mapCards = container.querySelectorAll('.visual-map-card, [data-map-title]');
+  mapCards.forEach((card) => {
+    const title = card.getAttribute('data-map-title') || card.getAttribute('data-map-query') || '';
+    const address = card.getAttribute('data-map-address') || '';
+    const nextEl = card.nextElementSibling;
+    if (nextEl && nextEl.tagName === 'P' && (nextEl.innerHTML === '<br>' || nextEl.innerHTML.trim() === '')) {
+      nextEl.remove();
     }
-
-    const el = node as HTMLElement;
-    const tagName = el.tagName.toUpperCase();
-
-    // Check Visual Photo Card -> serialize to portable [사진N] token
-    if (el.classList.contains('visual-photo-card') || el.hasAttribute('data-photo-idx')) {
-      const idx = el.getAttribute('data-photo-idx');
-      if (idx !== null) {
-        return `\n\n[사진${Number(idx) + 1}]\n\n`;
-      }
-      return '';
+    if (title) {
+      const placeholder = document.createTextNode(`\n\n[지도:${title}${address ? `|${address}` : ''}]\n\n`);
+      card.parentNode?.replaceChild(placeholder, card);
+    } else {
+      card.remove();
     }
+  });
 
-    // Check Visual Map Card -> serialize to portable [지도:...] token
-    if (el.classList.contains('visual-map-card') || el.hasAttribute('data-map-title')) {
-      const title = el.getAttribute('data-map-title') || el.getAttribute('data-map-query') || '';
-      const address = el.getAttribute('data-map-address') || '';
-      if (title) {
-        return `\n\n[지도:${title}${address ? `|${address}` : ''}]\n\n`;
-      }
-      return '';
+  // 3. Remove internal editor buttons or UI helpers if any slipped in
+  container.querySelectorAll('.delete-photo-btn, .delete-map-btn').forEach((btn) => btn.remove());
+
+  // 4. Remove internal decorative heading point bars so they never duplicate or stack on edits!
+  container.querySelectorAll('span.w-1\\.5.h-5, span.w-1\\.5.h-4, span[class*="rounded-full"][class*="shrink-0"]').forEach((el) => {
+    if (el.parentElement?.tagName === 'H2' || el.parentElement?.tagName === 'H3') {
+      el.remove();
     }
+  });
 
-    // 2. HTML Tables & Table Wrappers: PRESERVE EXACT HTML TABLE STRUCTURE
-    if (tagName === 'TABLE' || el.classList.contains('oasis-table-wrap') || el.classList.contains('table-responsive')) {
-      // Return entire table HTML cleanly
-      return `\n\n${el.outerHTML}\n\n`;
-    }
+  // 5. Clean up any trailing/leading empty paragraph artifacts & normalize browser-generated divs
+  let html = container.innerHTML;
 
-    // Process children
-    let inner = '';
-    for (let i = 0; i < el.childNodes.length; i++) {
-      inner += serializeNode(el.childNodes[i]);
-    }
+  // Normalize browser-generated <div><br></div> to clean <p><br></p>
+  html = html.replace(/<div><br\s*\/?><\/div>/gi, '<p><br></p>');
+  html = html.replace(/<p[^>]*>\s*<\/p>/gi, '<p><br></p>');
+  html = html.replace(/<div>\s*<\/div>/gi, '');
 
-    // Line breaks
-    if (tagName === 'BR') {
-      return '\n';
-    }
+  // Normalize excessive <p><br></p> occurrences
+  html = html.replace(/(?:<p[^>]*><br\s*\/?>\s*<\/p>\s*){3,}/gi, '<p><br></p><p><br></p>');
+  html = html.replace(/^(?:<p[^>]*><br\s*\/?>\s*<\/p>\s*)+/i, '');
+  html = html.replace(/(?:<p[^>]*><br\s*\/?>\s*<\/p>\s*)+$/i, '');
 
-    // Headings
-    if (tagName === 'H1' || tagName === 'H2') {
-      const clean = inner.trim();
-      return clean ? `\n\n## ${clean}\n\n` : '';
-    }
-    if (tagName === 'H3' || tagName === 'H4') {
-      const clean = inner.trim();
-      return clean ? `\n\n### ${clean}\n\n` : '';
-    }
-
-    // Blockquote
-    if (tagName === 'BLOCKQUOTE') {
-      const clean = inner.trim();
-      return clean ? `\n\n> ${clean}\n\n` : '';
-    }
-
-    // List item
-    if (tagName === 'LI') {
-      const clean = inner.trim();
-      return clean ? `\n- ${clean}\n` : '';
-    }
-
-    // Divider
-    if (tagName === 'HR') {
-      return '\n\n---\n\n';
-    }
-
-    // Highlights (MARK or amber highlight): PRESERVE AS REAL HTML <mark>
-    const bgColor = el.style.backgroundColor || '';
-    if (tagName === 'MARK' || el.classList.contains('bg-amber-200') || bgColor.includes('254') || bgColor.includes('yellow') || bgColor.includes('#fef08a')) {
-      return `<mark class="bg-amber-200 text-amber-950 px-1.5 py-0.5 rounded font-medium border border-amber-300/60">${inner}</mark>`;
-    }
-
-    // Colors: PRESERVE AS REAL HTML SPAN WITH STYLE
-    const color = (el.style.color || '').toLowerCase();
-    if (color) {
-      return `<span style="color: ${el.style.color}; font-weight: ${el.style.fontWeight || 'bold'};">${inner}</span>`;
-    }
-
-    // Weights
-    if (tagName === 'STRONG' || tagName === 'B' || el.style.fontWeight === 'bold' || el.style.fontWeight === '700') {
-      return `<strong>${inner}</strong>`;
-    }
-
-    // Underline
-    if (tagName === 'U' || el.style.textDecoration?.includes('underline')) {
-      return `<u class="underline decoration-[#30308A]/40 font-medium">${inner}</u>`;
-    }
-
-    // Italic / Em
-    if (tagName === 'EM' || tagName === 'I') {
-      return `<em>${inner}</em>`;
-    }
-
-    // Strikethrough
-    if (tagName === 'S' || tagName === 'DEL') {
-      return `<s>${inner}</s>`;
-    }
-
-    // Custom Styled Spans / Divs / Fonts (Font sizes, colors, text alignments, etc.)
-    if (tagName === 'SPAN' || tagName === 'FONT') {
-      const styleAttr = el.getAttribute('style') || '';
-      const classAttr = el.getAttribute('class') || '';
-      const sizeAttr = el.getAttribute('size');
-      const colorAttr = el.getAttribute('color');
-
-      let computedClass = classAttr;
-      let computedStyle = styleAttr;
-
-      if (tagName === 'FONT') {
-        if (sizeAttr === '5' || sizeAttr === '6' || sizeAttr === '7') {
-          computedClass = 'text-xl sm:text-2xl font-bold text-slate-900 inline-block my-1 leading-snug';
-        } else if (sizeAttr === '4') {
-          computedClass = 'text-base sm:text-lg font-semibold text-slate-800 inline-block my-0.5 leading-snug';
-        } else if (sizeAttr === '1' || sizeAttr === '2') {
-          computedClass = 'text-xs text-slate-500 inline-block';
-        }
-        if (colorAttr) {
-          computedStyle = (computedStyle ? `${computedStyle}; ` : '') + `color: ${colorAttr}`;
-        }
-      }
-
-      if (computedStyle || computedClass) {
-        return `<span ${computedStyle ? `style="${computedStyle}" ` : ''}${computedClass ? `class="${computedClass}"` : ''}>${inner}</span>`;
-      }
-      return inner;
-    }
-
-    // Paragraph / Div blocks
-    if (tagName === 'P' || tagName === 'DIV') {
-      const styleAttr = el.getAttribute('style');
-      if (styleAttr && styleAttr.includes('text-align')) {
-        return `\n<div style="${styleAttr}">${inner}</div>\n`;
-      }
-      return `\n${inner}\n`;
-    }
-
-    return inner;
-  };
-
-  const raw = serializeNode(root);
-
-  // Normalize excessive line breaks
-  return raw
-    .replace(/\r\n/g, '\n')
-    .replace(/\n{3,}/g, '\n\n')
-    .trim();
+  return html.trim();
 }
+
+/**
+ * Convenience helper to render post content to pristine viewer HTML
+ */
+export function renderPostContentToHtml(
+  content: string,
+  images: string[] = [],
+  defaultMap?: PostMapLocation
+): string {
+  return postContentToHtml(content, images, defaultMap, false /* viewer mode */);
+}
+

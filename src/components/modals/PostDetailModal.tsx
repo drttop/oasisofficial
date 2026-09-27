@@ -17,7 +17,7 @@ import {
   MapPin,
 } from 'lucide-react';
 import { getPostUrl } from '../../utils/seo';
-import { parsePostContent, FormattedPostContent } from '../../utils/postContent';
+import { isPhotoInContent, isMapInContent, FormattedPostContent } from '../../utils/postContent';
 import { GoogleMapEmbed } from '../community/GoogleMapEmbed';
 import { getOptimizedImageUrl } from '../../utils/imageOptimizer';
 
@@ -66,14 +66,13 @@ export const PostDetailModal: React.FC = () => {
       ? [selectedPost.thumbnail]
       : [];
 
-  // Parse body content for inline photos like [사진1], [사진2] and maps [지도:...]
-  const contentSegments = parsePostContent(selectedPost.content, displayImages, selectedPost.mapLocation);
+  // Detect which photos are placed inline in body with [사진1] ~ [사진6]
   const inlineImageIndices = new Set(
-    contentSegments
-      .filter((s) => s.type === 'image' && s.imageIndex !== undefined)
-      .map((s) => s.imageIndex as number)
+    displayImages
+      .map((_, idx) => (isPhotoInContent(selectedPost.content, idx) ? idx : -1))
+      .filter((idx) => idx !== -1)
   );
-  const hasInlineMap = contentSegments.some((s) => s.type === 'map');
+  const hasInlineMap = isMapInContent(selectedPost.content);
 
   // If NO photos were placed in the body with tags, show the top gallery
   const showTopGallery = inlineImageIndices.size === 0 && displayImages.length > 0;
@@ -235,65 +234,14 @@ export const PostDetailModal: React.FC = () => {
             </div>
           )}
 
-          {/* Body Content with Inline Photos Support */}
+          {/* Body Content with Full HTML, Tables, Inline Photos & Google Maps Support */}
           <div className="text-slate-800 text-sm sm:text-[15px] leading-relaxed space-y-4">
-            {contentSegments.map((segment, idx) => {
-              if (segment.type === 'text') {
-                return (
-                  <FormattedPostContent
-                    key={idx}
-                    content={segment.text || ''}
-                    className="whitespace-normal leading-relaxed"
-                  />
-                );
-              }
-
-              if (segment.type === 'image' && segment.imageUrl) {
-                return (
-                  <div
-                    key={idx}
-                    onClick={() => setZoomedImage(segment.imageUrl!)}
-                    className="my-5 group relative rounded-2xl overflow-hidden shadow-sm hover:shadow-md border border-slate-200 bg-slate-950 cursor-zoom-in transition-all"
-                  >
-                    <img
-                      src={getOptimizedImageUrl(segment.imageUrl, 1000, 80)}
-                      alt={`${selectedPost.title} - ${segment.imageLabel || '본문 사진'}`}
-                      className="w-full max-h-[440px] object-cover sm:object-contain bg-slate-950 group-hover:scale-[1.01] transition-transform duration-300"
-                      referrerPolicy="no-referrer"
-                      loading="lazy"
-                      decoding="async"
-                    />
-                    <div className="absolute top-3 left-3 flex items-center gap-1.5">
-                      <span className="px-2.5 py-1 rounded-lg bg-slate-900/85 backdrop-blur-sm text-white text-xs font-bold flex items-center gap-1.5 shadow border border-white/10">
-                        <ImageIcon className="w-3.5 h-3.5 text-[#E5B54F]" />
-                        {segment.imageLabel || '사진'}
-                      </span>
-                    </div>
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/25 transition-colors flex items-center justify-center">
-                      <span className="opacity-0 group-hover:opacity-100 transition-opacity px-3.5 py-2 rounded-xl bg-black/75 text-white text-xs font-bold flex items-center gap-2 backdrop-blur-sm shadow-lg border border-white/20">
-                        <Maximize2 className="w-4 h-4 text-[#E5B54F]" />
-                        클릭하여 사진 확대
-                      </span>
-                    </div>
-                  </div>
-                );
-              }
-
-              if (segment.type === 'map' && segment.mapQuery) {
-                return (
-                  <div key={idx} className="my-5">
-                    <GoogleMapEmbed
-                      query={segment.mapQuery}
-                      title={segment.mapTitle}
-                      address={segment.mapAddress}
-                      embedUrl={segment.mapEmbedUrl}
-                    />
-                  </div>
-                );
-              }
-
-              return null;
-            })}
+            <FormattedPostContent
+              content={selectedPost.content}
+              images={displayImages}
+              defaultMap={selectedPost.mapLocation}
+              onImageClick={(src) => setZoomedImage(src)}
+            />
           </div>
 
           {/* Dedicated Map Section if not placed inline */}

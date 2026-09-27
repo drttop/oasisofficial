@@ -3,9 +3,13 @@
 @layer base {
   html, body {
     font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
-    scroll-behavior: smooth;
     word-break: keep-all;
     overflow-wrap: break-word;
+    scroll-behavior: auto !important;
+  }
+
+  * {
+    scroll-behavior: auto !important;
   }
 
   h1, h2, h3, h4, h5, h6, p, span, a, button, li, div, label {
@@ -108,5 +112,52 @@
 .oasis-article-content tbody tr:hover td,
 .visual-editor-canvas tbody tr:hover td {
   background-color: #f1f5f9;
+}
+
+/* Article Headings Point Bar Styles (Pure CSS, prevents DOM span duplication) */
+.oasis-article-content h2,
+.visual-editor-canvas h2 {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin-top: 1.25rem;
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.oasis-article-content h2::before,
+.visual-editor-canvas h2::before {
+  content: '';
+  width: 0.375rem;
+  height: 1.25rem;
+  background-color: #30308A;
+  border-radius: 9999px;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.oasis-article-content h3,
+.visual-editor-canvas h3 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-top: 1rem;
+  margin-bottom: 0.35rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.oasis-article-content h3::before,
+.visual-editor-canvas h3::before {
+  content: '';
+  width: 0.375rem;
+  height: 1rem;
+  background-color: #E5B54F;
+  border-radius: 9999px;
+  display: inline-block;
+  flex-shrink: 0;
 }
 

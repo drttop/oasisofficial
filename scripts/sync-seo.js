@@ -129,7 +129,14 @@ async function syncSEO() {
     `  <!-- Community Individual Posts (${posts.length} entries) -->`,
     ...posts.map((post) => {
       const postDate = post.date || todayStr;
-      const thumb = post.thumbnail || 'https://oasis46.com/logo.jpg';
+      let thumb = post.thumbnail;
+      if (!thumb || !thumb.startsWith('http')) {
+        if (post.images && post.images.length > 0 && typeof post.images[0] === 'string' && post.images[0].startsWith('http')) {
+          thumb = post.images[0];
+        } else {
+          thumb = 'https://oasis46.com/logo.jpg';
+        }
+      }
       const cleanTitle = (post.title || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
       return `  <url>\n    <loc>https://oasis46.com/?post=${post.id}</loc>\n    <lastmod>${postDate}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.8</priority>\n    <image:image>\n      <image:loc>${thumb.replace(/&/g, '&amp;')}</image:loc>\n      <image:title>${cleanTitle}</image:title>\n    </image:image>\n  </url>`;
     })

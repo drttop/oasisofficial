@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useLayoutEffect } from 'react';
 import { useSite } from '../../context/SiteContext';
 import { PostItem } from '../../types';
 import {
@@ -25,7 +25,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { getPostUrl } from '../../utils/seo';
-import { parsePostContent, FormattedPostContent } from '../../utils/postContent';
+import { isPhotoInContent, isMapInContent, FormattedPostContent } from '../../utils/postContent';
 import { GoogleMapEmbed } from './GoogleMapEmbed';
 import { getOptimizedImageUrl } from '../../utils/imageOptimizer';
 
@@ -42,10 +42,10 @@ export const PostDetailPage: React.FC<PostDetailPageProps> = ({
   const [copied, setCopied] = useState(false);
   const [zoomedImage, setZoomedImage] = useState<string | null>(null);
 
-  // Scroll to top when post changes
-  useEffect(() => {
+  // Scroll to top instantly when post changes before paint
+  useLayoutEffect(() => {
     if (post?.id) {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
     }
   }, [post?.id]);
 
@@ -104,14 +104,13 @@ export const PostDetailPage: React.FC<PostDetailPageProps> = ({
       ? [post.thumbnail]
       : [];
 
-  // Parse body content for inline photos like [사진1], [사진2] and maps [지도:...]
-  const contentSegments = parsePostContent(post.content, displayImages, post.mapLocation);
+  // Detect which photos are placed inline in body with [사진1] ~ [사진6]
   const inlineImageIndices = new Set(
-    contentSegments
-      .filter((s) => s.type === 'image' && s.imageIndex !== undefined)
-      .map((s) => s.imageIndex as number)
+    displayImages
+      .map((_, idx) => (isPhotoInContent(post.content, idx) ? idx : -1))
+      .filter((idx) => idx !== -1)
   );
-  const hasInlineMap = contentSegments.some((s) => s.type === 'map');
+  const hasInlineMap = isMapInContent(post.content);
 
   // If NO photos were placed in the body with tags, show the top gallery
   const showTopGallery = inlineImageIndices.size === 0 && displayImages.length > 0;
@@ -310,65 +309,14 @@ export const PostDetailPage: React.FC<PostDetailPageProps> = ({
               </div>
             )}
 
-            {/* Body Content with Smart Inline Photo & Map Embedding */}
+            {/* Body Content with Full HTML, Tables, Inline Photos & Google Maps Support */}
             <div className="text-slate-800 text-sm sm:text-base leading-relaxed space-y-4 font-sans">
-              {contentSegments.map((segment, idx) => {
-                if (segment.type === 'text') {
-                  return (
-                    <FormattedPostContent
-                      key={idx}
-                      content={segment.text || ''}
-                      className="whitespace-normal leading-relaxed"
-                    />
-                  );
-                }
-
-                if (segment.type === 'image' && segment.imageUrl) {
-                  return (
-                    <div
-                      key={idx}
-                      onClick={() => setZoomedImage(segment.imageUrl!)}
-                      className="my-6 group relative rounded-2xl overflow-hidden shadow-sm hover:shadow-md border border-slate-200 bg-slate-950 cursor-zoom-in transition-all flex items-center justify-center p-1 sm:p-2"
-                    >
-                      <img
-                        src={segment.imageUrl}
-                        alt={`${post.title} - ${segment.imageLabel || '본문 사진'}`}
-                        className="w-full h-auto max-h-[620px] object-contain mx-auto rounded-xl group-hover:scale-[1.01] transition-transform duration-300"
-                        referrerPolicy="no-referrer"
-                        loading="lazy"
-                        decoding="async"
-                      />
-                      <div className="absolute top-3 left-3 flex items-center gap-1.5">
-                        <span className="px-2.5 py-1 rounded-lg bg-slate-900/85 backdrop-blur-sm text-white text-xs font-bold flex items-center gap-1.5 shadow border border-white/10">
-                          <ImageIcon className="w-3.5 h-3.5 text-[#E5B54F]" />
-                          {segment.imageLabel || '사진'}
-                        </span>
-                      </div>
-                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/25 transition-colors flex items-center justify-center pointer-events-none">
-                        <span className="opacity-0 group-hover:opacity-100 transition-opacity px-3.5 py-2 rounded-xl bg-black/75 text-white text-xs font-bold flex items-center gap-2 backdrop-blur-sm shadow-lg border border-white/20">
-                          <Maximize2 className="w-4 h-4 text-[#E5B54F]" />
-                          클릭하여 사진 확대
-                        </span>
-                      </div>
-                    </div>
-                  );
-                }
-
-                if (segment.type === 'map' && segment.mapQuery) {
-                  return (
-                    <div key={idx} className="my-6">
-                      <GoogleMapEmbed
-                        query={segment.mapQuery}
-                        title={segment.mapTitle}
-                        address={segment.mapAddress}
-                        embedUrl={segment.mapEmbedUrl}
-                      />
-                    </div>
-                  );
-                }
-
-                return null;
-              })}
+              <FormattedPostContent
+                content={post.content}
+                images={displayImages}
+                defaultMap={post.mapLocation}
+                onImageClick={(src) => setZoomedImage(src)}
+              />
             </div>
 
             {/* Dedicated Google Map Section if not placed inline in text */}
@@ -544,7 +492,7 @@ export const PostDetailPage: React.FC<PostDetailPageProps> = ({
 
               <button
                 type="button"
-                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                onClick={() => window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior })}
                 className="px-4 py-2.5 rounded-xl bg-white hover:bg-slate-100 text-slate-700 text-xs sm:text-sm font-bold border border-slate-200 flex items-center gap-1.5 transition-colors cursor-pointer"
               >
                 <ArrowUp className="w-3.5 h-3.5 text-slate-500" />

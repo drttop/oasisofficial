@@ -28,6 +28,7 @@ import {
   Sliders,
   Check,
   Table,
+  Code2,
 } from 'lucide-react';
 import { compressImageFile, optimizeDataUrl, optimizePostImages, createMiniThumbnail } from '../../utils/imageUpload';
 import { GoogleMapEmbed } from './GoogleMapEmbed';
@@ -125,15 +126,65 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
       node.innerHTML = postContentToHtml(
         initialBody,
         initialImgs,
-        postToEdit?.mapLocation
+        postToEdit?.mapLocation,
+        true /* isEditorMode */
       );
       isInitializedRef.current = true;
     }
   };
 
+  // Mode switcher handler with clean 2-way synchronization
+  const handleSwitchMode = (newMode: 'visual' | 'code' | 'preview') => {
+    if (newMode === editorMode) return;
+
+    let currentWorkingContent = content;
+
+    if (editorMode === 'visual') {
+      if (editorRef.current) {
+        currentWorkingContent = htmlToPostContent(editorRef.current);
+        setContent(currentWorkingContent);
+      }
+    } else if (editorMode === 'code') {
+      if (rawTextareaRef.current) {
+        currentWorkingContent = rawTextareaRef.current.value;
+        setContent(currentWorkingContent);
+      }
+    }
+
+    if (newMode === 'visual') {
+      if (editorRef.current) {
+        editorRef.current.innerHTML = postContentToHtml(
+          currentWorkingContent,
+          images,
+          hasAttachedMap ? { title: mapTitle, address: mapAddress, query: mapQuery } : undefined,
+          true /* isEditorMode */
+        );
+      }
+    }
+
+    setEditorMode(newMode);
+  };
+
+  // Helper to insert code snippets into raw HTML textarea
+  const insertCodeSnippet = (startTag: string, endTag: string = '') => {
+    const textarea = rawTextareaRef.current;
+    if (!textarea) return;
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const currentVal = textarea.value;
+    const selectedText = currentVal.substring(start, end);
+    const replacement = `${startTag}${selectedText}${endTag}`;
+    const nextVal = currentVal.substring(0, start) + replacement + currentVal.substring(end);
+    setContent(nextVal);
+    setTimeout(() => {
+      textarea.focus();
+      textarea.setSelectionRange(start + startTag.length, start + startTag.length + selectedText.length);
+    }, 0);
+  };
+
   // Scroll to top on mount
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
   }, []);
 
   // Save current selection range in the visual editor
@@ -223,7 +274,8 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
         editorRef.current.innerHTML = postContentToHtml(
           postToEdit.content,
           postImages,
-          postToEdit.mapLocation
+          postToEdit.mapLocation,
+          true /* isEditorMode */
         );
         isInitializedRef.current = true;
       }
@@ -249,20 +301,24 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
     }
   }, [postToEdit?.id]);
 
-  // Keep editorRef innerHTML in sync ONLY when user switches from code mode back to visual mode
+  // Keep editorRef innerHTML in sync if editorMode changes externally
   useEffect(() => {
     const prevMode = prevEditorModeRef.current;
     prevEditorModeRef.current = editorMode;
 
-    // Do nothing on initial mount or when mode hasn't changed
     if (prevMode === editorMode) return;
 
     if (editorMode === 'visual' && editorRef.current) {
-      editorRef.current.innerHTML = postContentToHtml(content, images, {
-        title: mapTitle,
-        address: mapAddress,
-        query: mapQuery,
-      });
+      editorRef.current.innerHTML = postContentToHtml(
+        content,
+        images,
+        {
+          title: mapTitle,
+          address: mapAddress,
+          query: mapQuery,
+        },
+        true /* isEditorMode */
+      );
     }
   }, [editorMode]);
 
@@ -410,7 +466,7 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
     if (editorRef.current) {
       const existing = editorRef.current.querySelector(`.visual-photo-card[data-photo-idx="${photoIndex}"]`);
       if (existing) {
-        existing.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        existing.scrollIntoView({ behavior: 'instant' as ScrollBehavior, block: 'center' });
         return;
       }
     }
@@ -669,6 +725,39 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
         document.execCommand('formatBlock', false, '<p>');
         break;
 
+      case 'table': {
+        const tableHtml = `<div class="oasis-table-wrap overflow-x-auto my-4 max-w-full">
+  <table class="oasis-table min-w-full border-collapse border border-slate-300 rounded-xl overflow-hidden text-sm">
+    <thead>
+      <tr class="bg-slate-100 text-slate-800 font-bold">
+        <th class="border border-slate-300 px-4 py-2.5 text-left bg-slate-100 text-slate-800 font-bold">구분</th>
+        <th class="border border-slate-300 px-4 py-2.5 text-left bg-slate-100 text-slate-800 font-bold">제공 혜택 및 상세 내용</th>
+        <th class="border border-slate-300 px-4 py-2.5 text-left bg-slate-100 text-slate-800 font-bold">비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="border border-slate-300 px-4 py-2.5 font-bold text-slate-900">VIP 전용 살롱</td>
+        <td class="border border-slate-300 px-4 py-2.5">프라이빗 룸 배정 및 한국인 전담 실장 에스코트</td>
+        <td class="border border-slate-300 px-4 py-2.5 font-bold text-[#b8860b]">최대 1.5%</td>
+      </tr>
+      <tr class="bg-slate-50">
+        <td class="border border-slate-300 px-4 py-2.5 font-bold text-slate-900">5성급 스위트룸</td>
+        <td class="border border-slate-300 px-4 py-2.5">오카다 / 솔레어 / 한 카지노 스위트 무료 바우처</td>
+        <td class="border border-slate-300 px-4 py-2.5 font-bold text-[#30308A]">전액 지원</td>
+      </tr>
+      <tr>
+        <td class="border border-slate-300 px-4 py-2.5 font-bold text-slate-900">공항 패스트트랙</td>
+        <td class="border border-slate-300 px-4 py-2.5">입출국 패스트트랙 통과 및 최고급 리무진 단독 픽업</td>
+        <td class="border border-slate-300 px-4 py-2.5 font-bold text-emerald-600">무료 제공</td>
+      </tr>
+    </tbody>
+  </table>
+</div><p><br></p>`;
+        document.execCommand('insertHTML', false, tableHtml);
+        break;
+      }
+
       default:
         break;
     }
@@ -777,6 +866,9 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
     let finalContent = content;
     if (editorMode === 'visual' && editorRef.current) {
       finalContent = htmlToPostContent(editorRef.current);
+      setContent(finalContent);
+    } else if (editorMode === 'code' && rawTextareaRef.current) {
+      finalContent = rawTextareaRef.current.value;
       setContent(finalContent);
     }
 
@@ -891,11 +983,11 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
 
           {/* Right: Mode Switcher, Cancel & Primary Save Button */}
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-            {/* Editor Mode Selector */}
-            <div className="inline-flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200/80 text-xs font-bold">
+            {/* Editor Mode Selector: Visual WYSIWYG vs HTML Tag Code vs Preview */}
+            <div className="inline-flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200/80 text-xs font-bold gap-1">
               <button
                 type="button"
-                onClick={() => setEditorMode('visual')}
+                onClick={() => handleSwitchMode('visual')}
                 className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
                   editorMode === 'visual'
                     ? 'bg-white text-[#30308A] shadow-xs'
@@ -912,10 +1004,21 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
 
               <button
                 type="button"
-                onClick={() => {
-                  syncContentFromVisual();
-                  setEditorMode('preview');
-                }}
+                onClick={() => handleSwitchMode('code')}
+                className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
+                  editorMode === 'code'
+                    ? 'bg-white text-[#30308A] shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+                title="HTML 소스 코드 및 태그 직접 편집 모드 (HTML 기반 글 작성 및 수정)"
+              >
+                <Code2 className="w-3.5 h-3.5 text-[#30308A]" />
+                <span className="font-extrabold">HTML / 태그 편집</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleSwitchMode('preview')}
                 className={`px-2.5 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1 ${
                   editorMode === 'preview'
                     ? 'bg-white text-[#30308A] shadow-xs'
@@ -1357,12 +1460,17 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
                   <span className="text-red-500">*</span>
                   {editorMode === 'visual' && (
                     <span className="text-[11px] text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded font-bold">
-                      실시간 비주얼 에디터 (본문 독립 스크롤)
+                      실시간 비주얼 에디터
                     </span>
                   )}
                   {editorMode === 'code' && (
-                    <span className="text-[11px] text-slate-500 bg-slate-100 px-2 py-0.5 rounded font-bold">
-                      태그 직접 편집 모드
+                    <span className="text-[11px] text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded font-bold">
+                      HTML / 태그 직접 편집 모드
+                    </span>
+                  )}
+                  {editorMode === 'preview' && (
+                    <span className="text-[11px] text-purple-700 bg-purple-50 px-2 py-0.5 rounded font-bold">
+                      발행 상태 미리보기
                     </span>
                   )}
                 </label>
@@ -1375,7 +1483,7 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
               </div>
 
               {/* 1. VISUAL WYSIWYG EDITOR (Primary Real-time Canvas) */}
-              {editorMode === 'visual' && (
+              <div className={editorMode === 'visual' ? 'block' : 'hidden'}>
                 <div
                   ref={setEditorElement}
                   contentEditable
@@ -1392,22 +1500,41 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
                   data-placeholder="이곳에 내용을 자유롭게 작성하세요. 상단 툴바의 글자 크기(대/중/보통/소), 굵게(B), 형광펜, 표 삽입, 사진 넣기는 항상 상단에 고정되어 있으며 본문만 자유롭게 스크롤됩니다..."
                   className="oasis-article-content visual-editor-canvas w-full min-h-[360px] outline-none text-slate-800 text-base leading-relaxed empty:before:content-[attr(data-placeholder)] empty:before:text-slate-300 empty:before:pointer-events-none [&_h2]:text-xl [&_h2]:sm:text-2xl [&_h2]:font-bold [&_h2]:text-slate-900 [&_h2]:mt-4 [&_h2]:mb-2 [&_h2]:pb-1 [&_h2]:border-b [&_h2]:border-slate-100 [&_h3]:text-lg [&_h3]:sm:text-xl [&_h3]:font-bold [&_h3]:text-slate-900 [&_h3]:mt-3 [&_h3]:mb-1.5 [&_blockquote]:my-3 [&_blockquote]:pl-4 [&_blockquote]:py-2 [&_blockquote]:border-l-4 [&_blockquote]:border-[#30308A] [&_blockquote]:bg-slate-50 [&_blockquote]:text-slate-700 [&_blockquote]:italic [&_blockquote]:rounded-r-lg [&_blockquote]:font-medium [&_ul]:list-disc [&_ul]:ml-6 [&_ul]:my-2 [&_mark]:bg-amber-200 [&_mark]:text-amber-950 [&_mark]:px-1.5 [&_mark]:py-0.5 [&_mark]:rounded [&_mark]:font-medium [&_mark]:border [&_mark]:border-amber-300/60"
                 />
-              )}
+              </div>
 
-              {/* 2. RAW CODE / TAG MODE (For power users) */}
-              {editorMode === 'code' && (
+              {/* 2. RAW HTML CODE / TAG MODE (For power users & HTML posts) */}
+              <div className={editorMode === 'code' ? 'block space-y-2.5' : 'hidden'}>
+                {/* HTML Tag Quick Helper Bar */}
+                <div className="flex flex-wrap items-center gap-1.5 p-2 bg-slate-900 rounded-xl border border-slate-700 text-xs">
+                  <span className="text-[11px] font-bold text-slate-400 mr-1 flex items-center gap-1">
+                    <Code2 className="w-3.5 h-3.5 text-emerald-400" />
+                    태그 빠른 삽입:
+                  </span>
+                  <button type="button" onClick={() => insertCodeSnippet('<p class="my-2 leading-relaxed">', '</p>')} className="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-emerald-300 font-mono text-xs cursor-pointer border border-slate-700">&lt;p&gt;</button>
+                  <button type="button" onClick={() => insertCodeSnippet('<h2 class="text-xl font-bold my-3 pb-1 border-b border-slate-100">', '</h2>')} className="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-emerald-300 font-mono text-xs cursor-pointer border border-slate-700">&lt;h2&gt;</button>
+                  <button type="button" onClick={() => insertCodeSnippet('<h3 class="text-lg font-bold my-2">', '</h3>')} className="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-emerald-300 font-mono text-xs cursor-pointer border border-slate-700">&lt;h3&gt;</button>
+                  <button type="button" onClick={() => insertCodeSnippet('<strong>', '</strong>')} className="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-emerald-300 font-mono text-xs cursor-pointer border border-slate-700">&lt;b/strong&gt;</button>
+                  <button type="button" onClick={() => insertCodeSnippet('<mark class="bg-amber-200 text-amber-950 px-1.5 py-0.5 rounded font-medium">', '</mark>')} className="px-2 py-0.5 rounded bg-amber-950/80 hover:bg-amber-900 text-amber-300 font-mono text-xs cursor-pointer border border-amber-800/60">&lt;형광펜&gt;</button>
+                  <button type="button" onClick={() => insertCodeSnippet('<div class="oasis-table-wrap overflow-x-auto my-4 max-w-full">\n  <table class="oasis-table min-w-full border-collapse border border-slate-300 rounded-xl text-sm">\n    <thead>\n      <tr class="bg-slate-100 font-bold">\n        <th class="border border-slate-300 px-4 py-2">구분</th>\n        <th class="border border-slate-300 px-4 py-2">세부 내용</th>\n      </tr>\n    </thead>\n    <tbody>\n      <tr>\n        <td class="border border-slate-300 px-4 py-2 font-bold">항목</td>\n        <td class="border border-slate-300 px-4 py-2">상세 설명</td>\n      </tr>\n    </tbody>\n  </table>\n</div>\n', '')} className="px-2 py-0.5 rounded bg-indigo-950 hover:bg-indigo-900 text-indigo-300 font-mono text-xs cursor-pointer border border-indigo-800/60">&lt;table 표&gt;</button>
+                  <button type="button" onClick={() => insertCodeSnippet('<blockquote class="my-3 pl-4 py-2 border-l-4 border-[#30308A] bg-slate-50 text-slate-700 italic rounded-r-lg font-medium">', '</blockquote>')} className="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-mono text-xs cursor-pointer border border-slate-700">&lt;인용구&gt;</button>
+                  {images.length > 0 && (
+                    <button type="button" onClick={() => insertCodeSnippet('[사진1]', '')} className="px-2 py-0.5 rounded bg-emerald-950 hover:bg-emerald-900 text-emerald-300 font-mono text-xs cursor-pointer border border-emerald-800/60">[사진1]</button>
+                  )}
+                  <button type="button" onClick={() => insertCodeSnippet('[지도:오카다 마닐라]', '')} className="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-amber-300 font-mono text-xs cursor-pointer border border-slate-700">[지도]</button>
+                </div>
+
                 <textarea
                   ref={rawTextareaRef}
                   rows={20}
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
-                  placeholder="본문 내용을 입력하세요..."
-                  className="w-full h-full min-h-[360px] p-4 rounded-xl bg-slate-900 text-emerald-400 font-mono text-sm leading-relaxed border border-slate-700 outline-none resize-none shadow-inner"
+                  placeholder="이곳에 HTML 코드나 본문 내용을 자유롭게 입력하세요. <table>, <div>, <p>, <span> 등 모든 태그가 지원됩니다..."
+                  className="w-full h-full min-h-[380px] p-4 rounded-2xl bg-slate-900 text-emerald-400 font-mono text-sm leading-relaxed border border-slate-700 outline-none resize-none shadow-inner focus:border-emerald-500 transition-colors"
                 />
-              )}
+              </div>
 
               {/* 3. FULL ARTICLE PREVIEW (Simulates public post detail layout) */}
-              {editorMode === 'preview' && (
+              <div className={editorMode === 'preview' ? 'block' : 'hidden'}>
                 <div className="w-full min-h-[360px] p-4 sm:p-6 rounded-2xl bg-white border border-slate-200 space-y-6">
                   <div className="border-b border-slate-100 pb-4">
                     <span className="inline-block px-2.5 py-1 rounded-full text-xs font-bold bg-[#30308A]/10 text-[#30308A] mb-2">
@@ -1424,40 +1551,27 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
                   </div>
 
                   <div className="space-y-4">
-                    {parsePostContent(
-                      content,
-                      images,
-                      hasAttachedMap ? { title: mapTitle, address: mapAddress, query: mapQuery } : undefined
-                    ).map((seg, idx) => {
-                      if (seg.type === 'text') {
-                        return <FormattedPostContent key={idx} content={seg.text || ''} />;
-                      }
-                      if (seg.type === 'image' && seg.imageUrl) {
-                        return (
-                          <div key={idx} className="my-4 rounded-2xl overflow-hidden border border-slate-200 shadow-sm">
-                            <img src={seg.imageUrl} alt="사진" className="w-full max-h-96 object-contain bg-slate-950/5 mx-auto" />
-                          </div>
-                        );
-                      }
-                      if (seg.type === 'map' && seg.mapQuery) {
-                        return (
-                          <div key={idx} className="my-4">
-                            <GoogleMapEmbed query={seg.mapQuery} title={seg.mapTitle} address={seg.mapAddress} />
-                          </div>
-                        );
-                      }
-                      return null;
-                    })}
+                    <FormattedPostContent
+                      content={content}
+                      images={images}
+                      defaultMap={hasAttachedMap ? { title: mapTitle, address: mapAddress, query: mapQuery } : undefined}
+                    />
                   </div>
                 </div>
-              )}
+              </div>
             </div>
 
             {/* Bottom Quick Tips (Fixed at bottom of left canvas) */}
             <div className="px-4 sm:px-6 py-2.5 bg-slate-50/90 border-t border-slate-200/80 shrink-0 text-xs text-slate-500 flex flex-wrap items-center justify-between gap-2">
               <div className="flex items-center gap-2">
-                <span className="font-bold text-slate-700">💡 위지윅 팁:</span>
-                <span>상단 툴바에서 <strong>글자 크기(대/중/보통/소)</strong>와 <strong>굵게/형광펜</strong>을 언제든지 바로 적용할 수 있습니다.</span>
+                <span className="font-bold text-slate-700">💡 {editorMode === 'code' ? 'HTML 모드:' : editorMode === 'preview' ? '미리보기:' : '위지윅 팁:'}</span>
+                {editorMode === 'code' ? (
+                  <span>작성하신 <strong>HTML 태그(&lt;table&gt;, &lt;p&gt;, &lt;div&gt;, &lt;b&gt; 등)</strong>가 원본 그대로 100% 안전하게 저장 및 렌더링됩니다.</span>
+                ) : editorMode === 'preview' ? (
+                  <span>실제 사이트에서 회원들에게 표시되는 화면과 100% 동일하게 렌더링됩니다.</span>
+                ) : (
+                  <span>상단 툴바에서 <strong>글자 크기(대/중/보통/소)</strong>, <strong>굵게/형광펜</strong>, <strong>표 삽입</strong>을 언제든지 바로 적용할 수 있습니다.</span>
+                )}
               </div>
               <div className="text-slate-400 hidden sm:block">
                 본문 영역만 단독으로 스크롤됩니다.

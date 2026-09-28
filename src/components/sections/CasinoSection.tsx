@@ -52,7 +52,8 @@ export const CasinoSection: React.FC = () => {
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     referrerPolicy="no-referrer"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent" />
+                  {/* Desktop Only: subtle gradient overlay for readability of hotel name */}
+                  <div className="hidden sm:block absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent" />
                   
                   {/* Badges */}
                   <div className="absolute top-2 left-2 sm:top-3 sm:left-3 flex gap-1 sm:gap-1.5 flex-wrap items-center">
@@ -68,31 +69,37 @@ export const CasinoSection: React.FC = () => {
                     )}
                   </div>
 
-                  <div className="absolute bottom-2 left-2 right-2 sm:bottom-3 sm:left-4 sm:right-4 text-white">
-                    <h3 className="text-xs min-[360px]:text-sm sm:text-xl font-bold tracking-tight text-white drop-shadow truncate">
+                  {/* Desktop Only: Hotel Name overlay on Image (English name removed) */}
+                  <div className="hidden sm:block absolute bottom-3 sm:left-4 sm:right-4 text-white">
+                    <h3 className="text-xl font-bold tracking-tight text-white drop-shadow truncate">
                       {casino.name}
                     </h3>
-                    <p className="text-[9px] sm:text-xs text-slate-300 font-montserrat truncate">
-                      {casino.englishName}
-                    </p>
                   </div>
                 </div>
 
                 {/* Card Body */}
                 <div className="p-2.5 sm:p-6 flex-1 flex flex-col justify-between space-y-2 sm:space-y-4">
-                  <p className="text-[11px] sm:text-xs sm:text-sm text-slate-600 line-clamp-2 leading-relaxed">
+                  {/* Mobile Only: Hotel Name placed in description area with larger font size */}
+                  <div className="block sm:hidden">
+                    <h3 className="text-sm min-[360px]:text-[15px] min-[400px]:text-base font-extrabold text-slate-900 tracking-tight leading-snug line-clamp-1">
+                      {casino.name}
+                    </h3>
+                  </div>
+
+                  {/* Hotel Description: Deleted on Mobile, Visible on Desktop (hidden sm:block) */}
+                  <p className="hidden sm:block text-xs sm:text-sm text-slate-600 line-clamp-2 leading-relaxed">
                     {casino.description}
                   </p>
 
-                  {/* Specs List */}
+                  {/* Specs List: Hotel Rating on the line above Gaming, both left-aligned */}
                   <div className="space-y-1 sm:space-y-2 text-[10px] sm:text-xs border-y border-slate-100 py-1.5 sm:py-3">
-                    <div className="flex justify-between items-center text-slate-700">
-                      <span className="text-slate-500">호텔 등급</span>
-                      <span className="font-bold text-slate-900">{casino.hotelRating}</span>
+                    <div className="flex items-center gap-1.5 sm:gap-2 text-slate-700">
+                      <span className="text-slate-500 shrink-0 font-medium">호텔 등급</span>
+                      <span className="font-bold text-slate-900 truncate text-left">{casino.hotelRating}</span>
                     </div>
-                    <div className="flex justify-between items-center text-slate-700">
-                      <span className="text-slate-500">게이밍</span>
-                      <span className="font-bold text-slate-900 truncate max-w-[80px] sm:max-w-none text-right">{casino.tableGames}</span>
+                    <div className="flex items-center gap-1.5 sm:gap-2 text-slate-700">
+                      <span className="text-slate-500 shrink-0 font-medium">게이밍</span>
+                      <span className="font-bold text-slate-900 truncate text-left">{casino.tableGames}</span>
                     </div>
                   </div>
 

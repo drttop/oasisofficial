@@ -594,6 +594,28 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
     editorRef.current.focus();
     restoreSelection();
 
+    const setBlock = (tag: string) => {
+      const blockTag = tag.startsWith('<') ? tag : `<${tag}>`;
+      try {
+        document.execCommand('formatBlock', false, blockTag);
+      } catch {
+        try {
+          document.execCommand('formatBlock', false, tag);
+        } catch {}
+      }
+    };
+
+    const getCurrentBlockTag = (): string => {
+      const sel = window.getSelection();
+      if (!sel || sel.rangeCount === 0) return '';
+      const node = sel.getRangeAt(0).commonAncestorContainer;
+      const el = node.nodeType === 1 ? (node as HTMLElement) : node.parentElement;
+      return el?.closest('h1, h2, h3, h4, h5, h6, p, blockquote, ul, ol, div')?.tagName.toLowerCase() || '';
+    };
+
+    const sel = window.getSelection();
+    const hasSelection = !!(sel && !sel.isCollapsed && sel.rangeCount > 0);
+
     switch (type) {
       case 'bold':
         document.execCommand('bold', false);
@@ -604,98 +626,87 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
         break;
 
       case 'size-lg': {
-        const sel = window.getSelection();
-        if (sel && !sel.isCollapsed && sel.rangeCount > 0) {
-          const range = sel.getRangeAt(0);
-          const span = document.createElement('span');
-          span.className = 'text-xl sm:text-2xl font-bold text-slate-900 inline-block my-1 leading-snug';
-          try {
-            const contents = range.extractContents();
-            span.appendChild(contents);
-            range.insertNode(span);
-          } catch {
-            document.execCommand('formatBlock', false, '<h2>');
-          }
+        if (hasSelection) {
+          document.execCommand('fontSize', false, '5');
         } else {
-          document.execCommand('formatBlock', false, '<h2>');
+          const currentTag = getCurrentBlockTag();
+          if (currentTag === 'h2') {
+            setBlock('p');
+          } else {
+            setBlock('h2');
+          }
         }
         break;
       }
 
       case 'size-md': {
-        const sel = window.getSelection();
-        if (sel && !sel.isCollapsed && sel.rangeCount > 0) {
-          const range = sel.getRangeAt(0);
-          const span = document.createElement('span');
-          span.className = 'text-base sm:text-lg font-semibold text-slate-800 inline-block my-0.5 leading-snug';
-          try {
-            const contents = range.extractContents();
-            span.appendChild(contents);
-            range.insertNode(span);
-          } catch {
-            document.execCommand('formatBlock', false, '<h3>');
-          }
+        if (hasSelection) {
+          document.execCommand('fontSize', false, '4');
         } else {
-          document.execCommand('formatBlock', false, '<h3>');
+          const currentTag = getCurrentBlockTag();
+          if (currentTag === 'h3') {
+            setBlock('p');
+          } else {
+            setBlock('h3');
+          }
         }
         break;
       }
 
       case 'size-normal': {
-        const sel = window.getSelection();
-        if (sel && !sel.isCollapsed && sel.rangeCount > 0) {
-          const range = sel.getRangeAt(0);
-          const span = document.createElement('span');
-          span.className = 'text-sm sm:text-base font-normal text-slate-800 leading-relaxed';
-          try {
-            const contents = range.extractContents();
-            span.appendChild(contents);
-            range.insertNode(span);
-          } catch {
-            document.execCommand('formatBlock', false, '<p>');
-          }
+        if (hasSelection) {
+          document.execCommand('fontSize', false, '3');
         } else {
-          document.execCommand('formatBlock', false, '<p>');
+          setBlock('p');
         }
         break;
       }
 
       case 'size-sm': {
-        const sel = window.getSelection();
-        if (sel && !sel.isCollapsed && sel.rangeCount > 0) {
-          const range = sel.getRangeAt(0);
-          const span = document.createElement('span');
-          span.className = 'text-xs text-slate-500 leading-normal inline-block';
-          try {
-            const contents = range.extractContents();
-            span.appendChild(contents);
-            range.insertNode(span);
-          } catch {
-            // fallback
-          }
+        if (hasSelection) {
+          document.execCommand('fontSize', false, '2');
+        } else {
+          document.execCommand('fontSize', false, '2');
         }
         break;
       }
 
       case 'highlight': {
-        const sel = window.getSelection();
-        if (sel && !sel.isCollapsed && sel.rangeCount > 0) {
-          const range = sel.getRangeAt(0);
-          const mark = document.createElement('mark');
-          mark.className = 'bg-amber-200 text-amber-950 px-1.5 py-0.5 rounded font-medium border border-amber-300/60';
-          try {
-            const contents = range.extractContents();
-            mark.appendChild(contents);
-            range.insertNode(mark);
-            sel.removeAllRanges();
-            const newRange = document.createRange();
-            newRange.selectNodeContents(mark);
-            sel.addRange(newRange);
-          } catch {
-            document.execCommand('hiliteColor', false, '#fef08a');
+        if (hasSelection) {
+          const range = sel!.getRangeAt(0);
+          const parentMark = (range.commonAncestorContainer.nodeType === 1
+            ? (range.commonAncestorContainer as HTMLElement)
+            : range.commonAncestorContainer.parentElement)?.closest('mark, span[style*="background-color"]');
+
+          if (parentMark) {
+            const textNode = document.createTextNode(parentMark.textContent || '');
+            parentMark.parentNode?.replaceChild(textNode, parentMark);
+          } else {
+            let success = false;
+            try {
+              success = document.execCommand('hiliteColor', false, '#fef08a');
+            } catch {}
+            if (!success) {
+              try {
+                success = document.execCommand('backColor', false, '#fef08a');
+              } catch {}
+            }
+            if (!success) {
+              const mark = document.createElement('mark');
+              mark.className = 'bg-amber-200 text-amber-950 px-1 py-0.5 rounded font-medium border border-amber-300/60';
+              try {
+                const contents = range.extractContents();
+                mark.appendChild(contents);
+                range.insertNode(mark);
+              } catch {}
+            }
           }
         } else {
-          document.execCommand('hiliteColor', false, '#fef08a');
+          try {
+            document.execCommand('hiliteColor', false, '#fef08a');
+          } catch {
+            document.execCommand('backColor', false, '#fef08a');
+          }
         }
         break;
       }
@@ -708,9 +719,15 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
         document.execCommand('foreColor', false, '#30308A');
         break;
 
-      case 'quote':
-        document.execCommand('formatBlock', false, '<blockquote>');
+      case 'quote': {
+        const currentTag = getCurrentBlockTag();
+        if (currentTag === 'blockquote') {
+          setBlock('p');
+        } else {
+          setBlock('blockquote');
+        }
         break;
+      }
 
       case 'bullet':
         document.execCommand('insertUnorderedList', false);
@@ -720,41 +737,26 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
         document.execCommand('insertHorizontalRule', false);
         break;
 
-      case 'clear':
+      case 'clear': {
         document.execCommand('removeFormat', false);
-        document.execCommand('formatBlock', false, '<p>');
+        setBlock('p');
+        if (sel && sel.rangeCount > 0) {
+          const range = sel.getRangeAt(0);
+          const container = range.commonAncestorContainer;
+          const parentEl = container.nodeType === 1 ? (container as HTMLElement) : container.parentElement;
+          if (parentEl && editorRef.current?.contains(parentEl)) {
+            const styledParent = parentEl.closest('mark, font, span[style], span[class*="text-"], span[class*="oasis-"]');
+            if (styledParent && styledParent !== editorRef.current) {
+              const textNode = document.createTextNode(styledParent.textContent || '');
+              styledParent.parentNode?.replaceChild(textNode, styledParent);
+            }
+          }
+        }
         break;
+      }
 
       case 'table': {
-        const tableHtml = `<div class="oasis-table-wrap overflow-x-auto my-4 max-w-full">
-  <table class="oasis-table min-w-full border-collapse border border-slate-300 rounded-xl overflow-hidden text-sm">
-    <thead>
-      <tr class="bg-slate-100 text-slate-800 font-bold">
-        <th class="border border-slate-300 px-4 py-2.5 text-left bg-slate-100 text-slate-800 font-bold">구분</th>
-        <th class="border border-slate-300 px-4 py-2.5 text-left bg-slate-100 text-slate-800 font-bold">제공 혜택 및 상세 내용</th>
-        <th class="border border-slate-300 px-4 py-2.5 text-left bg-slate-100 text-slate-800 font-bold">비고</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td class="border border-slate-300 px-4 py-2.5 font-bold text-slate-900">VIP 전용 살롱</td>
-        <td class="border border-slate-300 px-4 py-2.5">프라이빗 룸 배정 및 한국인 전담 실장 에스코트</td>
-        <td class="border border-slate-300 px-4 py-2.5 font-bold text-[#b8860b]">최대 1.5%</td>
-      </tr>
-      <tr class="bg-slate-50">
-        <td class="border border-slate-300 px-4 py-2.5 font-bold text-slate-900">5성급 스위트룸</td>
-        <td class="border border-slate-300 px-4 py-2.5">오카다 / 솔레어 / 한 카지노 스위트 무료 바우처</td>
-        <td class="border border-slate-300 px-4 py-2.5 font-bold text-[#30308A]">전액 지원</td>
-      </tr>
-      <tr>
-        <td class="border border-slate-300 px-4 py-2.5 font-bold text-slate-900">공항 패스트트랙</td>
-        <td class="border border-slate-300 px-4 py-2.5">입출국 패스트트랙 통과 및 최고급 리무진 단독 픽업</td>
-        <td class="border border-slate-300 px-4 py-2.5 font-bold text-emerald-600">무료 제공</td>
-      </tr>
-    </tbody>
-  </table>
-</div><p><br></p>`;
-        document.execCommand('insertHTML', false, tableHtml);
+        insertTableIntoEditor(3, 3);
         break;
       }
 
@@ -1498,7 +1500,7 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
                   onClick={handleEditorClick}
                   onKeyDown={handleEditorKeyDown}
                   data-placeholder="이곳에 내용을 자유롭게 작성하세요. 상단 툴바의 글자 크기(대/중/보통/소), 굵게(B), 형광펜, 표 삽입, 사진 넣기는 항상 상단에 고정되어 있으며 본문만 자유롭게 스크롤됩니다..."
-                  className="oasis-article-content visual-editor-canvas w-full min-h-[360px] outline-none text-slate-800 text-base leading-relaxed empty:before:content-[attr(data-placeholder)] empty:before:text-slate-300 empty:before:pointer-events-none [&_h2]:text-xl [&_h2]:sm:text-2xl [&_h2]:font-bold [&_h2]:text-slate-900 [&_h2]:mt-4 [&_h2]:mb-2 [&_h2]:pb-1 [&_h2]:border-b [&_h2]:border-slate-100 [&_h3]:text-lg [&_h3]:sm:text-xl [&_h3]:font-bold [&_h3]:text-slate-900 [&_h3]:mt-3 [&_h3]:mb-1.5 [&_blockquote]:my-3 [&_blockquote]:pl-4 [&_blockquote]:py-2 [&_blockquote]:border-l-4 [&_blockquote]:border-[#30308A] [&_blockquote]:bg-slate-50 [&_blockquote]:text-slate-700 [&_blockquote]:italic [&_blockquote]:rounded-r-lg [&_blockquote]:font-medium [&_ul]:list-disc [&_ul]:ml-6 [&_ul]:my-2 [&_mark]:bg-amber-200 [&_mark]:text-amber-950 [&_mark]:px-1.5 [&_mark]:py-0.5 [&_mark]:rounded [&_mark]:font-medium [&_mark]:border [&_mark]:border-amber-300/60"
+                  className="oasis-article-content visual-editor-canvas w-full min-h-[360px] outline-none text-slate-800 text-base leading-relaxed empty:before:content-[attr(data-placeholder)] empty:before:text-slate-300 empty:before:pointer-events-none"
                 />
               </div>
 

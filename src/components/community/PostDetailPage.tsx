@@ -310,7 +310,7 @@ export const PostDetailPage: React.FC<PostDetailPageProps> = ({
             )}
 
             {/* Body Content with Full HTML, Tables, Inline Photos & Google Maps Support */}
-            <div className="text-slate-800 text-sm sm:text-base leading-relaxed space-y-4 font-sans">
+            <div className="text-slate-800 text-sm sm:text-base leading-relaxed font-sans">
               <FormattedPostContent
                 content={post.content}
                 images={displayImages}

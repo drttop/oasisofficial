@@ -430,7 +430,7 @@ export const FormattedPostContent: React.FC<{
 
   return (
     <div
-      className={`oasis-article-content oasis-post-body space-y-3 leading-relaxed text-slate-800 ${className}`}
+      className={`oasis-article-content oasis-post-body leading-relaxed text-slate-800 ${className}`}
       dangerouslySetInnerHTML={{ __html: html }}
       onClick={handleClick}
     />
@@ -442,7 +442,7 @@ export const FormattedPostContent: React.FC<{
  */
 export function createViewerPhotoHtml(photoIndex: number, imageUrl: string): string {
   const photoNum = photoIndex + 1;
-  return `<figure class="my-6 rounded-2xl overflow-hidden shadow-sm hover:shadow-md border border-slate-200 bg-slate-950 flex items-center justify-center p-1 sm:p-2 cursor-zoom-in transition-all relative group" data-zoom-src="${imageUrl}">
+  return `<figure class="my-2.5 rounded-2xl overflow-hidden shadow-sm hover:shadow-md border border-slate-200 bg-slate-950 flex items-center justify-center p-1 sm:p-2 cursor-zoom-in transition-all relative group" data-zoom-src="${imageUrl}">
     <img src="${imageUrl}" alt="사진 ${photoNum}" class="w-full h-auto max-h-[620px] object-contain mx-auto rounded-xl group-hover:scale-[1.01] transition-transform duration-300 pointer-events-none" loading="lazy" decoding="async" />
     <div class="absolute top-3 left-3 flex items-center gap-1.5 pointer-events-none">
       <span class="px-2.5 py-1 rounded-lg bg-slate-900/85 backdrop-blur-sm text-white text-xs font-bold flex items-center gap-1.5 shadow border border-white/10">
@@ -463,7 +463,7 @@ export function createViewerPhotoHtml(photoIndex: number, imageUrl: string): str
 export function createViewerMapHtml(title: string, address?: string, query?: string): string {
   const finalQuery = (query || (address ? `${title} ${address}` : title)).trim();
   const safeQuery = encodeURIComponent(finalQuery);
-  return `<div class="my-6 rounded-2xl overflow-hidden border border-indigo-200 shadow-sm bg-white p-3.5 space-y-2.5">
+  return `<div class="my-2.5 rounded-2xl overflow-hidden border border-indigo-200 shadow-sm bg-white p-3 space-y-2">
     <div class="flex items-center gap-2">
       <span class="w-6 h-6 rounded-lg bg-[#30308A] text-white flex items-center justify-center text-xs font-bold">📍</span>
       <div>
@@ -471,7 +471,7 @@ export function createViewerMapHtml(title: string, address?: string, query?: str
         ${address ? `<div class="text-xs text-slate-500 leading-tight mt-0.5">${address}</div>` : ''}
       </div>
     </div>
-    <div class="rounded-xl overflow-hidden border border-slate-200 h-56 sm:h-64 bg-slate-100 relative">
+    <div class="rounded-xl overflow-hidden border border-slate-200 h-52 sm:h-60 bg-slate-100 relative">
       <iframe src="https://maps.google.com/maps?q=${safeQuery}&t=&z=15&ie=UTF8&iwloc=&output=embed" class="w-full h-full border-0" loading="lazy"></iframe>
     </div>
   </div>`;
@@ -482,7 +482,7 @@ export function createViewerMapHtml(title: string, address?: string, query?: str
  */
 export function createVisualPhotoHtml(photoIndex: number, imageUrl: string): string {
   const photoNum = photoIndex + 1;
-  return `<div class="visual-photo-card my-4 p-2.5 bg-slate-50 rounded-2xl border border-slate-200 select-none relative group" contenteditable="false" data-photo-idx="${photoIndex}">
+  return `<div class="visual-photo-card my-2.5 p-2 bg-slate-50 rounded-2xl border border-slate-200 select-none relative group" contenteditable="false" data-photo-idx="${photoIndex}">
     <div class="relative rounded-xl overflow-hidden shadow-sm max-h-[550px] bg-slate-950 flex items-center justify-center p-1">
       <img src="${imageUrl}" alt="사진 ${photoNum}" class="w-full max-h-[530px] object-contain mx-auto rounded-lg pointer-events-none" />
       <div class="absolute top-2.5 left-2.5 px-2.5 py-1 rounded-lg bg-slate-900/85 backdrop-blur-sm text-white text-xs font-bold flex items-center gap-1.5 shadow">
@@ -492,8 +492,8 @@ export function createVisualPhotoHtml(photoIndex: number, imageUrl: string): str
         ✕ 본문에서 제거
       </button>
     </div>
-    <div class="text-center text-[11px] text-slate-400 mt-1.5 font-medium">본문 삽입 사진 (원본 비율 & 고화질 확대 지원)</div>
-  </div><p><br></p>`;
+    <div class="text-center text-[11px] text-slate-400 mt-1 font-medium">본문 삽입 사진 (원본 비율 & 고화질 확대 지원)</div>
+  </div>`;
 }
 
 /**
@@ -502,7 +502,7 @@ export function createVisualPhotoHtml(photoIndex: number, imageUrl: string): str
 export function createVisualMapHtml(title: string, address?: string, query?: string): string {
   const finalQuery = (query || (address ? `${title} ${address}` : title)).trim();
   const safeQuery = encodeURIComponent(finalQuery);
-  return `<div class="visual-map-card my-4 p-4 bg-gradient-to-br from-indigo-50/70 via-blue-50/40 to-slate-50 rounded-2xl border border-indigo-200/90 select-none relative" contenteditable="false" data-map-title="${title}" data-map-address="${address || ''}" data-map-query="${finalQuery}">
+  return `<div class="visual-map-card my-2.5 p-3 bg-gradient-to-br from-indigo-50/70 via-blue-50/40 to-slate-50 rounded-2xl border border-indigo-200/90 select-none relative" contenteditable="false" data-map-title="${title}" data-map-address="${address || ''}" data-map-query="${finalQuery}">
     <div class="flex items-center justify-between mb-2">
       <div class="flex items-center gap-2">
         <span class="w-7 h-7 rounded-xl bg-[#30308A] flex items-center justify-center text-white text-xs shadow-xs">📍</span>
@@ -518,7 +518,7 @@ export function createVisualMapHtml(title: string, address?: string, query?: str
     <div class="rounded-xl overflow-hidden border border-indigo-100 shadow-xs h-44 bg-slate-100 relative">
       <iframe src="https://maps.google.com/maps?q=${safeQuery}&t=&z=15&ie=UTF8&iwloc=&output=embed" class="w-full h-full border-0 pointer-events-none" loading="lazy"></iframe>
     </div>
-  </div><p><br></p>`;
+  </div>`;
 }
 
 /**
@@ -561,7 +561,7 @@ export function wrapTablesWithResponsiveContainer(html: string): string {
       }
 
       const wrapper = doc.createElement('div');
-      wrapper.className = 'oasis-table-wrap overflow-x-auto my-4 max-w-full';
+      wrapper.className = 'oasis-table-wrap overflow-x-auto my-3 max-w-full';
       table.parentNode?.insertBefore(wrapper, table);
       wrapper.appendChild(table);
     });
@@ -585,9 +585,9 @@ export function postContentToHtml(
 ): string {
   if (!content) return '<p><br></p>';
 
-  // 1. Process inline Photo tags [사진1] ~ [사진6]
+  // 1. Process inline Photo tags [사진1] ~ [사진6] (including when wrapped in paragraphs)
   let processed = content.replace(
-    /\[(?:사진|이미지|image|IMAGE)[_\s]*([1-9][0-9]*)\]/gi,
+    /(?:<p[^>]*>\s*)?\[(?:사진|이미지|image|IMAGE)[_\s]*([1-9][0-9]*)\](?:\s*<\/p>)?/gi,
     (match, p1) => {
       const photoNum = parseInt(p1, 10);
       const idx = photoNum - 1;
@@ -598,7 +598,7 @@ export function postContentToHtml(
           : createViewerPhotoHtml(idx, imgUrl);
       }
       if (isEditorMode) {
-        return `<p class="my-1.5 leading-relaxed text-slate-500 font-mono">[사진 ${photoNum} 미등록]</p>`;
+        return `<p class="leading-relaxed text-slate-500 font-mono">[사진 ${photoNum} 미등록]</p>`;
       }
       return '';
     }
@@ -606,7 +606,7 @@ export function postContentToHtml(
 
   // 2. Process inline Map tags [지도:장소명|주소]
   processed = processed.replace(
-    /\[(?:지도|구글지도|googlemap|google_map|map)(?::\s*([^\]]+))?\]/gi,
+    /(?:<p[^>]*>\s*)?\[(?:지도|구글지도|googlemap|google_map|map)(?::\s*([^\]]+))?\](?:\s*<\/p>)?/gi,
     (match, arg) => {
       const trimmedArg = arg?.trim();
       let title = '';
@@ -636,81 +636,69 @@ export function postContentToHtml(
     }
   );
 
-  // 3. Extract and protect all HTML block elements (tables, div wrappers, lists, blockquotes, pre, figure, existing p tags, etc.)
-  // This guarantees that pre-existing HTML is 100% preserved without double-wrapping or mangling.
-  const blockPlaceholders: string[] = [];
-  const protectBlock = (htmlBlock: string): string => {
-    let clean = htmlBlock.trim();
-    if (clean.includes('<table')) {
-      clean = wrapTablesWithResponsiveContainer(clean);
+  // 3. If content is already HTML (from visual editor or rich HTML):
+  if (isHtmlContent(processed)) {
+    let html = processed;
+
+    // Wrap bare tables in responsive container
+    if (html.includes('<table')) {
+      html = wrapTablesWithResponsiveContainer(html);
     }
-    const token = `___OASIS_BLOCK_${blockPlaceholders.length}___`;
-    blockPlaceholders.push(clean);
-    return `\n\n${token}\n\n`;
-  };
 
-  // Protect responsive table wrappers and standalone tables
-  processed = processed.replace(
-    /(?:<div[^>]*class="[^"]*(?:oasis-table-wrap|table-responsive)[^"]*"[^>]*>[\s\S]*?<\/div>|<table[\s\S]*?<\/table>)/gi,
-    (match) => protectBlock(match)
-  );
+    // Convert legacy inline tokens
+    html = inlineTagsToHtml(html);
 
-  // Protect visual photo/map cards if already rendered (e.g. from editor)
-  processed = processed.replace(
-    /<div[^>]*class="[^"]*(?:visual-photo-card|visual-map-card)[^"]*"[^>]*>[\s\S]*?<\/div>/gi,
-    (match) => protectBlock(match)
-  );
+    // Strictly avoid h1 in article body to preserve 100-point SEO single-H1 score
+    html = html.replace(/<h1(\b[^>]*)>/gi, '<h2$1>').replace(/<\/h1>/gi, '</h2>');
 
-  // Protect existing complete <p>...</p> tags
-  processed = processed.replace(
-    /<p\b[^>]*>[\s\S]*?<\/p>/gi,
-    (match) => protectBlock(match)
-  );
+    // Clean up excessive empty paragraphs: collapse multiple empty <p><br></p> into at most one
+    html = html.replace(/(?:<p[^>]*>\s*(?:<br\s*\/?>|&nbsp;|\s*)\s*<\/p>\s*){2,}/gi, '<p><br></p>');
 
-  // Protect existing <ul>...</ul> and <ol>...</ol>
-  processed = processed.replace(
-    /<(?:ul|ol)\b[^>]*>[\s\S]*?<\/(?:ul|ol)>/gi,
-    (match) => protectBlock(match)
-  );
+    // Remove empty paragraphs that sit immediately right after or right before block elements
+    html = html.replace(/(<\/(?:h[2-6]|figure|table|blockquote|ul|ol|div)>)\s*(?:<p[^>]*>\s*(?:<br\s*\/?>|&nbsp;|\s*)\s*<\/p>\s*)+/gi, '$1');
+    html = html.replace(/(?:<p[^>]*>\s*(?:<br\s*\/?>|&nbsp;|\s*)\s*<\/p>\s*)+(<(?:h[2-6]|figure|table|blockquote|ul|ol|div)\b)/gi, '$1');
 
-  // Protect existing <blockquote>...</blockquote>
-  processed = processed.replace(
-    /<blockquote\b[^>]*>[\s\S]*?<\/blockquote>/gi,
-    (match) => protectBlock(match)
-  );
+    return html.trim();
+  }
 
-  // Protect existing <figure>...</figure>
-  processed = processed.replace(
-    /<figure\b[^>]*>[\s\S]*?<\/figure>/gi,
-    (match) => protectBlock(match)
-  );
-
-  // Protect existing <pre>...</pre>
-  processed = processed.replace(
-    /<pre\b[^>]*>[\s\S]*?<\/pre>/gi,
-    (match) => protectBlock(match)
-  );
-
-  // 4. Now process remaining lines (headings, quotes, lists, dividers, and standard text)
-  const lines = processed.split('\n');
+  // 4. Otherwise, handle plain text / markdown format with clean paragraph and list grouping
+  const lines = processed.split(/\r?\n/);
   const htmlParts: string[] = [];
+  let inList = false;
+  let currentParagraphLines: string[] = [];
+
+  const flushParagraph = () => {
+    if (currentParagraphLines.length > 0) {
+      const contentStr = currentParagraphLines.map((l) => inlineTagsToHtml(l)).join('<br>');
+      htmlParts.push(`<p class="leading-relaxed text-slate-800">${contentStr}</p>`);
+      currentParagraphLines = [];
+    }
+  };
 
   for (let i = 0; i < lines.length; i++) {
     const rawLine = lines[i];
     const trimmed = rawLine.trim();
 
-    // Empty line
-    if (trimmed === '') {
-      htmlParts.push('<p><br></p>');
+    // Check for bullet list item
+    const listMatch = rawLine.match(/^[-*•]\s+(.*)$/);
+    if (listMatch) {
+      flushParagraph();
+      if (!inList) {
+        htmlParts.push('<ul class="list-disc ml-5 my-1 text-slate-800 space-y-0.5">');
+        inList = true;
+      }
+      const formatted = inlineTagsToHtml(listMatch[1]);
+      htmlParts.push(`<li>${formatted}</li>`);
       continue;
+    } else if (inList) {
+      htmlParts.push('</ul>');
+      inList = false;
     }
 
-    // Protected block token match
-    const blockMatch = trimmed.match(/^___OASIS_BLOCK_(\d+)___$/);
-    if (blockMatch) {
-      const idx = parseInt(blockMatch[1], 10);
-      if (blockPlaceholders[idx] !== undefined) {
-        htmlParts.push(blockPlaceholders[idx]);
+    // Empty line separates paragraphs
+    if (trimmed === '') {
+      flushParagraph();
+      if (htmlParts.length > 0 && !htmlParts[htmlParts.length - 1].includes('<p><br></p>')) {
         htmlParts.push('<p><br></p>');
       }
       continue;
@@ -718,83 +706,48 @@ export function postContentToHtml(
 
     // Divider
     if (/^(\-{3,}|\*{3,}|_{3,}|\[구분선\])$/.test(trimmed)) {
-      htmlParts.push('<hr class="my-4 border-t border-slate-200" />');
+      flushParagraph();
+      htmlParts.push('<hr class="my-3 border-t border-slate-200" />');
       continue;
     }
 
-    // Heading 2 (## Title or [크기:대][굵게]Title)
+    // Heading 2 (## Title)
     const h2Match = rawLine.match(/^##\s+(.*)$/);
     if (h2Match) {
+      flushParagraph();
       const formatted = inlineTagsToHtml(h2Match[1]);
-      htmlParts.push(`<h2 class="text-xl sm:text-2xl font-bold text-slate-900 my-3 pb-1 border-b border-slate-100">${formatted}</h2>`);
+      htmlParts.push(`<h2 class="text-xl sm:text-2xl font-bold text-slate-900 my-2 pb-1 border-b border-slate-100">${formatted}</h2>`);
       continue;
     }
 
-    const h2TagMatch = trimmed.match(/^\[(?:크기|size):(대|large|lg|20)\](?:\[(?:굵게|bold)\])?([\s\S]*?)(?:\[\/(?:굵게|bold)\])?\[\/(?:크기|size)\]$/i);
-    if (h2TagMatch) {
-      const formatted = inlineTagsToHtml(h2TagMatch[2]);
-      htmlParts.push(`<h2 class="text-xl sm:text-2xl font-bold text-slate-900 my-3 pb-1 border-b border-slate-100">${formatted}</h2>`);
-      continue;
-    }
-
-    // Heading 3 (### Title or [크기:중]Title)
+    // Heading 3 (### Title)
     const h3Match = rawLine.match(/^###\s+(.*)$/);
     if (h3Match) {
+      flushParagraph();
       const formatted = inlineTagsToHtml(h3Match[1]);
-      htmlParts.push(`<h3 class="text-lg sm:text-xl font-bold text-slate-900 my-2.5">${formatted}</h3>`);
-      continue;
-    }
-
-    const h3TagMatch = trimmed.match(/^\[(?:크기|size):(중|medium|md|17)\](?:\[(?:굵게|bold)\])?([\s\S]*?)(?:\[\/(?:굵게|bold)\])?\[\/(?:크기|size)\]$/i);
-    if (h3TagMatch) {
-      const formatted = inlineTagsToHtml(h3TagMatch[2]);
-      htmlParts.push(`<h3 class="text-lg sm:text-xl font-bold text-slate-900 my-2.5">${formatted}</h3>`);
+      htmlParts.push(`<h3 class="text-lg sm:text-xl font-bold text-slate-900 my-1.5">${formatted}</h3>`);
       continue;
     }
 
     // Blockquote (> Quote)
     const quoteMatch = rawLine.match(/^>\s*(.*)$/);
     if (quoteMatch) {
+      flushParagraph();
       const formatted = inlineTagsToHtml(quoteMatch[1]);
-      htmlParts.push(`<blockquote class="my-3 pl-4 py-2 border-l-4 border-[#30308A] bg-slate-50 text-slate-700 italic rounded-r-lg font-medium">${formatted}</blockquote>`);
+      htmlParts.push(`<blockquote class="my-2 pl-4 py-1.5 border-l-4 border-[#30308A] bg-slate-50 text-slate-700 italic rounded-r-lg font-medium">${formatted}</blockquote>`);
       continue;
     }
 
-    // Bullet List (- Item or • Item or * Item)
-    const listMatch = rawLine.match(/^[-*•]\s+(.*)$/);
-    if (listMatch) {
-      const formatted = inlineTagsToHtml(listMatch[1]);
-      htmlParts.push(`<ul class="list-disc ml-5 my-1 text-slate-800"><li>${formatted}</li></ul>`);
-      continue;
-    }
-
-    // Already an HTML block tag starting on this line
-    if (/^<(?:h[2-6]|blockquote|ul|ol|div|p|hr|figure|pre|table)\b/i.test(trimmed)) {
-      htmlParts.push(inlineTagsToHtml(rawLine));
-      continue;
-    }
-
-    // Standard Paragraph with inline tags & HTML formatting preserved
-    const formatted = inlineTagsToHtml(rawLine);
-    htmlParts.push(`<p class="my-1.5 leading-relaxed text-slate-800">${formatted}</p>`);
+    // Normal contiguous line of text (accumulate in current paragraph)
+    currentParagraphLines.push(rawLine);
   }
 
-  // 5. Restore any remaining block tokens (e.g. if inline or wrapped)
-  let finalHtml = htmlParts.join('');
-  for (let idx = 0; idx < blockPlaceholders.length; idx++) {
-    finalHtml = finalHtml.replace(
-      new RegExp(`___OASIS_BLOCK_${idx}___`, 'g'),
-      () => blockPlaceholders[idx]
-    );
+  flushParagraph();
+  if (inList) {
+    htmlParts.push('</ul>');
   }
 
-  // 6. Strictly avoid h1 in article body to preserve 100-point SEO single-H1 score
-  finalHtml = finalHtml.replace(/<h1(\b[^>]*)>/gi, '<h2$1>').replace(/<\/h1>/gi, '</h2>');
-
-  // 7. Clean up redundant adjacent empty paragraph spacers
-  finalHtml = finalHtml.replace(/(?:<p[^>]*><br\s*\/?>\s*<\/p>\s*){3,}/gi, '<p><br></p><p><br></p>');
-
-  return finalHtml.trim();
+  return htmlParts.join('').trim();
 }
 
 /**
@@ -805,30 +758,27 @@ function inlineTagsToHtml(text: string): string {
 
   let html = text;
 
-  // Convert legacy and browser-generated <font> tags into modern styled spans
-  html = html.replace(/<font\b[^>]*\bsize=["']?([5-7])["']?[^>]*>([\s\S]*?)<\/font>/gi, '<span class="text-xl sm:text-2xl font-bold text-slate-900 inline-block my-1 leading-snug">$2</span>');
-  html = html.replace(/<font\b[^>]*\bsize=["']?4["']?[^>]*>([\s\S]*?)<\/font>/gi, '<span class="text-base sm:text-lg font-semibold text-slate-800 inline-block my-0.5 leading-snug">$2</span>');
-  html = html.replace(/<font\b[^>]*\bsize=["']?3["']?[^>]*>([\s\S]*?)<\/font>/gi, '<span class="text-sm sm:text-base font-normal text-slate-800">$2</span>');
-  html = html.replace(/<font\b[^>]*\bsize=["']?([1-2])["']?[^>]*>([\s\S]*?)<\/font>/gi, '<span class="text-xs text-slate-500 inline-block">$2</span>');
-  html = html.replace(/<font\b[^>]*\bcolor=["']?([^"'>]+)["']?[^>]*>([\s\S]*?)<\/font>/gi, '<span style="color: $1;">$2</span>');
-  html = html.replace(/<font\b[^>]*>([\s\S]*?)<\/font>/gi, '<span>$1</span>');
+  // Clean legacy and previous inline-block spans back to clean standard font tags
+  html = html.replace(/<span class="[^"]*(?:text-xl|oasis-font-lg)[^"]*"[^>]*>([\s\S]*?)<\/span>/gi, '<font size="5">$1</font>');
+  html = html.replace(/<span class="[^"]*(?:text-base|oasis-font-md)[^"]*"[^>]*>([\s\S]*?)<\/span>/gi, '<font size="4">$1</font>');
+  html = html.replace(/<span class="[^"]*(?:text-xs|oasis-font-sm)[^"]*"[^>]*>([\s\S]*?)<\/span>/gi, '<font size="2">$1</font>');
 
-  // Convert legacy font size tags
-  html = html.replace(/\[(?:크기|size):(특대|xl|24)\]([\s\S]*?)\[\/(?:크기|size)\]/gi, '<span class="text-2xl sm:text-3xl font-black text-slate-900 inline-block my-1 leading-snug">$2</span>');
-  html = html.replace(/\[(?:크기|size):(대|large|lg|20)\]([\s\S]*?)\[\/(?:크기|size)\]/gi, '<span class="text-xl sm:text-2xl font-bold text-slate-900 inline-block my-1 leading-snug">$2</span>');
-  html = html.replace(/\[(?:크기|size):(중|medium|md|17)\]([\s\S]*?)\[\/(?:크기|size)\]/gi, '<span class="text-base sm:text-lg font-semibold text-slate-800 inline-block my-0.5 leading-snug">$2</span>');
-  html = html.replace(/\[(?:크기|size):(소|small|sm|12)\]([\s\S]*?)\[\/(?:크기|size)\]/gi, '<span class="text-xs text-slate-500 inline-block">$2</span>');
-  html = html.replace(/\[(대제목|특대)\]([\s\S]*?)\[\/\1\]/gi, '<span class="text-xl sm:text-2xl font-bold text-slate-900 inline-block my-1 leading-snug">$2</span>');
-  html = html.replace(/\[소제목\]([\s\S]*?)\[\/소제목\]/gi, '<span class="text-base sm:text-lg font-semibold text-slate-800 inline-block my-0.5 leading-snug">$2</span>');
-  html = html.replace(/\[작은글씨\]([\s\S]*?)\[\/작은글씨\]/gi, '<span class="text-xs text-slate-500 inline-block">$2</span>');
+  // Convert legacy font size shortcodes: [크기:대], [대제목], etc.
+  html = html.replace(/\[(?:크기|size):(특대|xl|24|대|large|lg|20)\]([\s\S]*?)\[\/(?:크기|size)\]/gi, '<font size="5">$2</font>');
+  html = html.replace(/\[(?:크기|size):(중|medium|md|17)\]([\s\S]*?)\[\/(?:크기|size)\]/gi, '<font size="4">$2</font>');
+  html = html.replace(/\[(?:크기|size):(보통|normal|기본|14|15|16)\]([\s\S]*?)\[\/(?:크기|size)\]/gi, '<font size="3">$2</font>');
+  html = html.replace(/\[(?:크기|size):(소|small|sm|12)\]([\s\S]*?)\[\/(?:크기|size)\]/gi, '<font size="2">$2</font>');
+  html = html.replace(/\[(대제목|특대)\]([\s\S]*?)\[\/\1\]/gi, '<font size="5">$2</font>');
+  html = html.replace(/\[소제목\]([\s\S]*?)\[\/소제목\]/gi, '<font size="4">$2</font>');
+  html = html.replace(/\[작은글씨\]([\s\S]*?)\[\/작은글씨\]/gi, '<font size="2">$2</font>');
 
   // Convert legacy highlight tags to real HTML <mark>
-  html = html.replace(/\[(?:형광펜|highlight|노랑)\]([\s\S]*?)\[\/(?:형광펜|highlight|노랑)\]/gi, '<mark class="bg-amber-200 text-amber-950 px-1.5 py-0.5 rounded font-medium border border-amber-300/60">$1</mark>');
+  html = html.replace(/\[(?:형광펜|highlight|노랑)\]([\s\S]*?)\[\/(?:형광펜|highlight|노랑)\]/gi, '<mark class="bg-amber-200 text-amber-950 px-1 py-0.5 rounded font-medium border border-amber-300/60">$1</mark>');
 
-  // Convert legacy colors
-  html = html.replace(/\[(?:골드|gold)\]([\s\S]*?)\[\/(?:골드|gold)\]/gi, '<span style="color: #b8860b; font-weight: bold;">$1</span>');
-  html = html.replace(/\[(?:파랑|blue)\]([\s\S]*?)\[\/(?:파랑|blue)\]/gi, '<span style="color: #30308A; font-weight: bold;">$1</span>');
-  html = html.replace(/\[(?:빨강|red)\]([\s\S]*?)\[\/(?:빨강|red)\]/gi, '<span style="color: #e11d48; font-weight: bold;">$1</span>');
+  // Convert legacy colors to <font color>
+  html = html.replace(/\[(?:골드|gold)\]([\s\S]*?)\[\/(?:골드|gold)\]/gi, '<font color="#b8860b"><strong>$1</strong></font>');
+  html = html.replace(/\[(?:파랑|blue)\]([\s\S]*?)\[\/(?:파랑|blue)\]/gi, '<font color="#30308A"><strong>$1</strong></font>');
+  html = html.replace(/\[(?:빨강|red)\]([\s\S]*?)\[\/(?:빨강|red)\]/gi, '<font color="#e11d48"><strong>$1</strong></font>');
 
   // Convert legacy weights
   html = html.replace(/\[(?:굵게|bold)\]([\s\S]*?)\[\/(?:굵게|bold)\]/gi, '<strong class="font-bold text-slate-900">$1</strong>');
@@ -864,13 +814,20 @@ export function htmlToPostContent(htmlOrElement: HTMLElement | string): string {
   photoCards.forEach((card) => {
     const idx = card.getAttribute('data-photo-idx');
     const photoNum = idx !== null ? Number(idx) + 1 : 1;
-    const placeholder = document.createTextNode(`\n\n[사진${photoNum}]\n\n`);
+    const p = document.createElement('p');
+    p.textContent = `[사진${photoNum}]`;
+
     // Remove immediately following empty spacer paragraph if present
     const nextEl = card.nextElementSibling;
     if (nextEl && nextEl.tagName === 'P' && (nextEl.innerHTML === '<br>' || nextEl.innerHTML.trim() === '')) {
       nextEl.remove();
     }
-    card.parentNode?.replaceChild(placeholder, card);
+    const prevEl = card.previousElementSibling;
+    if (prevEl && prevEl.tagName === 'P' && (prevEl.innerHTML === '<br>' || prevEl.innerHTML.trim() === '')) {
+      prevEl.remove();
+    }
+
+    card.parentNode?.replaceChild(p, card);
   });
 
   // 2. Convert visual map cards back to portable [지도:...] shortcodes
@@ -878,13 +835,20 @@ export function htmlToPostContent(htmlOrElement: HTMLElement | string): string {
   mapCards.forEach((card) => {
     const title = card.getAttribute('data-map-title') || card.getAttribute('data-map-query') || '';
     const address = card.getAttribute('data-map-address') || '';
+
     const nextEl = card.nextElementSibling;
     if (nextEl && nextEl.tagName === 'P' && (nextEl.innerHTML === '<br>' || nextEl.innerHTML.trim() === '')) {
       nextEl.remove();
     }
+    const prevEl = card.previousElementSibling;
+    if (prevEl && prevEl.tagName === 'P' && (prevEl.innerHTML === '<br>' || prevEl.innerHTML.trim() === '')) {
+      prevEl.remove();
+    }
+
     if (title) {
-      const placeholder = document.createTextNode(`\n\n[지도:${title}${address ? `|${address}` : ''}]\n\n`);
-      card.parentNode?.replaceChild(placeholder, card);
+      const p = document.createElement('p');
+      p.textContent = `[지도:${title}${address ? `|${address}` : ''}]`;
+      card.parentNode?.replaceChild(p, card);
     } else {
       card.remove();
     }
@@ -908,10 +872,16 @@ export function htmlToPostContent(htmlOrElement: HTMLElement | string): string {
   html = html.replace(/<p[^>]*>\s*<\/p>/gi, '<p><br></p>');
   html = html.replace(/<div>\s*<\/div>/gi, '');
 
-  // Normalize excessive <p><br></p> occurrences
-  html = html.replace(/(?:<p[^>]*><br\s*\/?>\s*<\/p>\s*){3,}/gi, '<p><br></p><p><br></p>');
-  html = html.replace(/^(?:<p[^>]*><br\s*\/?>\s*<\/p>\s*)+/i, '');
-  html = html.replace(/(?:<p[^>]*><br\s*\/?>\s*<\/p>\s*)+$/i, '');
+  // Normalize excessive <p><br></p> occurrences (collapse 2 or more into at most 1)
+  html = html.replace(/(?:<p[^>]*>\s*(?:<br\s*\/?>|&nbsp;|\s*)\s*<\/p>\s*){2,}/gi, '<p><br></p>');
+
+  // Clean empty paragraphs adjacent to block elements
+  html = html.replace(/(<\/(?:h[2-6]|figure|table|blockquote|ul|ol|div)>)\s*(?:<p[^>]*>\s*(?:<br\s*\/?>|&nbsp;|\s*)\s*<\/p>\s*)+/gi, '$1');
+  html = html.replace(/(?:<p[^>]*>\s*(?:<br\s*\/?>|&nbsp;|\s*)\s*<\/p>\s*)+(<(?:h[2-6]|figure|table|blockquote|ul|ol|div)\b)/gi, '$1');
+
+  // Strip empty paragraphs from very beginning and very end of post
+  html = html.replace(/^(?:\s*<p[^>]*>\s*(?:<br\s*\/?>|&nbsp;|\s*)\s*<\/p>\s*)+/i, '');
+  html = html.replace(/(?:\s*<p[^>]*>\s*(?:<br\s*\/?>|&nbsp;|\s*)\s*<\/p>\s*)+$/i, '');
 
   return html.trim();
 }

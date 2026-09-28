@@ -156,7 +156,7 @@ const sanitizeSlides = (slides: BannerSlide[]): BannerSlide[] => {
   return slides.map((slide, idx) => {
     let bg = slide.bgImage;
     if (!bg || bg.includes('/assets/') || bg.includes('oasis_gold_hero') || bg.includes('casino_table_panoramic')) {
-      bg = idx === 0 ? '/images/hero_bg.jpg' : '/images/casino_table.jpg';
+      bg = idx === 0 ? '/images/hero_bg.webp' : '/images/casino_table.webp';
     }
     return { ...slide, bgImage: bg };
   });
@@ -705,6 +705,7 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.log('Post successfully updated in Firestore:', id);
     } catch (err) {
       console.error('Failed to update post in Firestore:', err);
+      throw err;
     }
   };
 

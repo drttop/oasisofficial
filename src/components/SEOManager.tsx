@@ -13,6 +13,7 @@ export const SEOManager: React.FC = () => {
     editingPost,
     openPostEditor,
     closePostEditor,
+    setIsAdminOpen,
   } = useSite();
 
   const handledPostIdRef = useRef<string | null>(null);
@@ -31,6 +32,38 @@ export const SEOManager: React.FC = () => {
       (window.location.hash.startsWith('#post-')
         ? window.location.hash.replace('#post-', '')
         : null);
+
+    const editParam = params.get('edit');
+    const actionParam = params.get('action');
+
+    // Check if initial URL is for editing a post or writing a new post (Admin only)
+    if ((editParam || actionParam === 'edit') && posts.length > 0) {
+      const editTargetId = editParam || targetPostId;
+      if (editTargetId) {
+        const found = posts.find((p) => String(p.id) === String(editTargetId));
+        if (found) {
+          initialCheckedRef.current = true;
+          handledPostIdRef.current = found.id;
+          const isAdminAuth = sessionStorage.getItem('oasis_admin_auth') === 'true';
+          if (isAdminAuth) {
+            openPostEditor(found);
+          } else {
+            setSelectedPost(found);
+            setIsAdminOpen(true);
+          }
+          return;
+        }
+      }
+    } else if (actionParam === 'write') {
+      initialCheckedRef.current = true;
+      const isAdminAuth = sessionStorage.getItem('oasis_admin_auth') === 'true';
+      if (isAdminAuth) {
+        openPostEditor(null);
+      } else {
+        setIsAdminOpen(true);
+      }
+      return;
+    }
 
     // Check if initial URL is for viewing a specific post
     if (targetPostId && posts.length > 0 && targetPostId !== handledPostIdRef.current) {

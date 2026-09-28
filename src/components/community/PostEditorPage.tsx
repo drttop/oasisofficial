@@ -63,7 +63,7 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
   onClose,
   onSaved,
 }) => {
-  const { addPost, updatePost } = useSite();
+  const { addPost, updatePost, setIsAdminOpen } = useSite();
 
   const [title, setTitle] = useState(postToEdit?.title || '');
   const [category, setCategory] = useState<'커뮤니티' | '프로모션' | 'VIP매거진' | '공지사항'>(
@@ -327,36 +327,50 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
     const fileArray = Array.from(files);
     if (fileArray.length === 0) return;
 
-    if (images.length + fileArray.length > 6) {
+    if (images.length >= 6) {
       setUploadError(`사진은 최대 6장까지만 등록 가능합니다. (현재 ${images.length}장 등록됨)`);
+      if (fileInputRef.current) fileInputRef.current.value = '';
       return;
     }
 
+    const availableSlots = 6 - images.length;
+    const allowedFiles = fileArray.slice(0, availableSlots);
+
+    if (fileArray.length > availableSlots) {
+      setUploadError(`최대 6장까지만 등록 가능하여 선택하신 ${fileArray.length}장 중 ${availableSlots}장만 추가됩니다.`);
+    } else {
+      setUploadError(null);
+    }
+
     setIsUploading(true);
-    setUploadError(null);
 
     try {
-      const uploadPromises = fileArray.map(async (file) => {
+      const uploadPromises = allowedFiles.map(async (file) => {
         if (!file.type.startsWith('image/')) {
           throw new Error('이미지 파일만 업로드할 수 있습니다 (JPG, PNG, WEBP 등).');
         }
-        return await compressImageFile(file, 1600, 1600, 0.85);
+        return await compressImageFile(file, 1440, 1440, 0.80);
       });
 
       const newBase64Images = await Promise.all(uploadPromises);
-      const updatedImages = [...images, ...newBase64Images].slice(0, 6);
       const startIdx = images.length;
+      const updatedImages = [...images, ...newBase64Images].slice(0, 6);
       setImages(updatedImages);
 
-      // Auto-insert first uploaded image into visual editor directly at cursor!
+      // Auto-insert newly uploaded images into visual editor directly at cursor!
       if (newBase64Images.length > 0 && editorMode === 'visual') {
-        insertPhotoIntoEditor(startIdx, newBase64Images[0]);
+        newBase64Images.forEach((img, i) => {
+          insertPhotoIntoEditor(startIdx + i, img);
+        });
       }
     } catch (err: any) {
       console.error('Image compression error:', err);
       setUploadError(err.message || '사진 최적화 중 오류가 발생했습니다.');
     } finally {
       setIsUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
     }
   };
 
@@ -379,12 +393,57 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
   };
 
   const handleRemoveImage = (indexToRemove: number) => {
-    // Remove from visual editor if present
+    // 1. Remove from visual editor and re-index remaining cards
     if (editorRef.current) {
-      const cards = editorRef.current.querySelectorAll(`.visual-photo-card[data-photo-idx="${indexToRemove}"]`);
-      cards.forEach((c) => c.remove());
+      const cards = Array.from(editorRef.current.querySelectorAll('.visual-photo-card'));
+      cards.forEach((c) => {
+        const idxStr = c.getAttribute('data-photo-idx');
+        if (idxStr !== null) {
+          const currentIdx = parseInt(idxStr, 10);
+          if (currentIdx === indexToRemove) {
+            c.remove();
+          } else if (currentIdx > indexToRemove) {
+            c.setAttribute('data-photo-idx', String(currentIdx - 1));
+          }
+        }
+      });
       syncContentFromVisual();
     }
+
+    // 2. Also clean up any raw [사진N] references in content state & raw textarea
+    const photoNumToRemove = indexToRemove + 1;
+    setContent((prevContent) => {
+      let cleaned = prevContent.replace(
+        new RegExp(`(?:<p[^>]*>\\s*)?\\[(?:사진|이미지|image|IMAGE)[_\\s]*${photoNumToRemove}\\](?:\\s*<\\/p>)?`, 'gi'),
+        ''
+      );
+      cleaned = cleaned.replace(/\[(?:사진|이미지|image|IMAGE)[_\s]*([1-9][0-9]*)\]/gi, (match, p1) => {
+        const num = parseInt(p1, 10);
+        if (num > photoNumToRemove) {
+          return `[사진${num - 1}]`;
+        }
+        return match;
+      });
+      return cleaned;
+    });
+
+    if (rawTextareaRef.current) {
+      const currentVal = rawTextareaRef.current.value;
+      let cleaned = currentVal.replace(
+        new RegExp(`(?:<p[^>]*>\\s*)?\\[(?:사진|이미지|image|IMAGE)[_\\s]*${photoNumToRemove}\\](?:\\s*<\\/p>)?`, 'gi'),
+        ''
+      );
+      cleaned = cleaned.replace(/\[(?:사진|이미지|image|IMAGE)[_\s]*([1-9][0-9]*)\]/gi, (match, p1) => {
+        const num = parseInt(p1, 10);
+        if (num > photoNumToRemove) {
+          return `[사진${num - 1}]`;
+        }
+        return match;
+      });
+      rawTextareaRef.current.value = cleaned;
+    }
+
+    // 3. Update images state
     setImages((prev) => prev.filter((_, idx) => idx !== indexToRemove));
     setUploadError(null);
   };
@@ -568,8 +627,14 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
       e.stopPropagation();
       const card = deletePhotoBtn.closest('.visual-photo-card');
       if (card) {
-        card.remove();
-        syncContentFromVisual();
+        const idxStr = card.getAttribute('data-photo-idx');
+        const idxToRemove = idxStr !== null ? parseInt(idxStr, 10) : -1;
+        if (idxToRemove >= 0) {
+          handleRemoveImage(idxToRemove);
+        } else {
+          card.remove();
+          syncContentFromVisual();
+        }
       }
       return;
     }
@@ -919,15 +984,10 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
         viewCount: Number(viewCount) >= 0 ? Number(viewCount) : (postToEdit?.viewCount || 392),
       };
 
-      if (primaryThumbnail) {
-        payload.thumbnail = primaryThumbnail;
-      }
-      if (optimizedImages.length > 0) {
-        payload.images = optimizedImages;
-      }
-      if (mapLocationPayload) {
-        payload.mapLocation = mapLocationPayload;
-      }
+      // Explicitly set images, thumbnail, and mapLocation so deletions properly overwrite existing post data
+      payload.images = optimizedImages;
+      payload.thumbnail = primaryThumbnail || (optimizedImages.length > 0 ? optimizedImages[0] : '');
+      payload.mapLocation = mapLocationPayload || null;
 
       if (postToEdit) {
         await updatePost(postToEdit.id, payload);
@@ -950,7 +1010,7 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
       }
     } catch (err: any) {
       console.error('Error saving post:', err);
-      setUploadError('게시글 저장 중 오류가 발생했습니다.');
+      setUploadError(err.message ? `게시글 저장 실패: ${err.message}` : '게시글 저장 중 오류가 발생했습니다.');
     } finally {
       setIsSubmitting(false);
     }
@@ -962,7 +1022,7 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
       <header className="h-16 shrink-0 bg-white/95 backdrop-blur-md border-b border-slate-200/90 shadow-2xs z-30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center justify-between gap-3">
           {/* Left: Back button & Breadcrumb Title */}
-          <div className="flex items-center gap-3 min-w-0">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <button
               type="button"
               onClick={handleClose}
@@ -971,6 +1031,19 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
             >
               <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" />
               <span>목록으로</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setIsAdminOpen(true);
+                handleClose();
+              }}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-[#30308A] hover:text-white text-slate-700 text-xs sm:text-sm font-bold transition-all cursor-pointer shadow-2xs shrink-0"
+              title="관리자 설정 대시보드로 이동"
+            >
+              <Sliders className="w-3.5 h-3.5" />
+              <span>관리자 설정</span>
             </button>
 
             <div className="h-4 w-px bg-slate-200 hidden sm:block shrink-0" />

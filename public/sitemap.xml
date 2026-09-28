@@ -6,7 +6,7 @@
   <!-- Main Home Page -->
   <url>
     <loc>https://oasis46.com/</loc>
-    <lastmod>2026-09-27</lastmod>
+    <lastmod>2026-09-28</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
     <image:image>
@@ -78,7 +78,7 @@
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <image:image>
-      <image:loc>https://images.unsplash.com/photo-1578683010236-d716f9a3f461?auto=format&amp;fit=crop&amp;w=800&amp;q=80</image:loc>
+      <image:loc>https://oasis46.com/logo.jpg</image:loc>
       <image:title>2026 9월 기존 회원 대상, 스위트룸 3박 무료 특별 프로모션</image:title>
     </image:image>
   </url>

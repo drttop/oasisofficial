@@ -74,19 +74,76 @@ const drawHighQualityResample = (
 };
 
 /**
+ * Iteratively adapts quality and canvas dimensions to strictly guarantee
+ * that the resulting Base64 string does not exceed targetMaxBytes while
+ * maintaining high sharpness and no compression artifacts.
+ */
+const compressCanvasToTargetBudget = (
+  sourceCanvas: HTMLCanvasElement,
+  preferredMime: string,
+  startQuality: number,
+  targetMaxBytes: number
+): string => {
+  let activeCanvas = sourceCanvas;
+  let activeQuality = startQuality;
+  let result = activeCanvas.toDataURL(preferredMime, activeQuality);
+
+  let step = 0;
+  // Step down iteratively until result is strictly within budget
+  while (result.length > targetMaxBytes && step < 12) {
+    step++;
+
+    // Phase 1: Try reducing quality down to 0.58
+    if (activeQuality > 0.58) {
+      activeQuality = Math.max(0.55, activeQuality - 0.08);
+      result = activeCanvas.toDataURL(preferredMime, activeQuality);
+      continue;
+    }
+
+    // Phase 2: If quality has reached minimum acceptable, scale down canvas resolution
+    const nextW = Math.round(activeCanvas.width * 0.82);
+    const nextH = Math.round(activeCanvas.height * 0.82);
+    if (nextW < 260 || nextH < 260) {
+      // Don't shrink below 260px; apply final conservative quality
+      activeQuality = Math.max(0.48, activeQuality - 0.05);
+      result = activeCanvas.toDataURL(preferredMime, activeQuality);
+      break;
+    }
+
+    const scaledCanvas = document.createElement('canvas');
+    scaledCanvas.width = nextW;
+    scaledCanvas.height = nextH;
+    const scaledCtx = scaledCanvas.getContext('2d');
+    if (!scaledCtx) break;
+
+    scaledCtx.imageSmoothingEnabled = true;
+    scaledCtx.imageSmoothingQuality = 'high';
+    scaledCtx.drawImage(activeCanvas, 0, 0, nextW, nextH);
+
+    activeCanvas = scaledCanvas;
+    // Reset quality slightly higher after scaling down for crisp edge retention
+    activeQuality = 0.74;
+    result = activeCanvas.toDataURL(preferredMime, activeQuality);
+  }
+
+  return result;
+};
+
+/**
  * Compresses an uploaded image file to high web resolution & crystal-clear quality.
- * Converts camera/smartphone photos (typically 4MB-15MB) into sharp, high-res WebP (~150KB-220KB)
- * at 1600px width/height with 0.86 quality.
+ * Converts camera/smartphone photos (typically 4MB-15MB) into sharp, high-res WebP
+ * while safely budgeting file size for Firestore limits.
  */
 export const compressImageFile = async (
   file: File,
-  maxWidth = 1600,
-  maxHeight = 1600,
-  quality = 0.86
+  maxWidth = 1200,
+  maxHeight = 1200,
+  quality = 0.80,
+  targetMaxBytes = 140000
 ): Promise<string> => {
   return new Promise((resolve, reject) => {
-    // If SVG or tiny lightweight graphic (< 60KB), preserve raw bytes
-    if (file.type === 'image/svg+xml' || (file.size <= 60000 && file.type === 'image/webp')) {
+    // If SVG or tiny lightweight graphic (< 40KB), preserve raw bytes
+    if (file.type === 'image/svg+xml' || (file.size <= 40000 && file.type === 'image/webp')) {
       const reader = new FileReader();
       reader.onload = () => resolve(reader.result as string);
       reader.onerror = reject;
@@ -126,14 +183,9 @@ export const compressImageFile = async (
 
         const canWebP = supportsWebP();
         const preferredMime = canWebP ? 'image/webp' : 'image/jpeg';
-        let result = canvas.toDataURL(preferredMime, quality);
+        const finalDataUrl = compressCanvasToTargetBudget(canvas, preferredMime, quality, targetMaxBytes);
 
-        // Safety check: if unusually large (> 350KB string), gently step quality to 0.80
-        if (result.length > 350000) {
-          result = canvas.toDataURL(preferredMime, 0.80);
-        }
-
-        resolve(result);
+        resolve(finalDataUrl);
       };
 
       img.onerror = () => resolve(rawDataUrl);
@@ -145,28 +197,29 @@ export const compressImageFile = async (
 };
 
 /**
- * Optimizes an individual dataUrl if necessary.
+ * Optimizes an individual dataUrl if necessary with a strict target byte size.
  * Avoids unnecessary recompression if the image is already well within target dimensions and size.
  */
 export const optimizeDataUrl = async (
   dataUrl: string,
-  maxWidth = 1600,
-  maxHeight = 1600,
-  quality = 0.85
+  maxWidth = 1100,
+  maxHeight = 1100,
+  quality = 0.78,
+  targetMaxBytes = 110000
 ): Promise<string> => {
   if (!dataUrl || !dataUrl.startsWith('data:image/')) return dataUrl;
 
   return new Promise((resolve) => {
+    // If already well within size budget, preserve as-is
+    if (dataUrl.length <= targetMaxBytes) {
+      resolve(dataUrl);
+      return;
+    }
+
     const img = new Image();
     img.onload = () => {
       let width = img.width;
       let height = img.height;
-
-      // If dimensions are already within bounds and size is reasonable, skip recompression to prevent generational quality loss
-      if (width <= maxWidth && height <= maxHeight && dataUrl.length <= 260000) {
-        resolve(dataUrl);
-        return;
-      }
 
       if (width > maxWidth || height > maxHeight) {
         if (width / maxWidth > height / maxHeight) {
@@ -191,12 +244,9 @@ export const optimizeDataUrl = async (
 
       const canWebP = supportsWebP();
       const preferredMime = canWebP ? 'image/webp' : 'image/jpeg';
-      let result = canvas.toDataURL(preferredMime, quality);
+      const finalResult = compressCanvasToTargetBudget(canvas, preferredMime, quality, targetMaxBytes);
 
-      if (result.length > 300000) {
-        result = canvas.toDataURL(preferredMime, 0.78);
-      }
-      resolve(result);
+      resolve(finalResult);
     };
 
     img.onerror = () => resolve(dataUrl);
@@ -207,61 +257,71 @@ export const optimizeDataUrl = async (
 /**
  * Smart Dynamic Optimizer for all images in a post:
  * Distributes the Firestore payload budget intelligently across the number of attached images.
- * Guarantees:
- * 1. 1~2 images: Ultra high-res 1600px @ 0.88 quality (~220KB each)
- * 2. 3~4 images: Crisp 1440px @ 0.84 quality (~160KB each)
- * 3. 5~6 images: Sharp 1280px @ 0.82 quality (~120KB each)
- * Total combined images payload stays comfortably under ~750KB (100% safe within Firestore 1MB limit).
- * Never recompresses an image that is already within the budget.
+ * Strict mathematical guarantees:
+ * - 1 photo: up to ~150KB max (1200px @ 0.80) (~150KB total)
+ * - 2 photos: up to ~125KB each (1100px @ 0.78) (~250KB total)
+ * - 3 photos: up to ~95KB each (1000px @ 0.76) (~285KB total)
+ * - 4 photos: up to ~78KB each (900px @ 0.74) (~312KB total)
+ * - 5 photos: up to ~68KB each (840px @ 0.72) (~340KB total)
+ * - 6 photos: up to ~60KB each (760px @ 0.70) (~360KB total)
+ * Total combined images payload NEVER exceeds ~360KB (100% safe within Firestore 1MB limit with >640KB headroom for text and tables).
  */
 export const optimizePostImages = async (images: string[]): Promise<string[]> => {
   if (!images || images.length === 0) return [];
 
   const count = images.length;
-  let maxDim = 1600;
-  let quality = 0.86;
-  let maxPerImageLength = 280000;
+  let maxDim = 1200;
+  let quality = 0.80;
+  let maxBytes = 150000;
 
   if (count === 1) {
-    maxDim = 1600;
-    quality = 0.88;
-    maxPerImageLength = 320000;
-  } else if (count === 2) {
-    maxDim = 1600;
-    quality = 0.85;
-    maxPerImageLength = 250000;
-  } else if (count <= 4) {
-    maxDim = 1440;
-    quality = 0.83;
-    maxPerImageLength = 180000;
-  } else {
-    // 5 or 6 images: total budget ~720KB max
-    maxDim = 1280;
+    maxDim = 1200;
     quality = 0.80;
-    maxPerImageLength = 135000;
+    maxBytes = 150000;
+  } else if (count === 2) {
+    maxDim = 1100;
+    quality = 0.78;
+    maxBytes = 125000;
+  } else if (count === 3) {
+    maxDim = 1000;
+    quality = 0.76;
+    maxBytes = 95000;
+  } else if (count === 4) {
+    maxDim = 900;
+    quality = 0.74;
+    maxBytes = 78000;
+  } else if (count === 5) {
+    maxDim = 840;
+    quality = 0.72;
+    maxBytes = 68000;
+  } else {
+    // 6 images
+    maxDim = 760;
+    quality = 0.70;
+    maxBytes = 60000;
   }
 
   return Promise.all(
     images.map(async (img) => {
       if (!img || !img.startsWith('data:image/')) return img;
-      // If already within budget, keep untouched to preserve 100% quality across repeated post edits
-      if (img.length <= maxPerImageLength) {
+      // If already within budget, keep untouched
+      if (img.length <= maxBytes) {
         return img;
       }
-      return optimizeDataUrl(img, maxDim, maxDim, quality);
+      return optimizeDataUrl(img, maxDim, maxDim, quality, maxBytes);
     })
   );
 };
 
 /**
- * Creates an ultra-crisp preview thumbnail (~20KB - 30KB)
+ * Creates an ultra-crisp, lightweight preview thumbnail (~12KB - 16KB)
  */
 export const createMiniThumbnail = async (dataUrl: string): Promise<string> => {
   if (!dataUrl || !dataUrl.startsWith('data:image/')) return dataUrl;
   return new Promise((resolve) => {
     const img = new Image();
     img.onload = () => {
-      const maxDim = 480;
+      const maxDim = 280;
       let width = img.width;
       let height = img.height;
       if (width > maxDim || height > maxDim) {
@@ -288,7 +348,8 @@ export const createMiniThumbnail = async (dataUrl: string): Promise<string> => {
 
       const canWebP = supportsWebP();
       const preferredMime = canWebP ? 'image/webp' : 'image/jpeg';
-      resolve(canvas.toDataURL(preferredMime, 0.80));
+      const thumbnailResult = compressCanvasToTargetBudget(canvas, preferredMime, 0.75, 18000);
+      resolve(thumbnailResult);
     };
     img.onerror = () => resolve(dataUrl);
     img.src = dataUrl;

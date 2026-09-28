@@ -442,18 +442,8 @@ export const FormattedPostContent: React.FC<{
  */
 export function createViewerPhotoHtml(photoIndex: number, imageUrl: string): string {
   const photoNum = photoIndex + 1;
-  return `<figure class="my-2.5 rounded-2xl overflow-hidden shadow-sm hover:shadow-md border border-slate-200 bg-slate-950 flex items-center justify-center p-1 sm:p-2 cursor-zoom-in transition-all relative group" data-zoom-src="${imageUrl}">
-    <img src="${imageUrl}" alt="사진 ${photoNum}" class="w-full h-auto max-h-[620px] object-contain mx-auto rounded-xl group-hover:scale-[1.01] transition-transform duration-300 pointer-events-none" loading="lazy" decoding="async" />
-    <div class="absolute top-3 left-3 flex items-center gap-1.5 pointer-events-none">
-      <span class="px-2.5 py-1 rounded-lg bg-slate-900/85 backdrop-blur-sm text-white text-xs font-bold flex items-center gap-1.5 shadow border border-white/10">
-        <span>📷</span> 사진 ${photoNum}
-      </span>
-    </div>
-    <div class="absolute inset-0 bg-black/0 group-hover:bg-black/25 transition-colors flex items-center justify-center pointer-events-none">
-      <span class="opacity-0 group-hover:opacity-100 transition-opacity px-3.5 py-2 rounded-xl bg-black/75 text-white text-xs font-bold flex items-center gap-2 backdrop-blur-sm shadow-lg border border-white/20">
-        🔍 클릭하여 사진 확대
-      </span>
-    </div>
+  return `<figure class="my-4 rounded-2xl overflow-hidden border border-slate-200/80 bg-slate-50/50 flex items-center justify-center p-1 sm:p-2">
+    <img src="${imageUrl}" alt="사진 ${photoNum}" class="w-full h-auto max-h-[640px] object-contain mx-auto rounded-xl pointer-events-none" loading="lazy" decoding="async" />
   </figure>`;
 }
 
@@ -482,17 +472,13 @@ export function createViewerMapHtml(title: string, address?: string, query?: str
  */
 export function createVisualPhotoHtml(photoIndex: number, imageUrl: string): string {
   const photoNum = photoIndex + 1;
-  return `<div class="visual-photo-card my-2.5 p-2 bg-slate-50 rounded-2xl border border-slate-200 select-none relative group" contenteditable="false" data-photo-idx="${photoIndex}">
-    <div class="relative rounded-xl overflow-hidden shadow-sm max-h-[550px] bg-slate-950 flex items-center justify-center p-1">
+  return `<div class="visual-photo-card my-3 p-2 bg-slate-50 rounded-2xl border border-slate-200 select-none relative group" contenteditable="false" data-photo-idx="${photoIndex}">
+    <div class="relative rounded-xl overflow-hidden max-h-[550px] bg-slate-100 flex items-center justify-center p-1">
       <img src="${imageUrl}" alt="사진 ${photoNum}" class="w-full max-h-[530px] object-contain mx-auto rounded-lg pointer-events-none" />
-      <div class="absolute top-2.5 left-2.5 px-2.5 py-1 rounded-lg bg-slate-900/85 backdrop-blur-sm text-white text-xs font-bold flex items-center gap-1.5 shadow">
-        <span>📷</span> 사진 ${photoNum}
-      </div>
       <button type="button" class="delete-photo-btn absolute top-2.5 right-2.5 px-3 py-1 rounded-lg bg-red-600/90 hover:bg-red-700 text-white text-xs font-bold flex items-center gap-1 shadow transition-all cursor-pointer">
-        ✕ 본문에서 제거
+        ✕ 사진 삭제
       </button>
     </div>
-    <div class="text-center text-[11px] text-slate-400 mt-1 font-medium">본문 삽입 사진 (원본 비율 & 고화질 확대 지원)</div>
   </div>`;
 }
 

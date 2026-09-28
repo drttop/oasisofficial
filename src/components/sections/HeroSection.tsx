@@ -31,23 +31,22 @@ export const HeroSection: React.FC = () => {
         <picture className="w-full h-full">
           {isLocalHero && (
             <>
-              <source media="(max-width: 640px)" srcSet="/images/hero_bg_mobile.webp" type="image/webp" width="640" height="360" />
+              <source media="(max-width: 640px)" srcSet="/images/hero_bg_mobile.webp" type="image/webp" width="640" height="357" />
               <source media="(min-width: 641px)" srcSet="/images/hero_bg.webp" type="image/webp" width="1376" height="768" />
             </>
           )}
           <img
-            src={currentBg}
-            srcSet={isLocalHero ? '/images/hero_bg_mobile.webp 640w, /images/hero_bg.webp 1376w' : undefined}
+            src={isLocalHero ? '/images/hero_bg_mobile.webp' : currentBg}
             sizes="100vw"
             alt={slide.title}
             loading="eager"
             fetchPriority="high"
             decoding="async"
-            width={1376}
-            height={768}
+            width={isLocalHero ? 640 : 1376}
+            height={isLocalHero ? 357 : 768}
             onError={() => {
-              if (currentBg !== '/images/hero_bg.jpg') {
-                setImgSrc('/images/hero_bg.jpg');
+              if (currentBg !== '/images/hero_bg.webp') {
+                setImgSrc('/images/hero_bg.webp');
               } else {
                 setImgSrc(FALLBACK_HERO_IMAGE);
               }

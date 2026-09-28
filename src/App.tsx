@@ -2,13 +2,15 @@ import React, { Suspense } from 'react';
 import { SiteProvider, useSite } from './context/SiteContext';
 import { Header } from './components/Header';
 import { HeroSection } from './components/sections/HeroSection';
-import { AboutSection } from './components/sections/AboutSection';
 import { BottomFloatingBar } from './components/BottomFloatingBar';
 import { SEOManager } from './components/SEOManager';
 import { ErrorBoundary } from './components/common/ErrorBoundary';
 import { Settings } from 'lucide-react';
 
 // Code-split below-the-fold sections to drastically reduce initial JavaScript execution & unused JS
+const AboutSection = React.lazy(() =>
+  import('./components/sections/AboutSection').then((m) => ({ default: m.AboutSection }))
+);
 const CasinoSection = React.lazy(() =>
   import('./components/sections/CasinoSection').then((m) => ({ default: m.CasinoSection }))
 );
@@ -151,11 +153,11 @@ const MainAppContent: React.FC = () => {
             {/* Hero Slider (LCP Priority Element) */}
             <HeroSection />
 
-            {/* 1. 오아시스 소개 (About Oasis) */}
-            <AboutSection />
-
             {/* Below-the-fold landing page sections streamed smoothly */}
             <Suspense fallback={null}>
+              {/* 1. 오아시스 소개 (About Oasis) */}
+              <AboutSection />
+
               {/* 2. 카지노 서비스 (Casino Intro) */}
               <CasinoSection />
 
@@ -200,6 +202,7 @@ const MainAppContent: React.FC = () => {
             onFocus={preloadAdmin}
             className="flex items-center gap-2 px-3.5 py-2 rounded-full bg-slate-900/90 hover:bg-slate-900 text-white text-xs font-bold shadow-xl border border-slate-700 backdrop-blur-md transition-all hover:scale-105 active:scale-95 group cursor-pointer"
             title="관리자 CMS 대시보드 열기"
+            aria-label="관리자 CMS 대시보드 열기"
             id="btn-floating-admin-cms"
           >
             <Settings className="w-3.5 h-3.5 text-[#E5B54F] group-hover:rotate-90 transition-transform duration-300" />

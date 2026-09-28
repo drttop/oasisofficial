@@ -41,3 +41,4 @@ Allow: /
 Allow: /*?post=*
 
 Sitemap: https://oasis46.com/sitemap.xml
+Agentmap: https://oasis46.com/.well-known/ai-catalog.json

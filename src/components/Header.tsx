@@ -172,7 +172,7 @@ export const Header: React.FC = () => {
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="p-2 rounded-lg text-white hover:bg-white/10 lg:hidden cursor-pointer"
-              aria-label="모바일 메뉴 열기"
+              aria-label={mobileMenuOpen ? "모바일 메뉴 닫기" : "모바일 메뉴 열기"}
               id="btn-mobile-menu-toggle"
             >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -182,7 +182,7 @@ export const Header: React.FC = () => {
 
         {/* Mobile Horizontal Navigation (Category Bar - 홈 삭제, 이용방법은 상단 삼선에서만 표시) */}
         <div className="lg:hidden w-full border-t border-slate-800/50 px-2 sm:px-4">
-          <nav className="flex items-center justify-around sm:justify-between w-full py-2.5">
+          <nav className="flex items-center justify-around sm:justify-between w-full py-2.5" aria-label="모바일 카테고리 네비게이션">
             {mobileHorizontalNavItems.map((item) => (
               <a
                 key={`horiz-${item.id}`}
@@ -200,7 +200,7 @@ export const Header: React.FC = () => {
       {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
         <div className="lg:hidden bg-white border-b border-slate-200 shadow-xl px-4 pt-3 pb-6 space-y-3 animate-in slide-in-from-top duration-200">
-          <div className="space-y-1">
+          <nav className="space-y-1" aria-label="모바일 전체 사이트 메뉴">
             {navItems.map((item) => (
               <a
                 key={`mob-${item.id}`}
@@ -212,7 +212,7 @@ export const Header: React.FC = () => {
                 <ChevronRight className="w-4 h-4 text-slate-400" />
               </a>
             ))}
-          </div>
+          </nav>
         </div>
       )}
     </header>

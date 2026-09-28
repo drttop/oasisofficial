@@ -43,12 +43,12 @@ export const CasinoSection: React.FC = () => {
                 {/* Image Banner */}
                 <div className="relative h-28 min-[380px]:h-36 sm:h-56 w-full overflow-hidden bg-slate-900">
                   <img
-                    {...getResponsiveImageProps(casino.image, 600, '(max-width: 640px) 380px, (max-width: 1024px) 50vw, 380px')}
+                    {...getResponsiveImageProps(casino.image, 480, '(max-width: 640px) 45vw, (max-width: 1024px) 50vw, 380px')}
                     alt={casino.name}
                     loading="lazy"
                     decoding="async"
-                    width={600}
-                    height={400}
+                    width={480}
+                    height={320}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     referrerPolicy="no-referrer"
                   />

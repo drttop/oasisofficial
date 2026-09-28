@@ -3,16 +3,30 @@ import { SiteProvider, useSite } from './context/SiteContext';
 import { Header } from './components/Header';
 import { HeroSection } from './components/sections/HeroSection';
 import { AboutSection } from './components/sections/AboutSection';
-import { CasinoSection } from './components/sections/CasinoSection';
-import { PhilippinesSection } from './components/sections/PhilippinesSection';
-import { PromotionSection } from './components/sections/PromotionSection';
-import { CommunitySection } from './components/sections/CommunitySection';
-import { ProcessSection } from './components/sections/ProcessSection';
-import { Footer } from './components/Footer';
 import { BottomFloatingBar } from './components/BottomFloatingBar';
 import { SEOManager } from './components/SEOManager';
 import { ErrorBoundary } from './components/common/ErrorBoundary';
 import { Settings } from 'lucide-react';
+
+// Code-split below-the-fold sections to drastically reduce initial JavaScript execution & unused JS
+const CasinoSection = React.lazy(() =>
+  import('./components/sections/CasinoSection').then((m) => ({ default: m.CasinoSection }))
+);
+const PhilippinesSection = React.lazy(() =>
+  import('./components/sections/PhilippinesSection').then((m) => ({ default: m.PhilippinesSection }))
+);
+const PromotionSection = React.lazy(() =>
+  import('./components/sections/PromotionSection').then((m) => ({ default: m.PromotionSection }))
+);
+const CommunitySection = React.lazy(() =>
+  import('./components/sections/CommunitySection').then((m) => ({ default: m.CommunitySection }))
+);
+const ProcessSection = React.lazy(() =>
+  import('./components/sections/ProcessSection').then((m) => ({ default: m.ProcessSection }))
+);
+const Footer = React.lazy(() =>
+  import('./components/Footer').then((m) => ({ default: m.Footer }))
+);
 
 // Code-split heavy modals and pages to minimize initial JavaScript bundle and main-thread execution time
 const CasinoDetailModal = React.lazy(() =>
@@ -140,26 +154,33 @@ const MainAppContent: React.FC = () => {
             {/* 1. 오아시스 소개 (About Oasis) */}
             <AboutSection />
 
-            {/* 2. 카지노 서비스 (Casino Intro) */}
-            <CasinoSection />
+            {/* Below-the-fold landing page sections streamed smoothly */}
+            <Suspense fallback={null}>
+              {/* 2. 카지노 서비스 (Casino Intro) */}
+              <CasinoSection />
 
-            {/* 3. VIP 서비스 (Philippines Travel & VIP Care) */}
-            <PhilippinesSection />
+              {/* 3. VIP 서비스 (Philippines Travel & VIP Care) */}
+              <PhilippinesSection />
 
-            {/* 4. 프로모션 (Promotion Board) */}
-            <PromotionSection />
+              {/* 4. 프로모션 (Promotion Board) */}
+              <PromotionSection />
 
-            {/* 5. 커뮤니티 (Community Board) */}
-            <CommunitySection />
+              {/* 5. 커뮤니티 (Community Board) */}
+              <CommunitySection />
 
-            {/* 6. 이용방법 (Process & FAQ) */}
-            <ProcessSection />
+              {/* 6. 이용방법 (Process & FAQ) */}
+              <ProcessSection />
+            </Suspense>
           </>
         )}
       </main>
 
       {/* Footer */}
-      {!isPostEditorOpen && <Footer />}
+      {!isPostEditorOpen && (
+        <Suspense fallback={null}>
+          <Footer />
+        </Suspense>
+      )}
 
       {/* Signature Sticky Bottom Floating Bar (KakaoTalk & Telegram 1-click) */}
       {!isPostEditorOpen && <BottomFloatingBar />}

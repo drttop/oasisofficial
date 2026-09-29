@@ -65,6 +65,15 @@ export const CommunitySection: React.FC = () => {
   const handleOpenPost = (post: PostItem) => {
     incrementPostView(post.id);
     if (typeof window !== 'undefined') {
+      try {
+        sessionStorage.setItem('oasis_current_board', 'community');
+        sessionStorage.setItem('oasis_last_post_category', post.category);
+        window.history.replaceState(
+          { section: 'community', originSection: 'community' },
+          '',
+          `${window.location.pathname}#community`
+        );
+      } catch {}
       window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
     }
     setSelectedPost(post);

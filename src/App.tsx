@@ -62,21 +62,36 @@ const MainAppContent: React.FC = () => {
 
   const handleBackToCommunity = () => {
     const isPromotion = selectedPost?.category === '프로모션';
+    const targetId = isPromotion ? 'promotion' : 'community';
+    const targetHash = isPromotion ? '#promotion' : '#community';
+
     setSelectedPost(null);
     if (typeof window !== 'undefined') {
-      const targetHash = isPromotion ? '#promotion' : '#community';
-      window.history.replaceState({}, '', `${window.location.pathname}${targetHash}`);
-      requestAnimationFrame(() => {
-        const targetId = isPromotion ? 'promotion' : 'community';
+      try {
+        sessionStorage.setItem('oasis_current_board', targetId);
+        window.history.replaceState({ section: targetId, originSection: targetId }, '', `${window.location.pathname}${targetHash}`);
+      } catch {}
+
+      let attempts = 0;
+      const scrollToSection = () => {
         const element = document.getElementById(targetId);
         if (element) {
+          element.scrollIntoView({ behavior: 'instant' as ScrollBehavior, block: 'start' });
           const headerOffset = 80;
           const elementPosition = element.getBoundingClientRect().top;
-          const offsetPosition = Math.max(0, elementPosition + window.pageYOffset - headerOffset);
-          window.scrollTo({ top: offsetPosition, behavior: 'instant' as ScrollBehavior });
-        } else {
-          window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
+          if (Math.abs(elementPosition - headerOffset) > 8) {
+            const offsetPosition = Math.max(0, elementPosition + window.pageYOffset - headerOffset);
+            window.scrollTo({ top: offsetPosition, behavior: 'instant' as ScrollBehavior });
+          }
         }
+        if (attempts < 30) {
+          attempts++;
+          setTimeout(scrollToSection, attempts < 5 ? 25 : 80);
+        }
+      };
+
+      requestAnimationFrame(() => {
+        scrollToSection();
       });
     }
   };

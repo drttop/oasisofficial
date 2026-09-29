@@ -6,7 +6,7 @@
   <!-- Main Home Page -->
   <url>
     <loc>https://oasis46.com/</loc>
-    <lastmod>2026-09-28</lastmod>
+    <lastmod>2026-09-29</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
     <image:image>
@@ -111,8 +111,8 @@
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <image:image>
-      <image:loc>https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?auto=format&amp;fit=crop&amp;w=800&amp;q=80</image:loc>
-      <image:title>마닐라 BGC(보니파시오) 최고급 파인다이닝 &amp; 루프탑 라운지 BEST 5</image:title>
+      <image:loc>https://oasis46.com/logo.jpg</image:loc>
+      <image:title>마닐라 BGC 하이엔드 다이닝 &amp; 루프탑 라운지 BEST 5</image:title>
     </image:image>
   </url>
 

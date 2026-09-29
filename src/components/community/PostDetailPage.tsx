@@ -54,15 +54,17 @@ export const PostDetailPage: React.FC<PostDetailPageProps> = ({
           <button
             type="button"
             onClick={onBack}
-            className="px-5 py-2.5 rounded-xl bg-[#30308A] text-white text-xs font-bold"
+            className="px-5 py-2.5 rounded-xl bg-[#30308A] text-white text-xs font-bold cursor-pointer"
           >
-            커뮤니티 목록으로 돌아가기
+            목록으로 돌아가기
           </button>
         </div>
       </div>
     );
   }
 
+  const isPromotion = post.category === '프로모션';
+  const boardLabel = isPromotion ? '프로모션' : '커뮤니티';
   const postUrl = getPostUrl(post.id);
 
   const handleCopyUrl = async () => {
@@ -131,17 +133,17 @@ export const PostDetailPage: React.FC<PostDetailPageProps> = ({
               type="button"
               onClick={onBack}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-[#30308A] hover:text-white text-slate-700 text-xs sm:text-sm font-bold transition-all cursor-pointer group shadow-2xs"
-              title="커뮤니티 게시글 목록으로 돌아가기"
+              title={`${boardLabel} 게시글 목록으로 돌아가기`}
             >
               <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" />
-              <span>커뮤니티 목록으로</span>
+              <span>{boardLabel} 목록으로</span>
             </button>
 
             {/* Breadcrumbs */}
             <div className="hidden sm:flex items-center gap-1.5 text-xs text-slate-400">
               <span className="hover:text-slate-600 cursor-pointer" onClick={onBack}>홈</span>
               <span>/</span>
-              <span className="hover:text-slate-600 cursor-pointer" onClick={onBack}>커뮤니티</span>
+              <span className="hover:text-slate-600 cursor-pointer" onClick={onBack}>{boardLabel}</span>
               <span>/</span>
               <span className="font-semibold text-slate-700">{post.category}</span>
             </div>
@@ -458,7 +460,7 @@ export const PostDetailPage: React.FC<PostDetailPageProps> = ({
                   className="px-5 py-2.5 rounded-xl bg-[#30308A] hover:bg-[#25256e] text-white text-xs sm:text-sm font-bold flex items-center gap-2 shadow-xs transition-all cursor-pointer"
                 >
                   <ArrowLeft className="w-4 h-4" />
-                  <span>커뮤니티 목록으로 돌아가기</span>
+                  <span>{boardLabel} 목록으로 돌아가기</span>
                 </button>
               </div>
 

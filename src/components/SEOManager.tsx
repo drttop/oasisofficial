@@ -17,6 +17,7 @@ export const SEOManager: React.FC = () => {
   } = useSite();
 
   const handledPostIdRef = useRef<string | null>(null);
+  const lastActivePostRef = useRef<any>(null);
   const userClosedRef = useRef(false);
   const initialCheckedRef = useRef(false);
 
@@ -122,6 +123,12 @@ export const SEOManager: React.FC = () => {
     if (selectedPost) {
       userClosedRef.current = false;
       handledPostIdRef.current = selectedPost.id;
+      lastActivePostRef.current = selectedPost;
+      const isPromotion = selectedPost.category === '프로모션';
+      try {
+        sessionStorage.setItem('oasis_last_post_category', selectedPost.category);
+        sessionStorage.setItem('oasis_current_board', isPromotion ? 'promotion' : 'community');
+      } catch {}
 
       // Clean edit / action params if present
       if (currentActionParam || currentEditParam) {
@@ -132,7 +139,15 @@ export const SEOManager: React.FC = () => {
       // If URL doesn't have this post query, update URL without reload
       if (currentPostParam !== selectedPost.id) {
         const newUrl = getPostUrl(selectedPost.id);
-        window.history.pushState({ postId: selectedPost.id }, '', newUrl);
+        window.history.pushState(
+          {
+            postId: selectedPost.id,
+            originSection: isPromotion ? 'promotion' : 'community',
+            section: isPromotion ? 'promotion' : 'community',
+          },
+          '',
+          newUrl
+        );
       }
 
       // Apply Dynamic SEO & Meta Tags & Schema.org JSON-LD
@@ -140,7 +155,7 @@ export const SEOManager: React.FC = () => {
       return;
     }
 
-    // Neither editor nor post is active: return cleanly to home URL
+    // Neither editor nor post is active: return cleanly to home URL or previous section hash
     if (currentPostParam || currentActionParam || currentEditParam) {
       userClosedRef.current = true;
       currentParams.delete('post');
@@ -149,11 +164,27 @@ export const SEOManager: React.FC = () => {
       currentParams.delete('action');
       currentParams.delete('edit');
       const remainingQuery = currentParams.toString();
-      const currentHash = window.location.hash || '';
+      const previousPost = lastActivePostRef.current;
+      const savedCategory = typeof window !== 'undefined' ? sessionStorage.getItem('oasis_last_post_category') : null;
+      const savedBoard = typeof window !== 'undefined' ? sessionStorage.getItem('oasis_current_board') : null;
+
+      let isPromotion = false;
+      if (previousPost) {
+        isPromotion = previousPost.category === '프로모션';
+      } else if (savedCategory) {
+        isPromotion = savedCategory === '프로모션';
+      } else if (savedBoard) {
+        isPromotion = savedBoard === 'promotion';
+      } else {
+        isPromotion = window.location.hash === '#promotion';
+      }
+
+      const targetHash = isPromotion ? '#promotion' : '#community';
+      const targetId = isPromotion ? 'promotion' : 'community';
       const newUrl = remainingQuery
-        ? `${window.location.pathname}?${remainingQuery}${currentHash}`
-        : `${window.location.pathname}${currentHash}`;
-      window.history.replaceState({}, '', newUrl);
+        ? `${window.location.pathname}?${remainingQuery}${targetHash}`
+        : `${window.location.pathname}${targetHash}`;
+      window.history.replaceState({ section: targetId, originSection: targetId }, '', newUrl);
     }
 
     // Reapply default Site Home SEO
@@ -162,7 +193,7 @@ export const SEOManager: React.FC = () => {
 
   // 3. Handle Browser Back & Forward buttons (popstate)
   useEffect(() => {
-    const handlePopState = () => {
+    const handlePopState = (event: PopStateEvent) => {
       userClosedRef.current = true;
       const params = new URLSearchParams(window.location.search);
       const postId = params.get('post') || params.get('postId') || params.get('p');
@@ -176,13 +207,73 @@ export const SEOManager: React.FC = () => {
         const target = posts.find((p) => String(p.id) === String(postId));
         if (target) {
           handledPostIdRef.current = target.id;
+          lastActivePostRef.current = target;
+          const isTargetPromotion = target.category === '프로모션';
+          try {
+            sessionStorage.setItem('oasis_last_post_category', target.category);
+            sessionStorage.setItem('oasis_current_board', isTargetPromotion ? 'promotion' : 'community');
+          } catch {}
           setSelectedPost(target);
           return;
         }
       }
 
+      // When popping back from post detail view to list (Browser Back button pressed):
+      const previousPost = lastActivePostRef.current;
+      const savedCategory = typeof window !== 'undefined' ? sessionStorage.getItem('oasis_last_post_category') : null;
+      const savedBoard = typeof window !== 'undefined' ? sessionStorage.getItem('oasis_current_board') : null;
+
+      // Board selection hierarchy:
+      // If previousPost exists, category '프로모션' -> promotion, any other category -> community!
+      let isPromotion = false;
+      if (previousPost) {
+        isPromotion = previousPost.category === '프로모션';
+      } else if (savedCategory) {
+        isPromotion = savedCategory === '프로모션';
+      } else if (savedBoard) {
+        isPromotion = savedBoard === 'promotion';
+      } else {
+        isPromotion =
+          event.state?.section === 'promotion' ||
+          event.state?.originSection === 'promotion' ||
+          window.location.hash === '#promotion';
+      }
+
+      const targetId = isPromotion ? 'promotion' : 'community';
+      const targetHash = isPromotion ? '#promotion' : '#community';
+
       handledPostIdRef.current = null;
+      lastActivePostRef.current = null;
       setSelectedPost(null);
+
+      // Cleanly replace URL hash so it reflects the correct section
+      try {
+        sessionStorage.setItem('oasis_current_board', targetId);
+        window.history.replaceState({ section: targetId, originSection: targetId }, '', `${window.location.pathname}${targetHash}`);
+      } catch {}
+
+      // Robust scrolling to target board section with retries for lazy components mounting
+      let attempts = 0;
+      const scrollToSection = () => {
+        const element = document.getElementById(targetId);
+        if (element) {
+          element.scrollIntoView({ behavior: 'instant' as ScrollBehavior, block: 'start' });
+          const headerOffset = 80;
+          const elementPosition = element.getBoundingClientRect().top;
+          if (Math.abs(elementPosition - headerOffset) > 8) {
+            const offsetPosition = Math.max(0, elementPosition + window.pageYOffset - headerOffset);
+            window.scrollTo({ top: offsetPosition, behavior: 'instant' as ScrollBehavior });
+          }
+        }
+        if (attempts < 30) {
+          attempts++;
+          setTimeout(scrollToSection, attempts < 5 ? 25 : 80);
+        }
+      };
+
+      requestAnimationFrame(() => {
+        scrollToSection();
+      });
     };
 
     window.addEventListener('popstate', handlePopState);

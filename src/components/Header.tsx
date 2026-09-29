@@ -90,11 +90,27 @@ export const Header: React.FC = () => {
     }
 
     if (href === '#home') {
+      if (typeof window !== 'undefined') {
+        window.history.replaceState({ section: 'home', originSection: 'home' }, '', window.location.pathname);
+      }
       window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
       return;
     }
 
     const targetId = href.replace(/^#/, '');
+    if (typeof window !== 'undefined' && href.startsWith('#')) {
+      try {
+        if (targetId === 'community' || targetId === 'promotion') {
+          sessionStorage.setItem('oasis_current_board', targetId);
+        }
+        window.history.replaceState(
+          { section: targetId, originSection: targetId },
+          '',
+          `${window.location.pathname}${href}`
+        );
+      } catch {}
+    }
+
     const element = document.getElementById(targetId) || document.querySelector(href);
     if (element) {
       const headerOffset = 80;

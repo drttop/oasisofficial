@@ -583,20 +583,20 @@ export const AdminDashboard: React.FC = () => {
                         />
                       </div>
                       <div>
-                        <span className="text-[10px] text-slate-500 block mb-1">메뉴 2 (카지노 서비스)</span>
-                        <input
-                          type="text"
-                          value={siteConfig.navMenu2 || '카지노 서비스'}
-                          onChange={(e) => updateSiteConfig({ navMenu2: e.target.value })}
-                          className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded focus:ring-2 focus:ring-[#30308A]"
-                        />
-                      </div>
-                      <div>
-                        <span className="text-[10px] text-slate-500 block mb-1">메뉴 3 (VIP 서비스)</span>
+                        <span className="text-[10px] text-slate-500 block mb-1">메뉴 2 (VIP 서비스)</span>
                         <input
                           type="text"
                           value={siteConfig.navMenu3 || 'VIP 서비스'}
                           onChange={(e) => updateSiteConfig({ navMenu3: e.target.value })}
+                          className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded focus:ring-2 focus:ring-[#30308A]"
+                        />
+                      </div>
+                      <div>
+                        <span className="text-[10px] text-slate-500 block mb-1">메뉴 3 (카지노 서비스)</span>
+                        <input
+                          type="text"
+                          value={siteConfig.navMenu2 || '카지노 서비스'}
+                          onChange={(e) => updateSiteConfig({ navMenu2: e.target.value })}
                           className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded focus:ring-2 focus:ring-[#30308A]"
                         />
                       </div>

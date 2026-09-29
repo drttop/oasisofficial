@@ -5,7 +5,7 @@ import { HeroSection } from './components/sections/HeroSection';
 import { BottomFloatingBar } from './components/BottomFloatingBar';
 import { SEOManager } from './components/SEOManager';
 import { ErrorBoundary } from './components/common/ErrorBoundary';
-import { Settings } from 'lucide-react';
+import { Settings, ArrowLeft } from 'lucide-react';
 
 // Code-split below-the-fold sections to drastically reduce initial JavaScript execution & unused JS
 const AboutSection = React.lazy(() =>
@@ -58,6 +58,8 @@ const MainAppContent: React.FC = () => {
     isPostEditorOpen,
     editingPost,
     closePostEditor,
+    activeInfoModal,
+    setActiveInfoModal,
   } = useSite();
 
   const handleBackToCommunity = () => {
@@ -162,31 +164,91 @@ const MainAppContent: React.FC = () => {
               onBack={handleBackToCommunity}
             />
           </Suspense>
+        ) : activeInfoModal === 'about' ? (
+          /* Dedicated View for About Oasis (Accessed via Menu) */
+          <div className="w-full bg-white min-h-[85vh] animate-in fade-in duration-200">
+            {/* Top Navigation Bar with Back Button */}
+            <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200 px-4 sm:px-8 py-3.5 flex items-center justify-between shadow-2xs">
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveInfoModal(null);
+                  if (typeof window !== 'undefined') {
+                    window.history.replaceState({ section: 'home' }, '', window.location.pathname);
+                    window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
+                  }
+                }}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 hover:bg-[#30308A] hover:text-white text-slate-800 text-xs sm:text-sm font-bold transition-all cursor-pointer shadow-2xs group"
+              >
+                <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" />
+                <span>메인화면으로 돌아가기</span>
+              </button>
+              <span className="text-xs sm:text-sm font-extrabold text-[#30308A] font-montserrat tracking-wider">
+                ABOUT OASIS AGENT
+              </span>
+            </div>
+            <Suspense
+              fallback={
+                <div className="min-h-[50vh] flex items-center justify-center">
+                  <div className="w-8 h-8 border-3 border-[#30308A] border-t-transparent rounded-full animate-spin" />
+                </div>
+              }
+            >
+              <AboutSection />
+            </Suspense>
+          </div>
+        ) : activeInfoModal === 'process' ? (
+          /* Dedicated View for VIP Service Process (Accessed via Menu) */
+          <div className="w-full bg-slate-50 min-h-[85vh] animate-in fade-in duration-200">
+            {/* Top Navigation Bar with Back Button */}
+            <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200 px-4 sm:px-8 py-3.5 flex items-center justify-between shadow-2xs">
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveInfoModal(null);
+                  if (typeof window !== 'undefined') {
+                    window.history.replaceState({ section: 'home' }, '', window.location.pathname);
+                    window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
+                  }
+                }}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 hover:bg-[#30308A] hover:text-white text-slate-800 text-xs sm:text-sm font-bold transition-all cursor-pointer shadow-2xs group"
+              >
+                <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" />
+                <span>메인화면으로 돌아가기</span>
+              </button>
+              <span className="text-xs sm:text-sm font-extrabold text-[#30308A] font-montserrat tracking-wider">
+                VIP SERVICE PROCESS
+              </span>
+            </div>
+            <Suspense
+              fallback={
+                <div className="min-h-[50vh] flex items-center justify-center">
+                  <div className="w-8 h-8 border-3 border-[#30308A] border-t-transparent rounded-full animate-spin" />
+                </div>
+              }
+            >
+              <ProcessSection />
+            </Suspense>
+          </div>
         ) : (
-          /* 3. Main Landing Page Sections */
+          /* 3. Main Landing Page Sections: Simplified & Streamlined Flow */
           <>
-            {/* Hero Slider (LCP Priority Element) */}
+            {/* 1. 메인타이틀 (Hero Slider, LCP Priority Element) */}
             <HeroSection />
 
             {/* Below-the-fold landing page sections streamed smoothly */}
             <Suspense fallback={null}>
-              {/* 1. 오아시스 소개 (About Oasis) */}
-              <AboutSection />
-
-              {/* 2. 카지노 서비스 (Casino Intro) */}
-              <CasinoSection />
-
-              {/* 3. VIP 서비스 (Philippines Travel & VIP Care) */}
+              {/* 2. VIP 서비스 (Philippines Travel & VIP Care) */}
               <PhilippinesSection />
+
+              {/* 3. 카지노 서비스 (Casino Intro) */}
+              <CasinoSection />
 
               {/* 4. 프로모션 (Promotion Board) */}
               <PromotionSection />
 
               {/* 5. 커뮤니티 (Community Board) */}
               <CommunitySection />
-
-              {/* 6. 이용방법 (Process & FAQ) */}
-              <ProcessSection />
             </Suspense>
           </>
         )}

@@ -81,6 +81,9 @@ interface SiteContextType {
   selectedCasino: CasinoItem | null;
   setSelectedCasino: (casino: CasinoItem | null) => void;
   
+  activeInfoModal: 'about' | 'process' | null;
+  setActiveInfoModal: (modal: 'about' | 'process' | null) => void;
+  
   activeSection: string;
   setActiveSection: (section: string) => void;
   
@@ -274,6 +277,13 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return null;
   });
   const [selectedCasino, setSelectedCasino] = useState<CasinoItem | null>(null);
+  const [activeInfoModal, setActiveInfoModal] = useState<'about' | 'process' | null>(() => {
+    if (typeof window === 'undefined') return null;
+    const hash = window.location.hash;
+    if (hash === '#about') return 'about';
+    if (hash === '#process') return 'process';
+    return null;
+  });
   const [activeSection, setActiveSection] = useState('home');
   const [isCloudSynced, setIsCloudSynced] = useState(false);
 
@@ -1086,6 +1096,8 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setSelectedPost,
         selectedCasino,
         setSelectedCasino,
+        activeInfoModal,
+        setActiveInfoModal,
         activeSection,
         setActiveSection,
         isCloudSynced,

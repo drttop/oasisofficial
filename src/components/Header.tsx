@@ -9,6 +9,8 @@ export const Header: React.FC = () => {
     setSelectedPost,
     isPostEditorOpen,
     closePostEditor,
+    activeInfoModal,
+    setActiveInfoModal,
   } = useSite();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -30,8 +32,8 @@ export const Header: React.FC = () => {
 
   const navItems = [
     { label: siteConfig.navMenu1 || '오아시스', href: '#about', id: 'nav-about' },
-    { label: siteConfig.navMenu2 || '카지노 서비스', href: '#casino', id: 'nav-casino' },
     { label: siteConfig.navMenu3 || 'VIP 서비스', href: '#philippines', id: 'nav-philippines' },
+    { label: siteConfig.navMenu2 || '카지노 서비스', href: '#casino', id: 'nav-casino' },
     { label: siteConfig.navMenu4 || '프로모션', href: '#promotion', id: 'nav-promotion' },
     { label: siteConfig.navMenu5 || '커뮤니티', href: '#community', id: 'nav-community' },
     { label: siteConfig.navMenu6 || '이용방법', href: '#process', id: 'nav-process' },
@@ -40,8 +42,8 @@ export const Header: React.FC = () => {
   // Mobile horizontal bar: 홈 삭제, 이용방법 제외(상단 삼선에서만 표시)
   const mobileHorizontalNavItems = [
     { label: siteConfig.navMenu1 || '오아시스', href: '#about', id: 'mob-horiz-about' },
-    { label: siteConfig.navMenu2 || '카지노서비스', href: '#casino', id: 'mob-horiz-casino' },
     { label: siteConfig.navMenu3 || 'VIP서비스', href: '#philippines', id: 'mob-horiz-philippines' },
+    { label: siteConfig.navMenu2 || '카지노서비스', href: '#casino', id: 'mob-horiz-casino' },
     { label: siteConfig.navMenu4 || '프로모션', href: '#promotion', id: 'mob-horiz-promotion' },
     { label: siteConfig.navMenu5 || '커뮤니티', href: '#community', id: 'mob-horiz-community' },
   ];
@@ -49,6 +51,32 @@ export const Header: React.FC = () => {
   const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault();
     setMobileMenuOpen(false);
+
+    if (href === '#about') {
+      if (selectedPost) setSelectedPost(null);
+      if (isPostEditorOpen) closePostEditor();
+      setActiveInfoModal('about');
+      if (typeof window !== 'undefined') {
+        window.history.pushState({ section: 'about' }, '', `${window.location.pathname}#about`);
+        window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
+      }
+      return;
+    }
+
+    if (href === '#process') {
+      if (selectedPost) setSelectedPost(null);
+      if (isPostEditorOpen) closePostEditor();
+      setActiveInfoModal('process');
+      if (typeof window !== 'undefined') {
+        window.history.pushState({ section: 'process' }, '', `${window.location.pathname}#process`);
+        window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
+      }
+      return;
+    }
+
+    if (activeInfoModal) {
+      setActiveInfoModal(null);
+    }
 
     if (selectedPost || isPostEditorOpen) {
       if (selectedPost) setSelectedPost(null);

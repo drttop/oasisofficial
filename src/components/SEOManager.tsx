@@ -14,6 +14,8 @@ export const SEOManager: React.FC = () => {
     openPostEditor,
     closePostEditor,
     setIsAdminOpen,
+    activeInfoModal,
+    setActiveInfoModal,
   } = useSite();
 
   const handledPostIdRef = useRef<string | null>(null);
@@ -76,7 +78,15 @@ export const SEOManager: React.FC = () => {
         incrementPostView(found.id);
       }
     }
-  }, [posts, setSelectedPost, incrementPostView]);
+
+    // Check if initial URL is for About or Process
+    const hash = window.location.hash;
+    if (hash === '#about') {
+      setActiveInfoModal('about');
+    } else if (hash === '#process') {
+      setActiveInfoModal('process');
+    }
+  }, [posts, setSelectedPost, incrementPostView, setActiveInfoModal]);
 
   // 2. Synchronize Browser History & URL with selectedPost & isPostEditorOpen
   useEffect(() => {
@@ -218,6 +228,28 @@ export const SEOManager: React.FC = () => {
         }
       }
 
+      // Check if popped into About or Process modal views
+      const hash = window.location.hash;
+      if (hash === '#about') {
+        setActiveInfoModal('about');
+        handledPostIdRef.current = null;
+        lastActivePostRef.current = null;
+        setSelectedPost(null);
+        window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
+        return;
+      }
+      if (hash === '#process') {
+        setActiveInfoModal('process');
+        handledPostIdRef.current = null;
+        lastActivePostRef.current = null;
+        setSelectedPost(null);
+        window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
+        return;
+      }
+
+      // Close info modal if returning to main page
+      setActiveInfoModal(null);
+
       // When popping back from post detail view to list (Browser Back button pressed):
       const previousPost = lastActivePostRef.current;
       const savedCategory = typeof window !== 'undefined' ? sessionStorage.getItem('oasis_last_post_category') : null;
@@ -278,7 +310,7 @@ export const SEOManager: React.FC = () => {
 
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
-  }, [posts, setSelectedPost, isPostEditorOpen, closePostEditor]);
+  }, [posts, setSelectedPost, isPostEditorOpen, closePostEditor, setActiveInfoModal]);
 
   return null;
 };

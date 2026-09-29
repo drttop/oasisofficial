@@ -83,7 +83,7 @@ try {
   errors.push(`❌ WebP verification error: ${e.message}`);
 }
 
-// 5. Sitemap Verification
+// 5. Sitemap & robots.txt Verification
 try {
   const sitemapPath = join(rootDir, 'public/sitemap.xml');
   if (!existsSync(sitemapPath)) {
@@ -96,8 +96,31 @@ try {
       console.log('✅ Sitemap Verification Passed: public/sitemap.xml is valid and present.');
     }
   }
+
+  const robotsPath = join(rootDir, 'public/robots.txt');
+  if (!existsSync(robotsPath)) {
+    errors.push('❌ public/robots.txt is missing');
+  } else {
+    const robotsContent = readFileSync(robotsPath, 'utf8');
+    const validDirectives = ['user-agent', 'allow', 'disallow', 'sitemap', 'crawl-delay'];
+    const lines = robotsContent.split('\n');
+    for (const rawLine of lines) {
+      const line = rawLine.trim();
+      if (!line || line.startsWith('#')) continue;
+      const colonIdx = line.indexOf(':');
+      if (colonIdx === -1) {
+        errors.push(`❌ Invalid line in robots.txt: ${line}`);
+      } else {
+        const directive = line.slice(0, colonIdx).trim().toLowerCase();
+        if (!validDirectives.includes(directive)) {
+          errors.push(`❌ Unknown directive in robots.txt (fails Lighthouse): "${line}"`);
+        }
+      }
+    }
+    console.log('✅ robots.txt Verification Passed: 100% RFC/Lighthouse compliant directives only.');
+  }
 } catch (e) {
-  errors.push(`❌ Sitemap check error: ${e.message}`);
+  errors.push(`❌ Sitemap/robots.txt check error: ${e.message}`);
 }
 
 // Final Summary

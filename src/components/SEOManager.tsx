@@ -252,17 +252,19 @@ export const SEOManager: React.FC = () => {
 
       // When popping back from post detail view to list (Browser Back button pressed):
       const previousPost = lastActivePostRef.current;
+      handledPostIdRef.current = null;
+      lastActivePostRef.current = null;
+      setSelectedPost(null);
+
       const savedCategory = typeof window !== 'undefined' ? sessionStorage.getItem('oasis_last_post_category') : null;
       const savedBoard = typeof window !== 'undefined' ? sessionStorage.getItem('oasis_current_board') : null;
 
-      // Board selection hierarchy:
-      // If previousPost exists, category '프로모션' -> promotion, any other category -> community!
       let isPromotion = false;
       if (previousPost) {
         isPromotion = previousPost.category === '프로모션';
-      } else if (savedCategory) {
+      } else if (savedCategory && (hash === '#promotion' || hash === '#community')) {
         isPromotion = savedCategory === '프로모션';
-      } else if (savedBoard) {
+      } else if (savedBoard && (hash === '#promotion' || hash === '#community')) {
         isPromotion = savedBoard === 'promotion';
       } else {
         isPromotion =
@@ -271,18 +273,29 @@ export const SEOManager: React.FC = () => {
           window.location.hash === '#promotion';
       }
 
-      const targetId = isPromotion ? 'promotion' : 'community';
-      const targetHash = isPromotion ? '#promotion' : '#community';
+      let targetId = isPromotion ? 'promotion' : 'community';
+      let targetHash = isPromotion ? '#promotion' : '#community';
 
-      handledPostIdRef.current = null;
-      lastActivePostRef.current = null;
-      setSelectedPost(null);
+      if (!previousPost && hash && hash !== '#community' && hash !== '#promotion') {
+        targetId = hash.replace(/^#/, '');
+        targetHash = hash;
+      } else if (!previousPost && (!hash || hash === '#home')) {
+        targetId = 'home';
+        targetHash = '';
+      }
 
-      // Cleanly replace URL hash so it reflects the correct section
-      try {
-        sessionStorage.setItem('oasis_current_board', targetId);
-        window.history.replaceState({ section: targetId, originSection: targetId }, '', `${window.location.pathname}${targetHash}`);
-      } catch {}
+      if (targetId === 'home') {
+        window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
+        return;
+      }
+
+      // Cleanly replace URL hash if returning from a post
+      if (previousPost) {
+        try {
+          sessionStorage.setItem('oasis_current_board', targetId);
+          window.history.replaceState({ section: targetId, originSection: targetId }, '', `${window.location.pathname}${targetHash}`);
+        } catch {}
+      }
 
       // Robust scrolling to target board section with retries for lazy components mounting
       let attempts = 0;

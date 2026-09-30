@@ -74,47 +74,18 @@ export const Header: React.FC = () => {
       return;
     }
 
+    const wasSubPageOpen = Boolean(activeInfoModal || selectedPost || isPostEditorOpen);
+
     if (activeInfoModal) {
       setActiveInfoModal(null);
     }
 
-    if (selectedPost || isPostEditorOpen) {
-      if (selectedPost) setSelectedPost(null);
-      if (isPostEditorOpen) closePostEditor();
+    if (selectedPost) {
+      setSelectedPost(null);
+    }
 
-      if (typeof window !== 'undefined') {
-        const cleanUrl = href === '#home' ? window.location.pathname : `${window.location.pathname}${href}`;
-        window.history.replaceState({}, '', cleanUrl);
-      }
-
-      if (href === '#home') {
-        window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
-        return;
-      }
-
-      // Instantly jump to the target section once the main landing page elements are mounted
-      let attempts = 0;
-      const tryScroll = () => {
-        const targetId = href.replace(/^#/, '');
-        const element = document.getElementById(targetId) || document.querySelector(href);
-        if (element) {
-          const headerOffset = 80;
-          const elementPosition = element.getBoundingClientRect().top;
-          const offsetPosition = Math.max(0, elementPosition + window.pageYOffset - headerOffset);
-          window.scrollTo({
-            top: offsetPosition,
-            behavior: 'instant' as ScrollBehavior,
-          });
-        } else if (attempts < 20) {
-          attempts++;
-          setTimeout(tryScroll, 16);
-        }
-      };
-      // Give React an animation frame to mount landing sections
-      requestAnimationFrame(() => {
-        tryScroll();
-      });
-      return;
+    if (isPostEditorOpen) {
+      closePostEditor();
     }
 
     if (href === '#home') {
@@ -126,6 +97,7 @@ export const Header: React.FC = () => {
     }
 
     const targetId = href.replace(/^#/, '');
+
     if (typeof window !== 'undefined' && href.startsWith('#')) {
       try {
         if (targetId === 'community' || targetId === 'promotion') {
@@ -139,15 +111,54 @@ export const Header: React.FC = () => {
       } catch {}
     }
 
-    const element = document.getElementById(targetId) || document.querySelector(href);
-    if (element) {
-      const headerOffset = 80;
-      const elementPosition = element.getBoundingClientRect().top;
-      const offsetPosition = Math.max(0, elementPosition + window.pageYOffset - headerOffset);
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: 'instant' as ScrollBehavior,
+    const scrollToTarget = () => {
+      const element = document.getElementById(targetId) || document.querySelector(href);
+      if (element) {
+        const headerOffset = 80;
+        const elementPosition = element.getBoundingClientRect().top;
+        const offsetPosition = Math.max(0, elementPosition + window.pageYOffset - headerOffset);
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: 'instant' as ScrollBehavior,
+        });
+        return true;
+      }
+      return false;
+    };
+
+    if (wasSubPageOpen) {
+      // Main landing page sections are mounting as subpage/modal closes.
+      // Poll until the element exists and settle alignment to prevent layout shifts.
+      let attempts = 0;
+      let settledCount = 0;
+      const tryScroll = () => {
+        const found = scrollToTarget();
+        if (found) {
+          settledCount++;
+          if (settledCount < 3 && attempts < 25) {
+            attempts++;
+            setTimeout(tryScroll, 30);
+            return;
+          }
+        } else if (attempts < 30) {
+          attempts++;
+          setTimeout(tryScroll, attempts < 5 ? 16 : 40);
+        }
+      };
+      requestAnimationFrame(() => {
+        tryScroll();
       });
+    } else {
+      if (!scrollToTarget()) {
+        let attempts = 0;
+        const tryScroll = () => {
+          if (!scrollToTarget() && attempts < 20) {
+            attempts++;
+            setTimeout(tryScroll, 25);
+          }
+        };
+        requestAnimationFrame(tryScroll);
+      }
     }
   };
 

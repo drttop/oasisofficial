@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSite } from '../../context/SiteContext';
 import { Crown } from 'lucide-react';
 
@@ -11,15 +11,20 @@ export const HeroSection: React.FC = () => {
   // Use only the 1st slide
   const slide = bannerSlides && bannerSlides.length > 0 ? bannerSlides[0] : null;
 
-  const currentBg = imgSrc || (slide?.bgImage ? (
-    slide.bgImage.includes('/assets/') || slide.bgImage.includes('oasis_gold_hero') 
+  useEffect(() => {
+    setImgSrc('');
+  }, [slide?.bgImage]);
+
+  const rawBg = slide?.bgImage;
+  const currentBg = imgSrc || (rawBg ? (
+    rawBg.includes('/assets/') || rawBg.includes('oasis_gold_hero') || rawBg.includes('casino_table_panoramic')
       ? '/images/hero_bg.webp' 
-      : slide.bgImage
+      : rawBg
   ) : '/images/hero_bg.webp');
 
   if (!slide) return null;
 
-  const isLocalHero = currentBg.includes('hero_bg');
+  const isLocalHero = currentBg === '/images/hero_bg.webp' || currentBg === '/images/hero_bg.jpg';
 
   return (
     <section

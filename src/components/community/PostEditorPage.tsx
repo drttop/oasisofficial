@@ -41,6 +41,8 @@ import {
   htmlToPostContent,
   createVisualPhotoHtml,
   createVisualMapHtml,
+  cleanPastedHtml,
+  textToCleanHtmlParagraphs,
 } from '../../utils/postContent';
 
 const POPULAR_MAP_PRESETS = [
@@ -841,6 +843,60 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
     }
   };
 
+  // Clean Paste Handler: Prevents foreign styling from breaking layout and preserves clean paragraphs
+  const handleEditorPaste = (e: React.ClipboardEvent) => {
+    e.preventDefault();
+    const clipboardData = e.clipboardData;
+    const text = clipboardData.getData('text/plain');
+    const rawHtml = clipboardData.getData('text/html');
+
+    let htmlToInsert = '';
+    if (rawHtml && rawHtml.trim()) {
+      htmlToInsert = cleanPastedHtml(rawHtml);
+    }
+
+    // If no HTML or cleaned HTML is empty, convert plain text lines to clean paragraphs
+    if (!htmlToInsert || !htmlToInsert.trim()) {
+      htmlToInsert = textToCleanHtmlParagraphs(text);
+    }
+
+    if (!htmlToInsert) return;
+
+    restoreSelection();
+
+    let inserted = false;
+    try {
+      inserted = document.execCommand('insertHTML', false, htmlToInsert);
+    } catch {}
+
+    if (!inserted && editorRef.current) {
+      const sel = window.getSelection();
+      if (sel && sel.rangeCount > 0) {
+        const range = sel.getRangeAt(0);
+        if (editorRef.current.contains(range.commonAncestorContainer)) {
+          range.deleteContents();
+          const tempDiv = document.createElement('div');
+          tempDiv.innerHTML = htmlToInsert;
+          const frag = document.createDocumentFragment();
+          while (tempDiv.firstChild) {
+            frag.appendChild(tempDiv.firstChild);
+          }
+          range.insertNode(frag);
+          range.collapse(false);
+          sel.removeAllRanges();
+          sel.addRange(range);
+          inserted = true;
+        }
+      }
+      if (!inserted) {
+        editorRef.current.innerHTML += htmlToInsert;
+      }
+    }
+
+    saveSelection();
+    syncContentFromVisual();
+  };
+
   // Insert gorgeous pre-formatted visual layout template directly into the editor
   const handleInsertTemplate = () => {
     const templateContent = `## ✨ 2026 오아시스 VIP 카지노 특별 프로모션 & 혜택 요약
@@ -1564,6 +1620,7 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
                   contentEditable
                   suppressContentEditableWarning
                   onInput={handleEditorInput}
+                  onPaste={handleEditorPaste}
                   onBlur={() => {
                     saveSelection();
                     syncContentFromVisual();

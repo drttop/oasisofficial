@@ -277,251 +277,226 @@ export const initialServiceSteps: ServiceStep[] = [
 
 export const initialPosts: PostItem[] = [
   {
-    id: 'post-1',
-    category: '공지사항',
-    title: '[필독] 오아시스 공식 에이전트 2026년 VIP 멤버십 혜택 & 안전 이용 수칙 안내',
-    author: '오아시스 총괄운영팀',
-    date: '2026-08-25',
-    viewCount: 1420,
-    isPinned: true,
-    summary: '오아시스 공식 에이전트를 이용해 주시는 VIP 고객님들을 위한 2026년 특급 호텔 무료 숙박 및 전용 의전 지원 기준 안내입니다.',
-    content: `안녕하세요, 오아시스 공식 에이전트(OASIS VIP AGENCY) 총괄운영팀입니다.
-
-저희 오아시스는 필리핀 정부 공인 PAGCOR 정식 라이센스 협력 에이전시로서, 10년 무사고 원칙과 신뢰를 바탕으로 최상의 VIP 서비스를 제공해 드리고 있습니다.
-
-■ 2026년 오아시스 VIP 주요 혜택
-1. 마닐라 & 클락 5성급 복합리조트(오카다, 솔레어, COD, 한 카지노) 스위트룸 무료 숙박 지원
-2. 마닐라(NAIA) 및 클락(CRK) 국제공항 도착 시 전용 VIP 패스트트랙 입국 에스코트
-3. 최고급 토요타 알파드(Alphard) / 현대 스타리아 리무진 단독 왕복 픽업 및 전용 기사 배차
-4. 전 일정 24시간 한국인 베테랑 VIP 전담 실장 밀착 케어 (언어 소통, 테이블 에스코트, 식음료 무제한 지원)
-5. 클락 썬밸리, 미모사 명문 골프장 VIP 패스트 티오프 부킹 및 의전 차량 지원
-
-■ 안전 이용 및 개인정보 보안 수칙
-- 모든 고객님의 방문 내역 및 상담 기록은 철저히 암호화 관리되며, 귀국 즉시 영구 파기 처리됩니다.
-- 24시간 공식 텔레그램(@oasis_official_agent) 및 공식 카카오톡 채널을 통해서만 공식 계좌 및 픽업 예약이 진행됩니다. 유사 사칭 채널에 각별히 유의해 주시기 바랍니다.
-
-고객님의 품격 있는 필리핀 여정을 오아시스가 가장 완벽하게 완성해 드리겠습니다. 감사합니다.`,
-    thumbnail: 'https://images.unsplash.com/photo-1511193311914-0346f16efe90?auto=format&fm=webp&fit=crop&w=600&q=75&ext=.webp',
-    tags: ['공지사항', 'VIP혜택', '오아시스공식', '마닐라', '클락'],
+    "category": "공지사항",
+    "title": "[필독] 오아시스 공식 에이전트 2026년 VIP 멤버십 혜택 & 안전 이용 수칙 안내",
+    "date": "2026-08-25",
+    "isPinned": true,
+    "viewCount": 1428,
+    "author": "오아시스 총괄운영팀",
+    "id": "post-1",
+    "summary": "오아시스 공식 에이전트를 이용해 주시는 VIP 고객님들을 위한 2026년 특급 호텔 무료 숙박 및 전용 의전 지원 기준 안내입니다.",
+    "thumbnail": "https://images.unsplash.com/photo-1511193311914-0346f16efe90?auto=format&fit=crop&w=800&q=80",
+    "images": [
+      "https://images.unsplash.com/photo-1511193311914-0346f16efe90?auto=format&fit=crop&w=800&q=80"
+    ],
+    "content": "안녕하세요, 오아시스 공식 에이전트(OASIS VIP AGENCY) 총괄운영팀입니다.\n\n저희 오아시스는 필리핀 정부 공인 PAGCOR 정식 라이센스 협력 에이전시로서, 10년 무사고 원칙과 신뢰를 바탕으로 최상의 VIP 서비스를 제공해 드리고 있습니다.\n\n■ 2026년 오아시스 VIP 주요 혜택\n1. 마닐라 & 클락 5성급 복합리조트(오카다, 솔레어, COD, 한 카지노등 ) 무료 숙박 지원\n2. 마닐라(NAIA) 및 클락(CRK) 국제공항 도착 시 전용 VIP 패스트트랙 입국 에스코트\n3. 최고급 토요타 알파드(Alphard) / 현대 스타리아 리무진 단독 왕복 픽업 및 전용 기사 배차\n4. 전 일정 24시간 한국인 베테랑 VIP 전담 실장 밀착 케어 (언어 소통, 테이블 에스코트, 식음료 무제한 지원)\n5. 클락 썬밸리, 미모사 등 명문 골프장 VIP 패스트 티오프 부킹 및 의전 차량 지원\n\n■ 안전 이용 및 개인정보 보안 수칙\n- 모든 고객님의 방문 내역 및 상담 기록은 철저히 암호화 관리되며, 귀국 즉시 영구 파기 처리됩니다.\n- 24시간 공식 카카오톡(oasis66) 및 공식 텔레그램 채널(oasis46)을 통해서만 공식 계좌 및 픽업 예약이 진행됩니다. 유사 사칭 채널에 각별히 유의해 주시기 바랍니다.\n\n고객님의 품격 있는 필리핀 여정을 오아시스가 가장 완벽하게 완성해 드리겠습니다. 감사합니다.",
+    "tags": [
+      "공지사항",
+      "VIP혜택",
+      "오아시스공식",
+      "마닐라",
+      "클락"
+    ]
   },
   {
-    id: 'post-2',
-    category: '프로모션',
-    title: '2026 가을시즌 마닐라 오카다 & 솔레어 스위트룸 3박 무료 바우처 특별 프로모션',
-    author: '오아시스 마케팅팀',
-    date: '2026-08-20',
-    viewCount: 980,
-    isPinned: true,
-    summary: '사전 예약 고객 대상 마닐라 대표 5성급 리조트 오카다 마닐라 오션뷰 스위트룸 3박 무료 지원 및 웰컴 다이닝 크레딧 이벤트.',
-    content: `오아시스 공식 에이전트에서 2026년 가을 시즌을 맞이하여 마닐라 메이저 카지노 방문 고객님들을 위한 한정 특별 프로모션을 진행합니다.
-
-[프로모션 세부 내용]
-- 대상: 오아시스 신규 및 기존 VIP 회원
-- 혜택 1: 오카다 마닐라 마닐라베이 뷰 주니어 스위트 3박 무료 제공
-- 혜택 2: 솔레어 리조트 & 카지노 파인다이닝 식음료 20,000 PHP 크레딧 바우처 증정
-- 혜택 3: 마닐라 공항 - 호텔 간 전용 최고급 알파드 리무진 단독 픽업/샌딩
-- 혜택 4: 24시간 1:1 전담 VIP 매니저 상주 및 빠른 롤링 환전 지원
-
-[오카다 마닐라 찾아오시는 길]
-[지도:오카다 마닐라|New Seaside Dr, Entertainment City, Parañaque, Metro Manila]
-
-[신청 및 예약 방법]
-하단 실시간 카카오톡 또는 텔레그램으로 '가을 프로모션 예약' 메시지를 보내주시면 즉시 배정해 드립니다.`,
-    thumbnail: 'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?auto=format&fm=webp&fit=crop&w=600&q=75&ext=.webp',
-    tags: ['프로모션', '오카다마닐라', '솔레어', '스위트룸무료'],
-    mapLocation: {
-      title: '오카다 마닐라 (Okada Manila)',
-      address: 'New Seaside Dr, Entertainment City, Parañaque, Metro Manila',
-      query: 'Okada Manila, New Seaside Dr, Parañaque, Metro Manila',
-    },
+    "category": "프로모션",
+    "images": [
+      "/images/posts/post-2-img-1.webp"
+    ],
+    "tags": [
+      "프로모션",
+      "오카다마닐라",
+      "솔레어",
+      "COD",
+      "스위트룸무료"
+    ],
+    "author": "오아시스 마케팅팀",
+    "thumbnail": "/images/posts/post-2-thumb.webp",
+    "viewCount": 1004,
+    "date": "2026-08-20",
+    "isPinned": false,
+    "title": "2026 9월 기존 회원 대상, 스위트룸 3박 무료 특별 프로모션",
+    "summary": "사전 예약 고객 대상 마닐라 대표 5성급 리조트 오카다 마닐라 오션뷰 스위트룸 2박 무료 지원 및 웰컴 다이닝 크레딧 이벤트.",
+    "id": "post-2",
+    "content": "오아시스 공식 에이전트에서 2026년 가을 시즌을 맞이하여 마닐라 메이저 카지노 방문 고객님들을 위한 한정 특별 프로모션을 진행합니다.&nbsp;<div>&nbsp;[프로모션 세부 내용]&nbsp;</div><div>- 대상: 오아시스 신규 및 기존 VIP 회원</div><div>- 혜택 1: 오카다 마닐라 마닐라베이 뷰 주니어 스위트 3박 무료 제공&nbsp;</div><div>- 혜택 2: 솔레어 리조트 &amp; 카지노 파인다이닝 식음료 크레딧 바우처 증정&nbsp;</div><div>- 혜택 3: 마닐라 공항 - 호텔 간 전용 최고급 알파드 리무진 단독 픽업/샌딩&nbsp;</div><div>- 혜택 4: 24시간 1:1 전담 VIP 매니저 상주 및 특별&nbsp;환율 환전 지원&nbsp;</div><div>&nbsp;[오카다 마닐라 찾아오시는 길]\n<p>[지도:오카다 마닐라|New Seaside Dr, Entertainment City, Parañaque, Metro Manila]</p>\n\n[신청 및 예약 방법]\n하단 실시간 카카오톡 또는 텔레그램으로 '가을 프로모션 예약' 메시지를 보내주시면 즉시 배정해 드립니다.</div>",
+    "mapLocation": {
+      "address": "New Seaside Dr, Entertainment City, Parañaque, Metro Manila",
+      "title": "오카다 마닐라 (Okada Manila)",
+      "query": "Okada Manila, New Seaside Dr, Parañaque, Metro Manila"
+    }
   },
   {
-    id: 'post-3',
-    category: 'VIP매거진',
-    title: '클락 한 카지노 리조트(Hann Casino) 신규 VIP 프라이빗 살롱 확장 오픈 안내',
-    author: '오아시스 현지운영팀',
-    date: '2026-08-15',
-    viewCount: 812,
-    isPinned: false,
-    summary: '클락 최고의 5성급 한 카지노에 최신식 프라이빗 하이리밋 바카라 테이블과 한국인 전용 VIP 라운지가 확장 오픈하였습니다.',
-    content: `클락 프리포트존에 위치한 한 카지노 리조트(Hann Casino Resort)가 프리미엄 VIP 고객을 위한 단독 살롱 룸을 대규모로 확장 개장하였습니다.
-
-- 위치: Hann Casino 3층 VIP High-Limit Salon
-- 특징: 완벽히 독립된 프라이빗 테이블, 1:1 전담 딜러 및 전용 라운지 바
-- 연계 호텔: 스위소텔(Swissôtel) 및 클락 메리어트 직통 전용 엘리베이터 연결
-- 오아시스 혜택: 대기 없는 즉시 입장, 현장 전담 실장 에스코트, 전용 칩셋 및 롤링 혜택 즉시 반영
-
-[클락 한 카지노 위치 및 지도]
-[지도:한 카지노 리조트 클락|M.A. Roxas Highway, Clark Freeport, Angeles, Pampanga]
-
-클락의 깨끗한 자연과 골프, 최신 시설의 게이밍을 원하시는 고객님께 강력 추천합니다.`,
-    thumbnail: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fm=webp&fit=crop&w=600&q=75&ext=.webp',
-    tags: ['클락카지노', '한카지노', 'VIP살롱', '클락투어'],
-    mapLocation: {
-      title: '한 카지노 & 리조트 클락 (Hann Casino)',
-      address: 'M.A. Roxas Highway, Clark Freeport, Angeles, Pampanga',
-      query: 'Hann Casino Resort Clark',
-    },
+    "thumbnail": "/images/posts/post-3-thumb.webp",
+    "tags": [
+      "클락카지노",
+      "한카지노",
+      "VIP살롱",
+      "클락투어",
+      "필리핀에이전시",
+      "마닐라에이전시",
+      "클락에이전시",
+      "카지노에이전시"
+    ],
+    "isPinned": false,
+    "id": "post-3",
+    "images": [
+      "/images/posts/post-3-img-1.webp",
+      "/images/posts/post-3-img-2.webp",
+      "/images/posts/post-3-img-3.webp"
+    ],
+    "author": "오아시스 현지운영팀",
+    "mapLocation": null,
+    "category": "VIP매거진",
+    "content": "<div style=\"color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; font-size: medium; background-color: rgb(247, 250, 252); border-left: 4px solid rgb(49, 130, 206); padding: 20px; border-radius: 4px; margin-bottom: 32px;\"><strong style=\"color: rgb(43, 108, 176); font-size: 16px; display: block; margin-bottom: 8px;\">Executive Summary</strong><p style=\"margin: 0px; font-size: 15px; color: rgb(74, 85, 104);\">필리핀 클락(Clark) 경제특구가 마닐라 엔터테인먼트 시티에 버금가는 하이엔드 게이밍 및 호스피탈리티의 중심지로 급부상하고 있습니다. 그 중심에 있는 <strong>한 카지노 리조트(Hann Casino Resort)</strong>가 최근 최상위 VIP 및 하이롤러(High-roller)를 타깃으로 한 <strong>신규 VIP 프라이빗 살롱(Private Salon)</strong>을 전격 확장 오픈했습니다. 본 리포트에서는 새롭게 선보이는 VIP 공간의 하드웨어 스펙, 그리고 에이전시 비즈니스 차원에서 활용할 수 있는 차별화된 호스피탈리티 서비스를 심층 분석합니다.</p></div><p style=\"color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; margin-bottom: 36px;\">전통적으로 필리핀 클락 지역은 세계적인 수준의 골프 코스를 기반으로 한 레저 투어의 성격이 강했습니다. 그러나 한 카지노 리조트(구 위더스)가 스위소텔(Swissôtel), 메리어트(Marriott) 등 글로벌 5성급 호텔 체인을 통합한 복합 리조트(IR)로 재탄생하면서 게이밍 산업의 패러다임이 완전히 바뀌었습니다. 이번 신규 VIP 살롱의 확장은 클락 게이밍 시장이 대중적인 매스(Mass) 마켓을 넘어, 극강의 프라이버시와 거액의 롤링이 수반되는 프리미엄 마켓으로 진입했음을 알리는 강력한 시그널입니다.</p><p><br></p><hr style=\"font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; font-size: medium; border-style: solid none none; border-color: rgb(226, 232, 240) currentcolor currentcolor; margin: 36px 0px;\"><h2 style=\"color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; font-size: 24px; margin-bottom: 16px;\">1. 신규 VIP 프라이빗 살롱: 완벽한 통제와 럭셔리의 구현</h2><p style=\"color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; margin-bottom: 20px;\"><p>[사진1]</p><p>이번에 확장 오픈한 한 카지노의 VIP 프라이빗 살롱은 마닐라 최고급 카지노들의 VVIP 룸에 필적하는 스펙을 자랑합니다. 가장 중점을 둔 부분은 <strong>'절대적인 보안(Absolute Security)'과 '동선의 독립성'</strong>입니다. 일반 객장(Mass Floor)을 거치지 않고 VIP 전용 드롭오프 존에서 전용 엘리베이터를 통해 살롱으로 직행할 수 있도록 설계되어, 신분 노출을 꺼리는 주요 인사 및 하이롤러들에게 완벽한 프라이버시를 보장합니다.</p></p><p style=\"color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; margin-bottom: 20px;\">내부 인테리어는 필리핀의 자연 유산에서 영감을 받은 모던 트로피컬 디자인에 유럽식 하이엔드 마감재를 적용했습니다. 높은 층고와 더불어 최고급 샹들리에, 맞춤형 이탈리아산 가죽 의자가 비치된 바카라 전용 테이블들은 게임의 몰입도를 극대화합니다. 또한, 각 프라이빗 룸 내부에 전용 휴식 라운지, 다이닝 공간, 프라이빗 화장실이 완비되어 있어 룸 밖으로 나갈 필요 없이 모든 일정을 소화할 수 있는 '올인원(All-in-one)' 스페이스를 제공합니다.</p><h2 style=\"color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; font-size: 24px; margin-top: 40px; margin-bottom: 16px;\">2. 인프라 스펙 및 하이엔드 서비스 분석</h2><p style=\"color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; margin-bottom: 20px;\">외형적인 화려함뿐만 아니라, 게임 진행의 유연성과 자금 관리의 편의성 역시 대폭 업그레이드되었습니다. 살롱 내에는 에이전트와 정킷 운영자들을 위한 전용 케이지(Cage)가 분리되어 있어, 빠르고 안전한 칩스 교환과 환전 및 송금 업무가 24시간 끊김 없이 지원됩니다.</p><div style=\"color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; font-size: medium; overflow-x: auto; margin-bottom: 28px;\"><table style=\"width: 860px; font-size: 14px; border-color: rgb(226, 232, 240);\"><thead><tr style=\"background-color: rgb(237, 242, 247); border-bottom: 2px solid rgb(203, 213, 224);\"><th style=\"padding: 12px 14px;\">구분</th><th style=\"padding: 12px 14px;\">신규 VIP 프라이빗 살롱 핵심 스펙</th></tr></thead><tbody><tr style=\"border-bottom: 1px solid rgb(226, 232, 240);\"><td style=\"padding: 12px 14px; font-weight: 600; background-color: rgb(247, 250, 252);\">접근성 및 보안</td><td style=\"padding: 12px 14px;\">전용 VIP 드롭오프 존, 생체 인식 기반 출입 통제, 전용 엘리베이터</td></tr><tr style=\"border-bottom: 1px solid rgb(226, 232, 240);\"><td style=\"padding: 12px 14px; font-weight: 600; background-color: rgb(247, 250, 252);\">공간 구성</td><td style=\"padding: 12px 14px;\">다수의 독립형 PDR(Private Dining &amp; Rolling) 룸, 에이전트 전용 휴게실</td></tr><tr style=\"border-bottom: 1px solid rgb(226, 232, 240);\"><td style=\"padding: 12px 14px; font-weight: 600; background-color: rgb(247, 250, 252);\">F&amp;B 특화 서비스</td><td style=\"padding: 12px 14px;\">스미스(Smoki Moto) 및 마크스(Mark's) 스테이크하우스 메뉴 룸서비스 딜리버리, 시그니처 주류 카트</td></tr><tr style=\"border-bottom: 1px solid rgb(226, 232, 240);\"><td style=\"padding: 12px 14px; font-weight: 600; background-color: rgb(247, 250, 252);\">케이지 및 자금 운용</td><td style=\"padding: 12px 14px;\">VIP 전용 프라이빗 케이지, 에이전시 특화 신속 송금 및 환전 라인 구축</td></tr><tr><td style=\"padding: 12px 14px; font-weight: 600; background-color: rgb(247, 250, 252);\">컨시어지 인력</td><td style=\"padding: 12px 14px;\">다국어(한국어 포함) 지원 전담 인터내셔널 호스트 및 전속 버틀러 배정</td></tr></tbody></table></div><h2 style=\"color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; font-size: 24px; margin-top: 40px; margin-bottom: 16px;\">3. 에이전시 비즈니스 및 VIP 투어를 위한 전략적 가치</h2><p style=\"color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; margin-bottom: 20px;\"><p>[사진2]</p><p>이번 확장은 단순히 럭셔리 공간의 추가를 넘어, <strong>VIP 에이전시 비즈니스의 효율성</strong>을 극적으로 끌어올리는 계기가 됩니다. 마닐라의 극심한 교통 체증과 복잡한 환경에 지친 하이롤러들에게 클락 국제공항(CRK)에서 리조트까지 10분 내에 도달할 수 있는 동선의 쾌적함은 엄청난 메리트입니다. 여기에 한 리조트와 연계된 명문 골프장(썬밸리, 미모사 등) 부킹 우선권이 VIP 살롱 이용객에게 제공되면서, '오전 골프 라운딩 - 오후 프라이빗 게이밍 - 저녁 파인다이닝'으로 이어지는 무결점 의전 사이클을 완성할 수 있게 되었습니다.</p></p><div style=\"color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; font-size: medium; background-color: rgb(255, 250, 240); border-left: 4px solid rgb(221, 107, 32); padding: 20px; border-radius: 4px; margin-bottom: 32px;\"><strong style=\"color: rgb(192, 86, 33); font-size: 16px; display: block; margin-bottom: 8px;\">Expert Insight: 현지 에이전시 운영 관점의 시너지 창출</strong><p style=\"margin: 0px; font-size: 15px; color: rgb(116, 66, 16);\">마닐라 현지에서 에이전시 및 VIP 의전 비즈니스를 운영하는 사업자라면, 이번 클락 한 카지노의 확장을 <strong>포트폴리오 다변화의 핵심 기회</strong>로 삼아야 합니다. 마닐라 엔터테인먼트 시티(오카다, 솔레어 등)의 묵직한 카지노 인프라를 베이스로 유지하되, 골프와 휴식을 병행하고자 하는 클라이언트에게는 클락 한 카지노의 신규 VIP 살롱을 대안으로 제시하는 '투트랙(Two-track) 전략'이 유효합니다. 특히 새롭게 도입된 전용 케이지는 현지 환전 및 자금 융통의 리스크를 줄이고 속도를 높여주므로, 에이전트의 업무 스트레스를 대폭 경감시키는 결정적 인프라가 될 것입니다.</p></div><br><br><hr style=\"font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; font-size: medium; border-style: solid none none; border-color: rgb(226, 232, 240) currentcolor currentcolor; margin: 36px 0px;\"><h2 style=\"color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; font-size: 24px; margin-bottom: 16px;\">4. 결론 및 넥스트 스텝 (Action Plan)</h2><p style=\"color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; margin-bottom: 20px;\"><p>[사진3]</p><p>클락 한 카지노 리조트의 신규 VIP 프라이빗 살롱 오픈은 클락이 단순한 골프 데스티네이션을 넘어 아시아 최고 수준의 프리미엄 게이밍 허브로 진화했음을 증명하는 이정표입니다. 글로벌 스탠다드에 부합하는 보안, 공간의 품격, 그리고 에이전트 친화적인 자금 운영 시스템은 필리핀 VIP 투어 시장의 새로운 기준점을 제시하고 있습니다.</p></p><p style=\"color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; margin-bottom: 24px;\"><strong>Action Plan:</strong> 하이엔드 고객을 모객하는 투어 에이전시 및 VIP 담당자는 지체 없이 한 카지노 리조트의 인터내셔널 마케팅 팀과 컨택하여 신규 살롱에 대한 정킷 롤링 조건 및 콤프(Comp) 정책을 업데이트해야 합니다. 클라이언트에게 마닐라와는 또 다른 결의 쾌적하고 럭셔리한 클락의 새로운 모습을 가장 먼저 제안하여, 의전의 퀄리티와 비즈니스의 성공률을 동시에 높여 보시길 권장합니다.</p><p><br></p><p style=\"font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; color: rgb(113, 128, 150); font-size: 14px; margin-bottom: 8px;\"><span style=\"color: rgb(74, 85, 104);\">#클락카지노 #한카지노리조트 #HannCasino #필리핀VIP투어 #클락VIP살롱 #카지노에이전시 #필리핀하이롤러 #클락골프투어</span></p>",
+    "viewCount": 817,
+    "summary": "클락 최고의 5성급 한 카지노에 최신식 프라이빗 VIP 전용 테이블과 한국인 전용 VIP 라운지가 확장 오픈하였습니다.",
+    "date": "2026-08-15",
+    "title": "클락 한 카지노 리조트 신규 VIP 프라이빗 살롱 확장 오픈"
   },
   {
-    id: 'post-4',
-    category: '공지사항',
-    title: '2026년 최신 필리핀 입국 가이드: e-Travel 사전 등록 및 여권 유효기간 체크리스트',
-    author: '오아시스 VIP컨시어지',
-    date: '2026-08-10',
-    viewCount: 1650,
-    isPinned: false,
-    summary: '필리핀 방문 전 반드시 확인해야 할 전자입국신고서(e-Travel) 작성법, 세관 규정, 무비자 30일 입국 요건 완벽 정리.',
-    content: `필리핀 여행 및 출장 전 꼭 확인하셔야 할 최신 출입국 규정을 정리해 드립니다.
-
-1. 여권 유효기간
-- 필리핀 입국일 기준 최소 6개월 이상 유효기간이 남아있는 복수여권이어야 합니다.
-
-2. 전자입국신고서 (e-Travel)
-- 필리핀 도착 72시간 전부터 공식 사이트(etravel.gov.ph)에서 무료로 작성 가능합니다.
-- 오아시스 고객님께는 전담 실장이 e-Travel 대리 등록을 지원해 드리므로 번거로운 입력 없이 QR코드를 받아보실 수 있습니다.
-
-3. 왕복 항공권
-- 필리핀 입국 후 30일 이내에 출국하는 리턴 항공권(또는 제3국행 항공권)이 필수입니다.
-
-4. 외화 반입 규정
-- 미화 10,000 USD 이상 소지 시 입국 시 세관 신고가 필요하며, 현지 페소화는 최대 50,000 PHP까지 소지 가능합니다.
-
-궁금하신 점은 24시간 언제든 오아시스 고객센터로 문의해 주시기 바랍니다.`,
-    thumbnail: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fm=webp&fit=crop&w=600&q=75&ext=.webp',
-    tags: ['입국가이드', 'eTravel', '필리핀여행', '마닐라공항'],
+    "isPinned": false,
+    "thumbnail": "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=800&q=80",
+    "images": [
+      "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=800&q=80"
+    ],
+    "tags": [
+      "입국가이드",
+      "eTravel",
+      "필리핀여행",
+      "마닐라공항"
+    ],
+    "summary": "필리핀 방문 전 반드시 확인해야 할 전자입국신고서(e-Travel) 작성법, 세관 규정, 무비자 30일 입국 요건 완벽 정리.",
+    "category": "공지사항",
+    "content": "필리핀 여행 및 출장 전 꼭 확인하셔야 할 최신 출입국 규정을 정리해 드립니다.\n\n1. 여권 유효기간\n- 필리핀 입국일 기준 최소 6개월 이상 유효기간이 남아있는 복수여권이어야 합니다.\n\n2. 전자입국신고서 (e-Travel)\n- 필리핀 도착 72시간 전부터 공식 사이트(etravel.gov.ph)에서 무료로 작성 가능합니다.\n- 오아시스 고객님께는 전담 실장이 e-Travel 대리 등록을 지원해 드리므로 번거로운 입력 없이 QR코드를 받아보실 수 있습니다.\n\n3. 왕복 항공권\n- 필리핀 입국 후 30일 이내에 출국하는 리턴 항공권(또는 제3국행 항공권)이 필수입니다.\n\n4. 외화 반입 규정\n- 미화 10,000 USD 이상 소지 시 입국 시 세관 신고가 필요하며, 현지 페소화는 최대 50,000 PHP까지 소지 가능합니다.\n\n궁금하신 점은 24시간 언제든 오아시스 고객센터로 문의해 주시기 바랍니다.",
+    "title": "2026년 최신 필리핀 입국 가이드: e-Travel 사전 등록 및 여권 유효기간 체크리스트",
+    "id": "post-4",
+    "author": "오아시스 VIP컨시어지",
+    "date": "2026-08-10",
+    "viewCount": 1658
   },
   {
-    id: 'post-5',
-    category: 'VIP매거진',
-    title: '마닐라 BGC(보니파시오) 최고급 파인다이닝 & 루프탑 라운지 BEST 5',
-    author: '오아시스 라이프스타일',
-    date: '2026-08-05',
-    viewCount: 670,
-    isPinned: false,
-    summary: '필리핀의 맨해튼이라 불리는 BGC 보니파시오의 최상급 스테이크하우스, 미슐랭 파인다이닝, 야경 루프탑 바 가이드.',
-    content: `게이밍과 함께 품격 있는 미식과 휴식을 즐기실 수 있도록, 마닐라 최고 부촌 BGC(Bonifacio Global City)의 핫플레이스를 엄선하여 소개해 드립니다.
-
-1. Wolfgang's Steakhouse BGC - 정통 28일 드라이에이징 프라임 포터하우스 스테이크
-2. Mecha Uma - 일본 유학파 셰프의 현대적 오마카세 파인다이닝
-3. The Peak at Grand Hyatt Manila - 60층 파노라마 마닐라 스카이라인 야경과 프리미엄 칵테일
-4. Savage by Josh Boutwood - 원초적인 숯불과 장작으로 구워내는 독창적인 유러피언 퀴진
-5. Ruth's Chris Steak House - 뜨거운 500도 버터 플레이트에 서빙되는 최상급 필레미뇽
-
-오아시스 전담 실장이 프라이빗 룸 사전 예약 및 차량 의전을 함께 도와드립니다.`,
-    thumbnail: 'https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?auto=format&fm=webp&fit=crop&w=600&q=75&ext=.webp',
-    tags: ['BGC', '파인다이닝', '미식투어', '마닐라야경'],
+    "date": "2026-08-05",
+    "content": "<div style=\"color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; font-size: medium; background-color: rgb(247, 250, 252); border-left: 4px solid rgb(49, 130, 206); padding: 20px; border-radius: 4px; margin-bottom: 32px;\"><strong style=\"color: rgb(43, 108, 176); font-size: 16px; display: block; margin-bottom: 8px;\">Executive Summary</strong><p style=\"margin: 0px; font-size: 15px; color: rgb(74, 85, 104);\">필리핀의 금융 및 비즈니스 중심지인 보니파시오 글로벌 시티(BGC)는 글로벌 스탠다드에 부합하는 최고급 호스피탈리티와 미식 문화가 집약된 구역입니다. 특히 현지 에이전시 비즈니스, VIP 의전, 하이엔드 네트워킹을 목적으로 마닐라를 방문하는 프리미엄 여행객 및 비즈니스맨에게 BGC의 파인다이닝과 루프탑 라운지는 단순한 식사 공간을 넘어 비즈니스의 성공을 견인하는 핵심 인프라입니다. 본 아티클에서는 BGC 내에서 가장 권위 있고 차별화된 경험을 제공하는 5대 프리미엄 베뉴의 콘셉트, 시그니처 메뉴, 공간 스펙을 심층 분석합니다.</p></div><p style=\"color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; margin-bottom: 24px;\">마닐라 내에서도 독보적인 치안 수준과 현대적인 도시 계획을 자랑하는 BGC(Bonifacio Global City)는 다국적 기업의 헤드쿼터와 글로벌 호텔 체인이 밀집해 있습니다. 이러한 지리적, 경제적 특성은 자연스럽게 하이엔드 미식 문화의 발달로 이어졌습니다. 성공적인 비즈니스 미팅이나 프라이빗한 VIP 접대를 기획하고 있다면, 각 베뉴가 지닌 고유의 분위기와 서비스 디테일을 정확히 파악하여 목적에 맞는 최적의 공간을 선정하는 전략적 접근이 필요합니다.</p><hr style=\"font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; font-size: medium; border-style: solid none none; border-color: rgb(226, 232, 240) currentcolor currentcolor; margin: 36px 0px;\"><h2 style=\"color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; font-size: 24px; margin-bottom: 16px;\">1. BGC를 대표하는 하이엔드 파인다이닝 3선</h2><p>[사진1]</p><p>BGC의 파인다이닝 씬(Scene)은 필리핀 현지 식재료를 혁신적으로 재해석한 컨템포러리 퀴진부터, 극강의 퀄리티를 자랑하는 프리미엄 스테이크하우스까지 폭넓은 스펙트럼을 자랑합니다.</p><h3 style=\"font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; font-size: 19px; color: rgb(74, 85, 104); margin-top: 24px; margin-bottom: 12px;\">갤러리 바이 첼레 (Gallery by Chele) : 아시아 베스트 레스토랑의 품격</h3><p style=\"color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; margin-bottom: 20px;\">필리핀 파인다이닝의 수준을 한 단계 끌어올렸다고 평가받는 '갤러리 바이 첼레'는 스페인 출신 셰프 첼레 곤잘레스(Chele Gonzalez)가 이끄는 컨템포러리 레스토랑입니다. 아시아 베스트 레스토랑 50에 꾸준히 이름을 올리는 이곳은, 필리핀 전역에서 공수한 토착 식재료에 현대적인 조리 기법을 접목한 혁신적인 테이스팅 메뉴를 선보입니다. 식문화에 조예가 깊은 클라이언트나 창의적인 영감이 필요한 비즈니스 미팅에 최적화된 공간으로, 우드 톤의 따뜻하고 세련된 인테리어가 돋보입니다.</p><p>[사진2]</p><p><br></p><br><h3 style=\"font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; font-size: 19px; color: rgb(74, 85, 104); margin-top: 24px; margin-bottom: 12px;\">와규 스튜디오 (Wagyu Studio) : VVIP를 위한 극강의 육류 미식 경험</h3><p style=\"color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; margin-bottom: 20px;\">최상급 일본산 와규를 전문으로 다루는 '와규 스튜디오'는 BGC 내에서도 가장 예약이 어렵고 프라이빗한 하이엔드 베뉴 중 하나입니다. 고베, 마츠사카 등 일본 최고의 산지에서 직수입한 A5 등급 와규만을 엄선하여, 야키니쿠와 혁신적인 타파스 형태로 제공합니다. 셰프의 정교한 퍼포먼스를 눈앞에서 감상할 수 있는 라이브 키친 카운터와 완벽하게 독립된 프라이빗 다이닝 룸(PDR)을 갖추고 있어, 보안과 프라이버시가 절대적으로 요구되는 최고위급 인사 접대 및 밀도 높은 네트워킹에 완벽히 부합합니다.</p><h3 style=\"font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; font-size: 19px; color: rgb(74, 85, 104); margin-top: 24px; margin-bottom: 12px;\">레이징 불 찹하우스 &amp; 바 (Raging Bull Chophouse &amp; Bar) : 클래식과 마초적 우아함</h3><p style=\"color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; margin-bottom: 20px;\">샹그릴라 더 포트(Shangri-La The Fort) 내에 위치한 '레이징 불'은 클래식한 미국식 스테이크하우스의 정수를 보여줍니다. 1960년대 뉴욕 맨해튼의 레트로한 럭셔리를 연상시키는 딥 우드와 레더 소재의 인테리어가 압도적인 무게감을 줍니다. 세계 각국에서 공수한 프리미엄 드라이 에이징 소고기를 맞춤형 그릴에서 구워내며, 방대한 빈티지 와인 리스트와 시그니처 칵테일 페어링을 지원합니다. 격식 있는 만찬이나 성공적인 계약 체결을 축하하는 자리에 가장 어울리는 정통 다이닝 베뉴입니다.</p><p>[사진3]</p><br><h2 style=\"color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; font-size: 24px; margin-bottom: 16px;\">2. 화려한 야경과 네트워킹의 중심, 최고급 루프탑 라운지 2선</h2><p style=\"color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; margin-bottom: 20px;\">마닐라의 열대 기후와 BGC의 스카이라인이 빚어내는 환상적인 야경은 루프탑 라운지에서 그 진가를 발휘합니다. 식사 후 분위기를 전환하거나 가벼운 주류와 함께 심도 있는 비즈니스 대화를 이어가기에 최적의 인프라입니다.</p><h3 style=\"font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; font-size: 19px; color: rgb(74, 85, 104); margin-top: 24px; margin-bottom: 12px;\">더 피크 (The Peak) : 그랜드 하얏트 마닐라 최상층의 압도적 뷰</h3><p style=\"color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; margin-bottom: 20px;\">필리핀 최고층 빌딩인 그랜드 하얏트 마닐라의 60층부터 62층까지 자리 잡고 있는 '더 피크'는 그릴 레스토랑, 스피크이지 바, 위스키 라운지가 결합된 다층적 복합 엔터테인먼트 공간입니다. 마닐라 베이와 메트로 마닐라 전역을 360도로 조망할 수 있는 스카이라인 뷰는 타의 추종을 불허합니다. 고급스러운 재즈 라이브 공연과 함께 희귀 위스키 셀렉션을 즐길 수 있어, 마닐라 VIP 에이전시들이 중요 클라이언트에게 반드시 선보이는 필수 코스로 자리매김했습니다.</p><h3 style=\"font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; font-size: 19px; color: rgb(74, 85, 104); margin-top: 24px; margin-bottom: 12px;\">스트레이트 업 (Straight Up) : 세다 BGC의 세련된 도심 속 오아시스</h3><p style=\"color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; margin-bottom: 20px;\">세다(Seda) BGC 호텔 최상층에 위치한 '스트레이트 업'은 너무 무겁지 않으면서도 세련된 칠아웃(Chill-out) 분위기를 연출하는 루프탑 바입니다. 하이파이(Hi-Fi) 사운드 시스템을 통해 흐르는 감각적인 하우스 음악과 시그니처 타파스, 그리고 하이 스트리트(High Street)가 내려다보이는 탁 트인 전망이 조화를 이룹니다. 캐주얼한 네트워킹 믹서(Mixer) 행사나, 현지 비즈니스 파트너와의 가벼운 친목 도모를 위한 애프터 파티 장소로 훌륭한 대안을 제시합니다.</p><p><br></p><hr style=\"font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; font-size: medium; border-style: solid none none; border-color: rgb(226, 232, 240) currentcolor currentcolor; margin: 36px 0px;\"><h2 style=\"color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; font-size: 24px; margin-bottom: 16px;\">3. 5대 프리미엄 베뉴 핵심 스펙 브리핑 테이블</h2><p style=\"color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; margin-bottom: 20px;\">효율적인 동선 기획과 목적에 맞는 베뉴 선정을 위해 각 공간의 핵심 가치와 스펙을 한눈에 비교할 수 있는 데이터입니다.</p><div style=\"color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; font-size: medium; overflow-x: auto; margin-bottom: 28px;\"><div class=\"oasis-table-wrap overflow-x-auto my-3 max-w-full\"><table style=\"width: 860px; font-size: 14px; border-color: rgb(226, 232, 240);\" class=\"oasis-table min-w-full border-collapse border border-slate-300 rounded-xl overflow-hidden text-sm\"><thead><tr style=\"background-color: rgb(237, 242, 247); border-bottom: 2px solid rgb(203, 213, 224);\"><th style=\"padding: 12px 14px;\">베뉴명 (Venue)</th><th style=\"padding: 12px 14px;\">구분</th><th style=\"padding: 12px 14px;\">시그니처 경험</th><th style=\"padding: 12px 14px;\">최적 활용 목적</th><th style=\"padding: 12px 14px;\">프라이빗 룸(PDR)</th></tr></thead><tbody><tr style=\"border-bottom: 1px solid rgb(226, 232, 240);\"><td style=\"padding: 12px 14px; font-weight: 600; background-color: rgb(247, 250, 252);\">갤러리 바이 첼레</td><td style=\"padding: 12px 14px;\">파인다이닝</td><td style=\"padding: 12px 14px;\">혁신적인 필리핀 로컬 식재료 테이스팅</td><td style=\"padding: 12px 14px;\">크리에이티브 미팅, 글로벌 비즈니스 만찬</td><td style=\"padding: 12px 14px;\">보유 (사전 예약 필수)</td></tr><tr style=\"border-bottom: 1px solid rgb(226, 232, 240);\"><td style=\"padding: 12px 14px; font-weight: 600; background-color: rgb(247, 250, 252);\">와규 스튜디오</td><td style=\"padding: 12px 14px;\">프리미엄 야키니쿠</td><td style=\"padding: 12px 14px;\">최상급 일본산 A5 와규 라이브 퍼포먼스</td><td style=\"padding: 12px 14px;\">VVIP 한정 접대, 극강의 프라이빗 네트워킹</td><td style=\"padding: 12px 14px;\">보유 (매우 제한적 운영)</td></tr><tr style=\"border-bottom: 1px solid rgb(226, 232, 240);\"><td style=\"padding: 12px 14px; font-weight: 600; background-color: rgb(247, 250, 252);\">레이징 불</td><td style=\"padding: 12px 14px;\">스테이크하우스</td><td style=\"padding: 12px 14px;\">드라이 에이징 스테이크와 빈티지 와인</td><td style=\"padding: 12px 14px;\">격식 있는 비즈니스 만찬, 계약 축하 연회</td><td style=\"padding: 12px 14px;\">보유</td></tr><tr style=\"border-bottom: 1px solid rgb(226, 232, 240);\"><td style=\"padding: 12px 14px; font-weight: 600; background-color: rgb(247, 250, 252);\">더 피크</td><td style=\"padding: 12px 14px;\">루프탑 라운지/바</td><td style=\"padding: 12px 14px;\">초고층 360도 스카이라인 뷰, 프리미엄 위스키</td><td style=\"padding: 12px 14px;\">야간 VIP 의전 코스, 분위기 전환형 2차 미팅</td><td style=\"padding: 12px 14px;\">VIP 살롱 보유</td></tr><tr><td style=\"padding: 12px 14px; font-weight: 600; background-color: rgb(247, 250, 252);\">스트레이트 업</td><td style=\"padding: 12px 14px;\">루프탑 바</td><td style=\"padding: 12px 14px;\">트렌디한 하우스 뮤직과 개방감 있는 테라스</td><td style=\"padding: 12px 14px;\">캐주얼 네트워킹, 파트너십 친목 도모</td><td style=\"padding: 12px 14px;\">단독 대관 구역 지원</td></tr></tbody></table></div></div><div style=\"color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; font-size: medium; background-color: rgb(255, 250, 240); border-left: 4px solid rgb(221, 107, 32); padding: 20px; border-radius: 4px; margin-bottom: 32px;\"><strong style=\"color: rgb(192, 86, 33); font-size: 16px; display: block; margin-bottom: 8px;\">Expert Insight: VIP 의전 및 비즈니스 네트워킹 성공 전략</strong><p style=\"margin: 0px; font-size: 15px; color: rgb(116, 66, 16);\">마닐라의 하이엔드 다이닝은 엄격한 드레스 코드(스마트 캐주얼 이상, 슬리퍼 및 반바지 입장 불가)를 요구하는 경우가 많으므로 의전 시 클라이언트에게 사전 안내가 필수적입니다. 또한, '와규 스튜디오'나 '갤러리 바이 첼레'와 같은 인기 파인다이닝은 최소 2~3주 전 예약이 마감되므로, 로컬 에이전시 업무나 중요한 비즈니스 미팅 일정이 확정되는 즉시 프라이빗 룸(PDR)을 선점하는 것이 리스크를 최소화하는 핵심 전략입니다. 식사 후 이동 동선을 고려해 도보 이동이 가능한 BGC 내 루프탑 라운지를 연계하여 기획한다면 최상의 만족도를 이끌어낼 수 있습니다.</p></div><hr style=\"font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; font-size: medium; border-style: solid none none; border-color: rgb(226, 232, 240) currentcolor currentcolor; margin: 36px 0px;\"><h2 style=\"color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; font-size: 24px; margin-bottom: 16px;\">4. 결론 및 넥스트 스텝 (Action Plan)</h2><p style=\"color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; margin-bottom: 20px;\">마닐라 BGC의 파인다이닝과 루프탑 라운지는 아시아 최고의 호스피탈리티 기준을 충족하며, 단순한 미식을 넘어 강력한 비즈니스 무기로 작용합니다. 고급스러운 식재료, 완벽하게 통제된 프라이버시, 그리고 마닐라의 환상적인 스카이라인은 그 어떤 회의실보다 훌륭한 협상의 장을 제공합니다.</p><p style=\"color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; margin-bottom: 24px;\">성공적인 투어 및 비즈니스를 준비하고 계신다면, 동반자의 성향(격식 vs 트렌디)과 모임의 목적(계약 체결 vs 친목 도모)을 세밀하게 분석하여 위에서 제시한 5대 베뉴 중 가장 적합한 조합을 선택하십시오. 완벽하게 기획된 다이닝 경험은 마닐라에서의 비즈니스 성공 확률을 비약적으로 높여줄 것입니다.</p><p>[사진4]</p><br><p><br></p><p style=\"font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; color: rgb(113, 128, 150); font-size: 14px; margin-bottom: 8px;\"><span style=\"color: rgb(74, 85, 104);\">#마닐라BGC #마닐라파인다이닝 #마닐라루프탑라운지 #비즈니스네트워킹 #VIP의전 #마닐라럭셔리투어 #갤러리바이첼레 #더피크</span></p>",
+    "viewCount": 678,
+    "summary": "필리핀의 맨해튼이라 불리는 BGC 보니파시오의 최상급 스테이크하우스, 미슐랭 파인다이닝, 야경 루프탑 바 가이드.",
+    "mapLocation": null,
+    "category": "VIP매거진",
+    "images": [
+      "/images/posts/post-5-img-1.webp",
+      "/images/posts/post-5-img-2.webp",
+      "/images/posts/post-5-img-3.webp",
+      "/images/posts/post-5-img-4.webp"
+    ],
+    "id": "post-5",
+    "author": "오아시스 라이프스타일",
+    "title": "마닐라 BGC 하이엔드 다이닝 & 루프탑 라운지 BEST 5",
+    "isPinned": false,
+    "thumbnail": "/images/posts/post-5-thumb.webp",
+    "tags": [
+      "BGC",
+      "파인다이닝",
+      "미식투어",
+      "마닐라야경"
+    ]
   },
   {
-    id: 'post-6',
-    category: 'VIP매거진',
-    title: '마닐라 & 클락 공항 24시간 VIP 의전 픽업 및 전용 리무진 서비스 안내',
-    author: '오아시스 의전팀',
-    date: '2026-07-28',
-    viewCount: 1150,
-    isPinned: false,
-    summary: '공항 도착 즉시 대기 시간 없는 VIP 패스트트랙 입국부터 최고급 알파드 리무진 단독 배차, 안전하고 편안한 특급 호텔 이동 서비스를 안내합니다.',
-    content: `오아시스 VIP 에이전시의 프리미엄 의전 서비스는 고객님의 필리핀 도착 순간부터 출국까지 24시간 완벽하게 동행합니다.
-
-■ 1. 공항 VIP 패스트트랙 입국 에스코트
-- 마닐라(NAIA Terminal 1, 2, 3) 및 클락(CRK) 국제공항 도착 시 전담 의전팀이 대기합니다.
-- 복잡한 입국 심사 대기 줄 없이 VIP 전용 패스트트랙 라인으로 신속하게 통과를 지원합니다.
-- 수하물 픽업 및 세관 통과까지 1:1로 안전하게 안내해 드립니다.
-
-■ 2. 최고급 리무진 전용 단독 배차
-- 전 차량 최고급 토요타 알파드(Toyota Alphard) 및 현대 스타리아 리무진 신형 모델을 운용합니다.
-- 장시간 비행의 피로를 풀어드릴 수 있는 리클라이너 시트, 차량 내 무료 초고속 와이파이, 시원한 프리미엄 생수 및 음료가 상시 준비되어 있습니다.
-- 현지 지리에 정통한 베테랑 전문 기사가 안전하고 쾌적하게 5성급 호텔 목적지까지 모십니다.
-
-■ 3. 24시간 한국인 전담 실장 밀착 지원
-- 공항 픽업부터 호텔 체크인, VIP 프라이빗 살롱 룸 배정까지 한국인 실장이 1:1로 소통하며 완벽한 편의를 제공합니다.
-- 일정 중 발생할 수 있는 모든 요구사항과 골프 투어, 식사 예약 등을 즉각 처리해 드립니다.
-
-안전하고 품격 있는 VIP 여행의 시작, 오아시스가 가장 완벽하게 책임지겠습니다.`,
-    thumbnail: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fm=webp&fit=crop&w=600&q=75&ext=.webp',
-    tags: ['공항의전', 'VIP픽업', '알파드리무진', '패스트트랙', '안심여행'],
+    "title": "마닐라 카지노 4대호텔 오카다,COD,솔레어 완벽 비교 가이드",
+    "id": "post-6",
+    "date": "2026-09-16",
+    "thumbnail": "/images/posts/post-6-thumb.webp",
+    "category": "VIP매거진",
+    "author": "오아시스 VIP매거진",
+    "createdAt": 1789549923664,
+    "summary": "마닐라 4대 카지노 리조트(솔레어, 오카다, 시오디, 뉴포트) 비교",
+    "images": [
+      "/images/posts/post-6-img-1.webp",
+      "/images/posts/post-6-img-2.webp",
+      "/images/posts/post-6-img-3.webp",
+      "/images/posts/post-6-img-4.webp"
+    ],
+    "content": "<div style=\"color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; font-size: medium; background-color: rgb(247, 250, 252); border-left: 4px solid rgb(49, 130, 206); padding: 20px; border-radius: 4px; margin-bottom: 32px;\"><strong style=\"color: rgb(43, 108, 176); font-size: 16px; display: block; margin-bottom: 8px;\">Executive Summary</strong><p style=\"margin: 0px; font-size: 15px; color: rgb(74, 85, 104);\">아시아 프리미엄 게이밍 시장의 중심축이 필리핀 마닐라로 이동하고 있습니다. 마닐라의 복합 리조트(Integrated Resorts)들은 단순히 규모를 키우는 것을 넘어, 각기 다른 타깃층과 명확한 서비스 철학을 바탕으로 독자적인 생태계를 구축했습니다. 본 리포트에서는 마닐라를 대표하는 4대 랜드마크인 <strong>솔레어, 오카다, 시티 오브 드림스, 뉴포트 월드 리조트</strong>의 게이밍 환경, VIP 인프라, 그리고 핵심 호스피탈리티 경쟁력을 하나씩 해부하여 성공적이고 올바른 카지노 투어를 위한 명확한 선택 기준을 제시합니다.</p></div><p style=\"color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; margin-bottom: 36px;\">최상위 롤러(High-Roller)를 위한 프라이빗한 공간부터, 화려한 볼거리를 찾는 레저형 게이머를 위한 메가 리조트까지 마닐라의 선택지는 다채롭습니다. 각 리조트가 지닌 하드웨어 스펙과 소프트웨어적 서비스 지향점을 개별적으로 면밀히 파악하는 것은 고품격 휴식과 효율적인 게이밍을 위한 첫걸음입니다.</p><p style=\"color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; margin-bottom: 36px;\"><br></p><hr style=\"font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; font-size: medium; border-style: solid none none; border-color: rgb(226, 232, 240) currentcolor currentcolor; margin: 36px 0px;\"><h2 style=\"color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; font-size: 24px; margin-bottom: 16px;\">1. 오카다 마닐라: 압도적 스케일의 엔터테인먼트 메가플렉스</h2><p>[사진1]</p><p><span style=\"color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif;\">일본 유니버설 엔터테인먼트 그룹이 투자한 '오카다(Okada)'는 마닐라 최대 부지(약 44헥타르)에 세워진 거대한 엔터테인먼트 제국입니다. 시각적인 화려함과 다이내믹한 분위기를 선호하는 방문객에게 최적화되어 있으며, </span><span style=\"color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; font-weight: bolder;\">일본식 환대(오모테나시)와 필리핀의 열정</span><span style=\"color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif;\">이 결합된 독특한 문화를 선보입니다.</span></p><p style=\"margin: 0.12rem 0px 20px; color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif;\">드라마 카지노의 배경이 된 카지노 중 한 곳으로 팬들의 방문또한 끊이지 않습니다.</p><p style=\"color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; margin-bottom: 20px;\"><span style=\"font-weight: bolder;\">게이밍 및 주요 시설:</span> 오카다의 카지노 플로어는 단일 층 면적으로 아시아 최대 규모 수준이며, 500개 이상의 테이블과 3,000대가 넘는 전자 게이밍 기기를 갖추고 있습니다. 카지노 플로어 전체가 핑크와 골드 톤으로 화려하게 장식되어 있어 축제 같은 텐션을 유지합니다. 게임 외에도 세계 최대 규모급의 다색 분수쇼 '더 파운틴(The Fountain)'과 실내 비치 클럽인 '코브 마닐라(Cove Manila)'가 리조트 중심에 위치하여 게이머와 동반 가족 모두에게 압도적인 볼거리를 제공합니다.</p><h2 style=\"color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; font-size: 24px; margin-top: 40px; margin-bottom: 16px;\">2. 솔레어 리조트 &amp; 카지노: 정통 럭셔리와 VIP 케어의 정수</h2><p>[사진2]</p><p>엔터테인먼트 시티의 포문을 연 '솔레어(Solaire)'는 마닐라 내에서 가장 클래식하고 우아한 럭셔리를 표방합니다. 포브스 트래블 가이드(Forbes Travel Guide) 5성급 평가를 지속적으로 유지하고 있는 이곳은, 방대한 규모로 승부하기보다는 <span style=\"font-weight: bolder;\">디테일한 접객 서비스와 프라이빗한 환경 조성</span>에 집중합니다.</p><p><br></p><p style=\"margin: 0.12rem 0px 20px; color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif;\"><span style=\"font-weight: bolder;\">게이밍 및 VIP 환경:</span> 솔레어의 카지노 플로어는 베이 타워(Bay Tower)와 스카이 타워(Sky Tower) 구역으로 나뉘며, 약 360여 개의 테이블 게임과 1,600대 이상의 슬롯머신을 보유하고 있습니다. 특히 하이롤러를 타깃으로 한 스카이 타워의 VIP 살롱은 마닐라 최고 수준의 프라이버시와 정숙성을 자랑합니다. 높은 층고와 베르사체 풍의 고급스러운 인테리어, 전담 버틀러 서비스가 결합되어 차분하고 몰입도 높은 럭셔리 게이밍 경험을 제공합니다.</p><h2 style=\"color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; font-size: 24px; margin-top: 40px; margin-bottom: 16px;\">3. 시티 오브 드림스 (COD): 3대 글로벌 브랜드가 빚어낸 세련된 복합 공간</h2><p style=\"color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; margin-bottom: 20px;\"><p>[사진3]</p><p>황금빛 돔 건축물 '포춘 에그(Fortune Egg)'로 유명한 '시티 오브 드림스(이하 시오디)'는 멜코 리조트(Melco Resorts)의 세련된 운영 노하우가 돋보이는 곳입니다. 누와(Nüwa), 노부(Nobu), 하얏트 리젠시(Hyatt Regency)라는 <strong>글로벌 최고급 호텔 브랜드 3개가 유기적으로 결합</strong>되어 있어, 방문객의 취향에 따른 숙박 인프라 선택의 폭이 가장 넓습니다.</p></p><p style=\"color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; margin-bottom: 20px;\"><strong>게이밍 및 라이프스타일:</strong> 약 280개의 테이블과 1,600대의 슬롯머신을 운영하는 시오디의 게이밍 공간은 모던하고 트렌디한 분위기를 연출합니다. 무겁고 엄숙한 전통적 카지노보다는 밝고 캐주얼한 '프리미엄 매스(Premium Mass)' 고객층에게 각광받고 있습니다. 특히 미슐랭 스타 셰프의 숨결이 담긴 '노부 레스토랑'을 비롯한 파인다이닝 클러스터와, 드림웍스 애니메이션 테마파크 '드림플레이(DreamPlay)'는 게이밍과 라이프스타일의 완벽한 밸런스를 맞추어 줍니다.</p><h2 style=\"color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; font-size: 24px; margin-top: 40px; margin-bottom: 16px;\">4. 뉴포트 월드 리조트: 최고의 접근성과 올인원 도심 인프라</h2><p style=\"color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; margin-bottom: 20px;\"><p>[사진4]</p><p>엔터테인먼트 시티와 떨어져 니노이 아키노 국제공항(NAIA) 터미널 3과 직접 연결된 '뉴포트 월드 리조트'는 마닐라 카지노 산업의 선구자입니다. (구 리조트 월드 마닐라) <strong>교통 체증을 피할 수 있는 지리적 이점과 방대한 메가 타운 인프라</strong>는 단기 비즈니스 일정이나 실속형 투어에 대체 불가능한 강점입니다.</p></p><p style=\"color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; margin-bottom: 20px;\"><strong>게이밍 및 편의성:</strong> 메리어트, 힐튼, 쉐라톤, 오쿠라 등 5개 이상의 호텔 윙(Wing)이 하나의 거대한 쇼핑몰(Newport Mall) 및 카지노 플로어와 거미줄처럼 연결되어 있습니다. 가장 대중적인 미니멈 베팅 금액부터 하이엔드 정킷 룸까지 스펙트럼이 매우 넓어 진입 장벽이 낮습니다. 공항 보딩 타임 직전까지도 여유롭게 게임과 쇼핑을 즐길 수 있는 극한의 동선 효율을 제공합니다.</p><p><br></p><hr style=\"font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; font-size: medium; border-style: solid none none; border-color: rgb(226, 232, 240) currentcolor currentcolor; margin: 36px 0px;\"><h2 style=\"color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; font-size: 24px; margin-bottom: 16px;\">5. 4대 리조트 핵심 스펙 브리핑 테이블</h2><p style=\"color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; margin-bottom: 20px;\">각 리조트의 특성을 한눈에 비교할 수 있도록 요약한 핵심 스펙 데이터입니다.</p><div style=\"color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; font-size: medium; overflow-x: auto; margin-bottom: 28px;\"><div class=\"oasis-table-wrap overflow-x-auto my-3 max-w-full\"><table style=\"width: 860px; font-size: 14px; border-color: rgb(226, 232, 240);\" class=\"oasis-table min-w-full border-collapse border border-slate-300 rounded-xl overflow-hidden text-sm\"><thead><tr style=\"background-color: rgb(237, 242, 247); border-bottom: 2px solid rgb(203, 213, 224);\"><th style=\"padding: 12px 14px;\">리조트명</th><th style=\"padding: 12px 14px;\">핵심 포지셔닝</th><th style=\"padding: 12px 14px;\">호텔 객실 브랜드</th><th style=\"padding: 12px 14px;\">게이밍 플로어 톤앤매너</th></tr></thead><tbody><tr style=\"border-bottom: 1px solid rgb(226, 232, 240);\"><td style=\"padding: 12px 14px; font-weight: 600; background-color: rgb(247, 250, 252);\">솔레어 (Solaire)</td><td style=\"padding: 12px 14px;\">정통 럭셔리 &amp; VIP 케어</td><td style=\"padding: 12px 14px;\">베이 타워, 스카이 타워 (자체)</td><td style=\"padding: 12px 14px;\">정숙함, 프라이빗, 클래식 럭셔리</td></tr><tr style=\"border-bottom: 1px solid rgb(226, 232, 240);\"><td style=\"padding: 12px 14px; font-weight: 600; background-color: rgb(247, 250, 252);\">오카다 (Okada)</td><td style=\"padding: 12px 14px;\">메가 스케일 &amp; 화려함</td><td style=\"padding: 12px 14px;\">펄 윙, 코랄 윙 (자체)</td><td style=\"padding: 12px 14px;\">다이내믹, 방대한 텐션, 엔터테인먼트 중심</td></tr><tr style=\"border-bottom: 1px solid rgb(226, 232, 240);\"><td style=\"padding: 12px 14px; font-weight: 600; background-color: rgb(247, 250, 252);\">시티 오브 드림스</td><td style=\"padding: 12px 14px;\">글로벌 체인 &amp; 라이프스타일</td><td style=\"padding: 12px 14px;\">누와, 노부, 하얏트 리젠시</td><td style=\"padding: 12px 14px;\">트렌디, 모던, 세련된 캐주얼</td></tr><tr><td style=\"padding: 12px 14px; font-weight: 600; background-color: rgb(247, 250, 252);\">뉴포트 월드 리조트</td><td style=\"padding: 12px 14px;\">공항 직결 &amp; 동선 효율</td><td style=\"padding: 12px 14px;\">메리어트, 힐튼, 쉐라톤, 오쿠라 등</td><td style=\"padding: 12px 14px;\">대중성, 접근성 최고, 컴팩트한 밀도</td></tr></tbody></table></div></div><div style=\"color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; font-size: medium; background-color: rgb(255, 250, 240); border-left: 4px solid rgb(221, 107, 32); padding: 20px; border-radius: 4px; margin-bottom: 32px;\"><strong style=\"color: rgb(192, 86, 33); font-size: 16px; display: block; margin-bottom: 8px;\">Expert Insight: 리스크 관리와 올바른 접근법</strong><p style=\"margin: 0px; font-size: 15px; color: rgb(116, 66, 16);\">마닐라의 복합 리조트들은 각 카지노마다 독자적인 '리워드 멤버십(Rewards Membership)'을 운영합니다. 도착 즉시 자신의 플레이 성향에 맞는 리조트 한 곳을 메인으로 선정하여 멤버십 카드를 발급받고 포인트를 집중시키는 것이 식음료(F&amp;B) 및 객실 프로모션 혜택을 극대화하는 전략입니다. 또한, 무리한 베팅보다는 예산을 명확히 설정하고 리조트 내 파인다이닝과 스파 시설을 십분 활용하는 것이 '올바른 카지노 투어'의 본질임을 잊지 마십시오.</p></div><p style=\"font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; color: rgb(113, 128, 150); font-size: 14px; margin-bottom: 8px;\"><span style=\"color: rgb(45, 55, 72); font-weight: 600; font-size: 16px;\">목적이 완벽한 프라이버시(솔레어)인지, 압도적 유희(오카다)인지, 트렌디한 휴식(COD)인지, 최강의 기동성(뉴포트)인지 결정하셨습니까? 목적에 맞는 최적의 베이스캠프를 선택하여 마닐라 하이엔드 호스피탈리티의 정수를 경험해 보시길 바랍니다.</span></p><div style=\"font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; margin-top: 32px; padding-top: 16px; border-top: 1px dashed rgb(203, 213, 224); font-size: 14px; color: rgb(74, 85, 104);\">#마닐라카지노 #마닐라호텔추천 #솔레어리조트 #오카다마닐라 #시티오브드림스 #뉴포트월드리조트 #필리핀VIP투어 #올바른카지노투어</div>",
+    "mapLocation": null,
+    "viewCount": 466,
+    "isPinned": false,
+    "tags": [
+      "마닐라카지노",
+      "필리핀카지노",
+      "오카다카지노",
+      "솔레어카지노",
+      "씨오디카지노",
+      "뉴포트카지노",
+      "마닐라여행",
+      "마닐라호텔",
+      "마닐라오카다",
+      "마닐라솔레어",
+      "마닐라씨오디",
+      "마닐라뉴포트"
+    ]
   },
   {
-    id: 'post-7',
-    category: '프로모션',
-    title: '2026 뉴포트 월드 & 마닐라 COD 카지노 롤링 1.5% 및 항공권 바우처 특별 프로모션',
-    author: '오아시스 마케팅팀',
-    date: '2026-07-15',
-    viewCount: 920,
-    isPinned: false,
-    summary: '뉴포트 월드 리조트(구 리조트월드 마닐라) 및 시티오브드림(COD) 하이리밋 살롱 회원 전용 롤링 혜택 및 왕복 비즈니스 항공권 페이백 안내.',
-    content: `[크기:대][굵게]2026 하반기 뉴포트 월드 & COD 프리미엄 프로모션[/굵게][/크기]
-
-오아시스 VIP 에이전시에서 마닐라 공항 인근 최상의 인프라를 자랑하는 **뉴포트 월드 리조트(Newport World Resorts)** 및 **시티 오브 드림(City of Dreams Manila)** 특별 프로모션을 진행합니다.
-
-[크기:중][굵게]■ 프로모션 주요 혜택[/굵게][/크기]
-- 롤링 커미션 최대 1.5% 즉시 지급 (게임 종료 즉시 정산)
-- 왕복 비즈니스 항공권 바우처 100% 실비 지원
-- 뉴포트 메리어트 / 힐튼 / 오쿠라 / 쉐라톤 최상급 호텔 무료 숙박 바우처
-- 공항 NAIA 터미널3 육교 연결 초근접 이동 의전 지원
-
-> "출입국이 가장 편리한 뉴포트 월드에서 오아시스만의 프라이빗한 케어를 경험해 보세요."
-
-[지도:뉴포트 월드 리조트 마닐라]
-
-자세한 참가 기준 및 롤링 조건은 24시간 오아시스 공식 메신저로 문의해 주시기 바랍니다.`,
-    thumbnail: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fm=webp&fit=crop&w=600&q=75&ext=.webp',
-    tags: ['뉴포트월드', 'COD', '프로모션', '롤링혜택', '마닐라호텔'],
+    "id": "post-7",
+    "category": "프로모션",
+    "title": "2026 뉴포트 월드 & 마닐라 COD 카지노 롤링 1.5% 및 항공권 바우처 특별 프로모션",
+    "author": "오아시스 마케팅팀",
+    "date": "2026-07-15",
+    "viewCount": 920,
+    "isPinned": false,
+    "summary": "뉴포트 월드 리조트(구 리조트월드 마닐라) 및 시티오브드림(COD) 하이리밋 살롱 회원 전용 롤링 혜택 및 왕복 비즈니스 항공권 페이백 안내.",
+    "content": "[크기:대][굵게]2026 하반기 뉴포트 월드 & COD 프리미엄 프로모션[/굵게][/크기]\n\n오아시스 VIP 에이전시에서 마닐라 공항 인근 최상의 인프라를 자랑하는 **뉴포트 월드 리조트(Newport World Resorts)** 및 **시티 오브 드림(City of Dreams Manila)** 특별 프로모션을 진행합니다.\n\n[크기:중][굵게]■ 프로모션 주요 혜택[/굵게][/크기]\n- 롤링 커미션 최대 1.5% 즉시 지급 (게임 종료 즉시 정산)\n- 왕복 비즈니스 항공권 바우처 100% 실비 지원\n- 뉴포트 메리어트 / 힐튼 / 오쿠라 / 쉐라톤 최상급 호텔 무료 숙박 바우처\n- 공항 NAIA 터미널3 육교 연결 초근접 이동 의전 지원\n\n> \"출입국이 가장 편리한 뉴포트 월드에서 오아시스만의 프라이빗한 케어를 경험해 보세요.\"\n\n[지도:뉴포트 월드 리조트 마닐라]\n\n자세한 참가 기준 및 롤링 조건은 24시간 오아시스 공식 메신저로 문의해 주시기 바랍니다.",
+    "thumbnail": "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fm=webp&fit=crop&w=600&q=75&ext=.webp",
+    "images": [
+      "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fm=webp&fit=crop&w=800&q=80"
+    ],
+    "tags": [
+      "뉴포트월드",
+      "COD",
+      "프로모션",
+      "롤링혜택",
+      "마닐라호텔"
+    ]
   },
   {
-    id: 'post-8',
-    category: 'VIP매거진',
-    title: '[VIP 투어] 클락 한 카지노 리조트(Hann) & 스위소텔 최상급 럭셔리 스테이 가이드',
-    author: '오아시스 클락지사',
-    date: '2026-07-02',
-    viewCount: 840,
-    isPinned: false,
-    summary: '클락 경제자유구역 최고의 럭셔리 복합리조트 한(Hann) 카지노와 메리어트/스위소텔 5성급 스위트룸, 최고급 부대시설 완벽 가이드.',
-    content: `[크기:대][굵게]클락의 새로운 랜드마크, 한 카지노 리조트(Hann Resort)[/굵게][/크기]
-
-필리핀 클락(Clark)의 중심부에 위치한 **한 카지노 리조트(Hann Casino Resort)**는 세계적인 호텔 체인 메리어트(Marriott)와 스위소텔(Swissôtel)이 입점한 초대형 하이엔드 복합리조트입니다.
-
-[크기:중][굵게]1. 최고급 VIP 게이밍 살롱[/굵게][/크기]
-- 쾌적하고 넓은 실내 공간과 최신식 바카라, 블랙잭, 룰렛 테이블
-- 프라이빗 하이리밋 전용 VIP 정켓 룸 완비
-- 한국인 전담 매니저의 신속한 바이인 및 정산 시스템
-
-[크기:중][굵게]2. 5성급 럭셔리 숙박 인프라[/굵게][/크기]
-- 스위소텔 클락(Swissôtel Clark) 프리미엄 스위트룸 전경
-- 알프스 스타일의 최고급 스파(Pürovel Spa & Sport) 및 인피니티 풀
-- 15개 이상의 글로벌 고메 레스토랑 & 와인 바
-
-[지도:한 카지노 리조트 클락]
-
-오아시스 고객님께는 전 일정 무료 숙박 및 클락 공항 단독 리무진 픽업이 제공됩니다.`,
-    thumbnail: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fm=webp&fit=crop&w=600&q=75&ext=.webp',
-    tags: ['클락한카지노', '스위소텔', '클락VIP', '럭셔리호텔'],
+    "id": "post-8",
+    "category": "VIP매거진",
+    "title": "[VIP 투어] 클락 한 카지노 리조트(Hann) & 스위소텔 최상급 럭셔리 스테이 가이드",
+    "author": "오아시스 클락지사",
+    "date": "2026-07-02",
+    "viewCount": 840,
+    "isPinned": false,
+    "summary": "클락 경제자유구역 최고의 럭셔리 복합리조트 한(Hann) 카지노와 메리어트/스위소텔 5성급 스위트룸, 최고급 부대시설 완벽 가이드.",
+    "content": "[크기:대][굵게]클락의 새로운 랜드마크, 한 카지노 리조트(Hann Resort)[/굵게][/크기]\n\n필리핀 클락(Clark)의 중심부에 위치한 **한 카지노 리조트(Hann Casino Resort)**는 세계적인 호텔 체인 메리어트(Marriott)와 스위소텔(Swissôtel)이 입점한 초대형 하이엔드 복합리조트입니다.\n\n[크기:중][굵게]1. 최고급 VIP 게이밍 살롱[/굵게][/크기]\n- 쾌적하고 넓은 실내 공간과 최신식 바카라, 블랙잭, 룰렛 테이블\n- 프라이빗 하이리밋 전용 VIP 정켓 룸 완비\n- 한국인 전담 매니저의 신속한 바이인 및 정산 시스템\n\n[크기:중][굵게]2. 5성급 럭셔리 숙박 인프라[/굵게][/크기]\n- 스위소텔 클락(Swissôtel Clark) 프리미엄 스위트룸 전경\n- 알프스 스타일의 최고급 스파(Pürovel Spa & Sport) 및 인피니티 풀\n- 15개 이상의 글로벌 고메 레스토랑 & 와인 바\n\n[지도:한 카지노 리조트 클락]\n\n오아시스 고객님께는 전 일정 무료 숙박 및 클락 공항 단독 리무진 픽업이 제공됩니다.",
+    "thumbnail": "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fm=webp&fit=crop&w=600&q=75&ext=.webp",
+    "images": [
+      "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fm=webp&fit=crop&w=800&q=80"
+    ],
+    "tags": [
+      "클락한카지노",
+      "스위소텔",
+      "클락VIP",
+      "럭셔리호텔"
+    ]
   },
   {
-    id: 'post-9',
-    category: '공지사항',
-    title: '오아시스 공식 24시간 프라이빗 텔레그램 채널 보안 인증 절차 안내',
-    author: '오아시스 보안관제팀',
-    date: '2026-06-20',
-    viewCount: 1680,
-    isPinned: false,
-    summary: 'VIP 고객님의 안전한 소통과 사칭 방지를 위한 24시간 공식 텔레그램 1:1 상담 채널 정식 인증 확인 안내입니다.',
-    content: `[크기:대][굵게]오아시스 공식 메신저 보안 인증 안내[/굵게][/크기]
-
-항상 오아시스 공식 에이전트를 이용해 주시는 VIP 회원님들께 깊은 감사를 드립니다.
-최근 오아시스 에이전시를 사칭하는 불법 피싱 채널이 발생하고 있어, 회원님들의 소중한 자산과 개인정보 보호를 위한 공식 확인 절차를 안내해 드립니다.
-
-[크기:중][굵게]■ 오아시스 정식 인증 메신저 안내[/굵게][/크기]
-- **공식 텔레그램 채널**: @oasis_official_agent (아이디 철자 확인 필수)
-- **공식 웹사이트**: 본 공식 플랫폼 우측 상단 및 하단 버튼을 통해서만 연결
-- **공식 계좌 확인**: 유선 통화 또는 전담 실장의 정식 인증 후에만 진행
-
-[형광펜]※ 오아시스는 어떠한 경우에도 비공식 개인 메신저로 선입금을 유도하지 않습니다.[/형광펜]
-
-모든 고객님의 안전과 비밀 보장을 위해 24시간 보안 모니터링을 상시 가동하고 있습니다. 의심스러운 메시지를 받으셨을 경우 즉시 공식 채널로 제보해 주시기 바랍니다.`,
-    thumbnail: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fm=webp&fit=crop&w=600&q=75&ext=.webp',
-    tags: ['보안공지', '공식텔레그램', '사칭주의', '고객보호'],
-  },
+    "id": "post-9",
+    "category": "공지사항",
+    "title": "오아시스 공식 24시간 프라이빗 텔레그램 채널 보안 인증 절차 안내",
+    "author": "오아시스 보안관제팀",
+    "date": "2026-06-20",
+    "viewCount": 1680,
+    "isPinned": false,
+    "summary": "VIP 고객님의 안전한 소통과 사칭 방지를 위한 24시간 공식 텔레그램 1:1 상담 채널 정식 인증 확인 안내입니다.",
+    "content": "[크기:대][굵게]오아시스 공식 메신저 보안 인증 안내[/굵게][/크기]\n\n항상 오아시스 공식 에이전트를 이용해 주시는 VIP 회원님들께 깊은 감사를 드립니다.\n최근 오아시스 에이전시를 사칭하는 불법 피싱 채널이 발생하고 있어, 회원님들의 소중한 자산과 개인정보 보호를 위한 공식 확인 절차를 안내해 드립니다.\n\n[크기:중][굵게]■ 오아시스 정식 인증 메신저 안내[/굵게][/크기]\n- **공식 텔레그램 채널**: @oasis_official_agent (아이디 철자 확인 필수)\n- **공식 웹사이트**: 본 공식 플랫폼 우측 상단 및 하단 버튼을 통해서만 연결\n- **공식 계좌 확인**: 유선 통화 또는 전담 실장의 정식 인증 후에만 진행\n\n[형광펜]※ 오아시스는 어떠한 경우에도 비공식 개인 메신저로 선입금을 유도하지 않습니다.[/형광펜]\n\n모든 고객님의 안전과 비밀 보장을 위해 24시간 보안 모니터링을 상시 가동하고 있습니다. 의심스러운 메시지를 받으셨을 경우 즉시 공식 채널로 제보해 주시기 바랍니다.",
+    "thumbnail": "https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fm=webp&fit=crop&w=600&q=75&ext=.webp",
+    "images": [
+      "https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fm=webp&fit=crop&w=800&q=80"
+    ],
+    "tags": [
+      "보안공지",
+      "공식텔레그램",
+      "사칭주의",
+      "고객보호"
+    ]
+  }
 ];
 
 export const initialFAQs: FAQItem[] = [

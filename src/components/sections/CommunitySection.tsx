@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useSite } from '../../context/SiteContext';
 import { PostItem } from '../../types';
+import { initialPosts } from '../../data/initialData';
 import {
   FileText,
   Search,
@@ -20,7 +21,7 @@ import { getResponsiveImageProps } from '../../utils/imageOptimizer';
 const POSTS_PER_PAGE = 9;
 
 export const CommunitySection: React.FC = () => {
-  const { posts, setSelectedPost, incrementPostView, siteConfig } = useSite();
+  const { posts, setSelectedPost, incrementPostView, siteConfig, restoreAllPostsAndImages } = useSite();
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [currentPage, setCurrentPage] = useState<number>(1);
 
@@ -126,16 +127,30 @@ export const CommunitySection: React.FC = () => {
 
         {/* Posts List / Magazine Cards */}
         {filteredPosts.length === 0 ? (
-          <div className="py-20 text-center text-slate-500 bg-slate-50 rounded-2xl border border-dashed border-slate-200 space-y-2">
+          <div className="py-20 text-center text-slate-500 bg-slate-50 rounded-2xl border border-dashed border-slate-200 space-y-3">
             <FileText className="w-10 h-10 mx-auto text-slate-400" />
-            <p className="text-sm font-semibold text-slate-700">검색 조건에 일치하는 게시글이 없습니다.</p>
-            <p className="text-xs text-slate-500">다른 키워드 또는 카테고리를 선택해 보세요.</p>
+            <p className="text-sm font-semibold text-slate-700">
+              {searchQuery ? '검색 조건에 일치하는 게시글이 없습니다.' : '표시할 커뮤니티 게시글이 없습니다.'}
+            </p>
+            {searchQuery ? (
+              <p className="text-xs text-slate-500">다른 키워드 또는 카테고리를 선택해 보세요.</p>
+            ) : (
+              <button
+                type="button"
+                onClick={() => restoreAllPostsAndImages()}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#30308A] text-white text-xs font-bold hover:bg-[#25256e] transition-colors cursor-pointer shadow-xs"
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>커뮤니티 글 & 이미지 즉시 복원하기</span>
+              </button>
+            )}
           </div>
         ) : (
           <>
             <div className="grid grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-6">
             {paginatedPosts.map((post) => {
-              const cardImage = (post.images && post.images.length > 0) ? post.images[0] : post.thumbnail;
+              const fallbackThumb = initialPosts.find((ip) => ip.id === post.id)?.thumbnail;
+              const cardImage = post.thumbnail || (post.images && post.images.length > 0 ? post.images[0] : fallbackThumb);
               const hasMultiplePhotos = (post.images && post.images.length > 1);
               const hasMap = Boolean(post.mapLocation || isMapInContent(post.content));
 

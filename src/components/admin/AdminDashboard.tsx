@@ -74,9 +74,13 @@ export const AdminDashboard: React.FC = () => {
     updateInquiryStatus,
     deleteInquiry,
     resetToDefaults,
+    restoreOriginalBranding,
+    restoreAllPostsAndImages,
     exportDataJSON,
     getExportJSONString,
     importDataJSON,
+    isQuotaExceeded,
+    refreshCloudData,
   } = useSite();
 
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
@@ -273,13 +277,37 @@ export const AdminDashboard: React.FC = () => {
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#E5B54F] text-slate-950">
                   ADMIN LIVE
                 </span>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                  Firebase 클라우드 실시간 동기화
-                </span>
+                {isQuotaExceeded ? (
+                  <div className="flex items-center gap-2">
+                    <span
+                      className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 flex items-center gap-1 cursor-help"
+                      title="Firebase 일일 무료 할당량(Free Tier)이 초과되어 로컬 캐시 모드로 안전하게 보호 중입니다. 데이터는 브라우저 로컬 저장소에 완벽히 보존됩니다."
+                    >
+                      <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                      Firebase 할당량 초과 (로컬 캐시 모드)
+                    </span>
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        await refreshCloudData(true);
+                        showToast('클라우드 동기화를 다시 시도하였습니다.');
+                      }}
+                      className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#30308A] hover:bg-[#3d3dc2] text-white border border-white/20 transition-colors cursor-pointer"
+                    >
+                      클라우드 재연결
+                    </button>
+                  </div>
+                ) : (
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                    Firebase 클라우드 연동 완료
+                  </span>
+                )}
               </div>
               <p className="text-xs text-slate-400">
-                수정 및 작성하신 모든 내용이 클라우드 DB에 즉시 저장되어 넷플리파이 및 모든 방문자에게 실시간 반영됩니다.
+                {isQuotaExceeded
+                  ? '현재 Firebase 무료 할당량이 소진되어 로컬 저장소 캐시로 안전하게 운영 중입니다. 모든 수정사항은 로컬에 정상 보존됩니다.'
+                  : '수정 및 작성하신 모든 내용이 클라우드 DB와 로컬 저장소에 안전하게 저장됩니다.'}
               </p>
             </div>
           </div>
@@ -2048,16 +2076,38 @@ Sitemap: https://oasis46.com/sitemap.xml`}
                     운영자 전용 게시판 글 작성, 상단 고정 및 수정/삭제
                   </p>
                 </div>
-                <button
-                  onClick={() => {
-                    setIsAdminOpen(false);
-                    openPostEditor(null);
-                  }}
-                  className="px-4 py-2 bg-[#30308A] hover:bg-[#25256e] text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow cursor-pointer"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span>새 글 작성하기</span>
-                </button>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setConfirmModal({
+                        isOpen: true,
+                        title: '커뮤니티 글 & 이미지 전체 복원',
+                        message: '모든 오아시스 공식 커뮤니티 게시글과 고화질 이미지(썸네일/본문 사진)를 기본값으로 즉시 복원하시겠습니까?',
+                        confirmText: '전체 복원 실행',
+                        confirmColor: 'bg-emerald-600 hover:bg-emerald-700',
+                        onConfirm: async () => {
+                          await restoreAllPostsAndImages();
+                          showToast('커뮤니티 게시글과 이미지가 모두 성공적으로 복원되었습니다.');
+                        },
+                      });
+                    }}
+                    className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow cursor-pointer transition-colors"
+                  >
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>커뮤니티 글/이미지 전체 복원</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setIsAdminOpen(false);
+                      openPostEditor(null);
+                    }}
+                    className="px-4 py-2 bg-[#30308A] hover:bg-[#25256e] text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow cursor-pointer"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>새 글 작성하기</span>
+                  </button>
+                </div>
               </div>
 
               <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
@@ -2323,12 +2373,76 @@ Sitemap: https://oasis46.com/sitemap.xml`}
                   </div>
                 </div>
 
-                <div className="pt-6 border-t border-slate-200">
+                {/* Project Isolation & Copy Guide Card */}
+                <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-950 space-y-2">
+                  <div className="flex items-center gap-2 font-bold text-xs text-amber-900">
+                    <Shield className="w-4 h-4 text-amber-600" />
+                    <span>프로젝트 복제 시 파이어베이스 DB 공유 및 분리 주의사항</span>
+                  </div>
+                  <p className="text-[11px] text-amber-800 leading-relaxed">
+                    구글 AI 스튜디오에서 이 사이트를 복사(Clone)하여 다른 프로젝트를 생성할 경우, 복사된 사이트의 <code className="font-mono bg-white px-1 py-0.5 rounded border border-amber-300">firebase-applet-config.json</code> 설정 파일이 원본의 데이터베이스 ID(<code className="font-mono bg-white px-1 py-0.5 rounded border border-amber-300">ai-studio-79f47989-...</code>)를 그대로 가리켜 원본과 복사본이 동일한 DB를 공유하게 됩니다.
+                  </p>
+                  <p className="text-[11px] text-amber-800 leading-relaxed font-semibold">
+                    💡 복사본 사이트와 데이터를 완전히 분리하려면: 복사본 사이트의 채팅창에 <span className="bg-amber-100 text-amber-950 px-1 py-0.5 rounded">"파이어베이스를 이 새 프로젝트 전용으로 새로 연동해줘"</span>라고 요청하여 고유한 새 데이터베이스를 생성하시기 바랍니다.
+                  </p>
+                </div>
+
+                <div className="pt-6 border-t border-slate-200 space-y-4">
+                  {/* Branding-only restore */}
+                  <div className="p-4 rounded-xl bg-blue-50 border border-blue-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div>
+                      <span className="text-xs font-bold text-blue-950 block">오아시스 공식 원본 브랜딩 즉시 복원</span>
+                      <p className="text-[11px] text-blue-800">
+                        게시판 글과 상담 접수 내역은 그대로 유지하며, 좌측 상단 로고, 메인 히어로 배너 이미지, 메인 타이틀만 오아시스 공식 원본으로 복원합니다.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        await restoreOriginalBranding();
+                        showToast('오아시스 공식 로고 및 메인 배너가 원본으로 복원되었습니다.');
+                      }}
+                      className="px-4 py-2 bg-[#30308A] hover:bg-[#25256e] text-white rounded-lg text-xs font-bold whitespace-nowrap cursor-pointer shadow-xs"
+                    >
+                      공식 브랜딩 복원
+                    </button>
+                  </div>
+
+                  {/* Community Posts & Images Restoration */}
+                  <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div>
+                      <span className="text-xs font-bold text-emerald-950 block">커뮤니티 게시글 & 이미지 전체 복원</span>
+                      <p className="text-[11px] text-emerald-800">
+                        커뮤니티 및 VIP 매거진의 모든 게시글과 썸네일, 본문 고화질 사진(1~4장), 구글 지도 위치를 원본 상태로 즉시 복원합니다.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setConfirmModal({
+                          isOpen: true,
+                          title: '커뮤니티 글 & 이미지 전체 복원',
+                          message: '모든 오아시스 공식 커뮤니티 게시글과 고화질 이미지(썸네일/본문 사진)를 기본값으로 즉시 복원하시겠습니까?',
+                          confirmText: '전체 복원 실행',
+                          confirmColor: 'bg-emerald-600 hover:bg-emerald-700',
+                          onConfirm: async () => {
+                            await restoreAllPostsAndImages();
+                            showToast('커뮤니티 게시글과 이미지가 모두 성공적으로 복원되었습니다.');
+                          },
+                        });
+                      }}
+                      className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold whitespace-nowrap cursor-pointer shadow-xs"
+                    >
+                      커뮤니티 전체 복원
+                    </button>
+                  </div>
+
+                  {/* Full factory reset */}
                   <div className="p-4 rounded-xl bg-red-50 border border-red-200 flex flex-col sm:flex-row items-center justify-between gap-4">
                     <div>
-                      <span className="text-xs font-bold text-red-900 block">초기 공장 기본값 리셋</span>
+                      <span className="text-xs font-bold text-red-900 block">초기 공장 기본값 전체 리셋</span>
                       <p className="text-[11px] text-red-700">
-                        모든 설정을 '오아시스 공식 에이전트' 초기 샘플 데이터로 복원합니다.
+                        모든 설정과 데이터를 '오아시스 공식 에이전트' 초기 샘플 데이터로 복원합니다.
                       </p>
                     </div>
                     <button

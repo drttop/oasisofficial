@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useLayoutEffect } from 'react';
 import { useSite } from '../../context/SiteContext';
 import { PostItem } from '../../types';
+import { initialPosts } from '../../data/initialData';
 import {
   ArrowLeft,
   Calendar,
@@ -95,12 +96,19 @@ export const PostDetailPage: React.FC<PostDetailPageProps> = ({
     여행정보: 'bg-emerald-50 text-emerald-600 border-emerald-200',
   };
 
-  // Determine images to show (prefer images array, fallback to thumbnail)
+  // Determine images to show (prefer images array, fallback to initial sample)
+  const matchingInitial = initialPosts.find((ip) => ip.id === post.id);
+  const rawImages = (post.images && post.images.length > 0)
+    ? post.images
+    : (matchingInitial?.images && matchingInitial.images.length > 0 ? matchingInitial.images : []);
+
   const displayImages: string[] =
-    post.images && post.images.length > 0
-      ? post.images.slice(0, 6)
+    rawImages.length > 0
+      ? rawImages.slice(0, 6)
       : post.thumbnail
       ? [post.thumbnail]
+      : matchingInitial?.thumbnail
+      ? [matchingInitial.thumbnail]
       : [];
 
   // Detect which photos are placed inline in body with [사진1] ~ [사진6]

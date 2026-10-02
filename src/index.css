@@ -233,22 +233,24 @@
   font-weight: 700 !important;
 }
 
-/* Article & Editor Paragraph and Spacing Normalization (Compact & Elegant Korean Community Spacing) */
+/* Article & Editor Paragraph and Spacing Normalization */
 .oasis-article-content p,
 .visual-editor-canvas p {
-  margin-top: 0.12rem;
-  margin-bottom: 0.12rem;
-  line-height: 1.65;
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+  line-height: 1.7;
+  word-break: keep-all;
+  overflow-wrap: break-word;
 }
 
-.oasis-article-content p:has(> br:only-child),
-.visual-editor-canvas p:has(> br:only-child),
+/* Empty spacer line for intentional blank line spacing */
+.oasis-article-content p:empty,
+.visual-editor-canvas p:empty,
 .oasis-article-content p.oasis-empty-spacer,
 .visual-editor-canvas p.oasis-empty-spacer {
-  margin-top: 0.08rem;
-  margin-bottom: 0.08rem;
-  min-height: 0.65rem;
-  height: 0.65rem;
+  min-height: 1.25rem;
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
 }
 
 .oasis-article-content ul,

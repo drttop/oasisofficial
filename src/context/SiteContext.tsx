@@ -88,7 +88,11 @@ interface SiteContextType {
   setActiveSection: (section: string) => void;
   
   isCloudSynced: boolean;
+  isQuotaExceeded: boolean;
+  refreshCloudData: (force?: boolean) => Promise<void>;
   resetToDefaults: () => Promise<void>;
+  restoreOriginalBranding: () => Promise<void>;
+  restoreAllPostsAndImages: () => Promise<void>;
   exportDataJSON: () => void;
   getExportJSONString: () => string;
   importDataJSON: (jsonString: string) => Promise<boolean>;
@@ -96,16 +100,68 @@ interface SiteContextType {
 
 const SiteContext = createContext<SiteContextType | undefined>(undefined);
 
-const STORAGE_KEYS = {
-  CONFIG: 'oasis_site_config_v8',
-  SLIDES: 'oasis_banner_slides_v8',
-  CASINOS: 'oasis_casinos_v8',
-  SPOTS: 'oasis_philippine_spots_v8',
-  POSTS: 'oasis_posts_v8',
-  DELETED_POSTS: 'oasis_deleted_post_ids_v8',
-  LEADS: 'oasis_inquiry_leads_v8',
-  STEPS: 'oasis_service_steps_v8',
-  FAQS: 'oasis_faqs_v8',
+const APP_STORAGE_PREFIX = 'oasis_79f47989';
+export const STORAGE_KEYS = {
+  CONFIG: `${APP_STORAGE_PREFIX}_config_v10`,
+  SLIDES: `${APP_STORAGE_PREFIX}_slides_v10`,
+  CASINOS: `${APP_STORAGE_PREFIX}_casinos_v10`,
+  SPOTS: `${APP_STORAGE_PREFIX}_spots_v10`,
+  POSTS: `${APP_STORAGE_PREFIX}_posts_v12`,
+  DELETED_POSTS: `${APP_STORAGE_PREFIX}_deleted_post_ids_v12`,
+  LEADS: `${APP_STORAGE_PREFIX}_leads_v10`,
+  STEPS: `${APP_STORAGE_PREFIX}_steps_v10`,
+  FAQS: `${APP_STORAGE_PREFIX}_faqs_v10`,
+  LAST_SYNC: `${APP_STORAGE_PREFIX}_last_sync_v10`,
+  QUOTA_EXCEEDED: `${APP_STORAGE_PREFIX}_quota_exceeded_v10`,
+};
+
+let isQuotaExceededFlag = false;
+
+export const isFirestoreQuotaExceeded = (): boolean => {
+  if (isQuotaExceededFlag) return true;
+  if (typeof window !== 'undefined') {
+    try {
+      const stored = sessionStorage.getItem(STORAGE_KEYS.QUOTA_EXCEEDED);
+      if (stored) {
+        const storedTime = parseInt(stored, 10);
+        if (!isNaN(storedTime)) {
+          // If exceeded flag was set more than 1 hour ago, auto-reset
+          if (Date.now() - storedTime > 60 * 60 * 1000) {
+            sessionStorage.removeItem(STORAGE_KEYS.QUOTA_EXCEEDED);
+            isQuotaExceededFlag = false;
+            return false;
+          }
+        } else if (stored === 'true') {
+          // Reset legacy string flag so new sessions retest connection
+          sessionStorage.removeItem(STORAGE_KEYS.QUOTA_EXCEEDED);
+          isQuotaExceededFlag = false;
+          return false;
+        }
+        isQuotaExceededFlag = true;
+        return true;
+      }
+    } catch {}
+  }
+  return false;
+};
+
+export const markFirestoreQuotaExceeded = () => {
+  isQuotaExceededFlag = true;
+  if (typeof window !== 'undefined') {
+    try {
+      sessionStorage.setItem(STORAGE_KEYS.QUOTA_EXCEEDED, String(Date.now()));
+    } catch {}
+  }
+  console.warn('[Firebase Quota] 일일 무료 할당량(Free Tier)이 초과되어 로컬 캐시 모드로 안전하게 자동 전환되었습니다.');
+};
+
+export const clearFirestoreQuotaExceeded = () => {
+  isQuotaExceededFlag = false;
+  if (typeof window !== 'undefined') {
+    try {
+      sessionStorage.removeItem(STORAGE_KEYS.QUOTA_EXCEEDED);
+    } catch {}
+  }
 };
 
 /**
@@ -131,26 +187,30 @@ const sanitizeForFirestore = (obj: any): any => {
 };
 
 export const getDeletedPostIds = (): Set<string> => {
-  if (typeof window === 'undefined') return new Set();
-  try {
-    const saved = localStorage.getItem(STORAGE_KEYS.DELETED_POSTS);
-    if (!saved) return new Set();
-    const parsed: string[] = JSON.parse(saved);
-    // CRITICAL: Only hardcoded demo posts ('post-1' ~ 'post-6') should ever be filtered by DELETED_POSTS!
-    // User-created posts live in Firestore and should NEVER be blacklisted or auto-deleted by this mechanism.
-    return new Set(parsed.filter((id) => /^post-[1-6]$/.test(id)));
-  } catch {
-    return new Set();
-  }
+  // Official posts must never be blacklisted or auto-deleted by legacy storage keys
+  return new Set<string>();
 };
 
 const sanitizeConfig = (cfg: Partial<SiteConfig>): SiteConfig => {
   const merged = { ...initialSiteConfig, ...cfg };
-  if (!merged.headerLogo || merged.headerLogo.includes('oasis_gold_logo') || merged.headerLogo.includes('oasis_logo_official')) {
+  // Guard official header logo: If missing, contains old names, or is a heavy raw base64 data-url from a copied app, enforce official Oasis logo
+  if (
+    !merged.headerLogo ||
+    merged.headerLogo.includes('oasis_gold_logo') ||
+    merged.headerLogo.includes('oasis_logo_official') ||
+    merged.headerLogo.startsWith('data:image')
+  ) {
     merged.headerLogo = '/images/oasis_header_logo.webp';
   }
   if (!merged.navMenu3 || merged.navMenu3 === '투어 서비스' || merged.navMenu3 === '투어서비스' || merged.navMenu3 === '필리핀 소개') {
     merged.navMenu3 = 'VIP 서비스';
+  }
+  // If about title or heading was contaminated by the copied site
+  if (merged.aboutTitle && (merged.aboutTitle.includes('9년') || merged.aboutTitle.includes('공인 9년'))) {
+    merged.aboutTitle = initialSiteConfig.aboutTitle;
+  }
+  if (merged.aboutStoryHeading && (merged.aboutStoryHeading.includes('마닐라 공식 VIP') || merged.aboutStoryHeading === '“필리핀 마닐라 공식 VIP 에이전트”')) {
+    merged.aboutStoryHeading = initialSiteConfig.aboutStoryHeading;
   }
   return merged;
 };
@@ -158,10 +218,16 @@ const sanitizeConfig = (cfg: Partial<SiteConfig>): SiteConfig => {
 const sanitizeSlides = (slides: BannerSlide[]): BannerSlide[] => {
   return slides.map((slide, idx) => {
     let bg = slide.bgImage;
-    if (!bg || bg.includes('/assets/') || bg.includes('oasis_gold_hero') || bg.includes('casino_table_panoramic')) {
+    if (
+      !bg ||
+      bg.includes('/assets/') ||
+      bg.includes('oasis_gold_hero') ||
+      bg.includes('casino_table_panoramic')
+    ) {
       bg = idx === 0 ? '/images/hero_bg.webp' : '/images/casino_table.webp';
     }
-    return { ...slide, bgImage: bg };
+    const title = slide.title || (initialBannerSlides[idx]?.title ?? initialBannerSlides[0].title);
+    return { ...slide, bgImage: bg, title };
   });
 };
 
@@ -184,7 +250,7 @@ export const sortCasinos = (items: CasinoItem[]): CasinoItem[] => {
 
 export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [siteConfig, setSiteConfigState] = useState<SiteConfig>(() => {
-    const saved = localStorage.getItem(STORAGE_KEYS.CONFIG);
+    const saved = localStorage.getItem(STORAGE_KEYS.CONFIG) || localStorage.getItem('oasis_site_config_v9');
     if (!saved) return initialSiteConfig;
     try {
       return sanitizeConfig(JSON.parse(saved));
@@ -194,12 +260,12 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
   });
 
   const [bannerSlides, setBannerSlidesState] = useState<BannerSlide[]>(() => {
-    const saved = localStorage.getItem(STORAGE_KEYS.SLIDES);
+    const saved = localStorage.getItem(STORAGE_KEYS.SLIDES) || localStorage.getItem('oasis_banner_slides_v9');
     return saved ? sanitizeSlides(JSON.parse(saved)) : initialBannerSlides;
   });
 
   const [casinos, setCasinosState] = useState<CasinoItem[]>(() => {
-    const saved = localStorage.getItem(STORAGE_KEYS.CASINOS);
+    const saved = localStorage.getItem(STORAGE_KEYS.CASINOS) || localStorage.getItem('oasis_casinos_v9') || localStorage.getItem('oasis_casinos_v8');
     if (!saved) return sortCasinos(initialCasinos);
     try {
       return sortCasinos(JSON.parse(saved));
@@ -209,53 +275,83 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
   });
 
   const [philippineSpots, setPhilippineSpotsState] = useState<PhilippineTourSpot[]>(() => {
-    const saved = localStorage.getItem(STORAGE_KEYS.SPOTS);
+    const saved = localStorage.getItem(STORAGE_KEYS.SPOTS) || localStorage.getItem('oasis_philippine_spots_v9') || localStorage.getItem('oasis_philippine_spots_v8');
     return saved ? JSON.parse(saved) : initialPhilippineSpots;
   });
 
   const [posts, setPostsState] = useState<PostItem[]>(() => {
-    const deletedIds = getDeletedPostIds();
-    const availableInitial = initialPosts.filter((ip) => !deletedIds.has(ip.id));
-    const saved = localStorage.getItem(STORAGE_KEYS.POSTS);
-    if (!saved) return availableInitial;
-    try {
-      const parsed: PostItem[] = JSON.parse(saved);
-      const validParsed = parsed.filter((p) => !deletedIds.has(p.id));
-      const existingIds = new Set(validParsed.map((p) => p.id));
-      const missingInitial = availableInitial.filter((ip) => !existingIds.has(ip.id));
-      const combined = [...validParsed, ...missingInitial];
-      // Ensure initial sample posts inherit map data if user had old localStorage
-      return combined.map((p) => {
-        const matchingInitial = initialPosts.find((ip) => ip.id === p.id);
-        if (matchingInitial?.mapLocation && !p.mapLocation) {
-          return {
-            ...p,
-            mapLocation: matchingInitial.mapLocation,
-            content:
-              matchingInitial.content.includes('[지도') && !p.content.includes('[지도')
-                ? matchingInitial.content
-                : p.content,
-          };
-        }
-        return p;
-      });
-    } catch {
-      return availableInitial;
+    // Clean up any legacy deleted post ID keys that could have suppressed sample posts
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.removeItem(STORAGE_KEYS.DELETED_POSTS);
+        localStorage.removeItem('oasis_deleted_post_ids_v8');
+        localStorage.removeItem('oasis_deleted_post_ids_v11');
+      } catch {}
     }
+
+    const saved =
+      (typeof window !== 'undefined' ? localStorage.getItem(STORAGE_KEYS.POSTS) : null) ||
+      (typeof window !== 'undefined' ? localStorage.getItem('oasis_posts_v11') : null) ||
+      (typeof window !== 'undefined' ? localStorage.getItem('oasis_posts_v8') : null);
+
+    const baseList: PostItem[] = saved
+      ? (() => {
+          try {
+            const parsed = JSON.parse(saved);
+            return Array.isArray(parsed) && parsed.length > 0 ? parsed : initialPosts;
+          } catch {
+            return initialPosts;
+          }
+        })()
+      : initialPosts;
+
+    const existingIds = new Set(baseList.map((p) => p.id));
+    const missingInitial = initialPosts.filter((ip) => !existingIds.has(ip.id));
+    const combined = [...baseList, ...missingInitial];
+
+    // Ensure posts inherit complete images, thumbnails, map data, and rich content
+    return combined.map((p) => {
+      const matchingInitial = initialPosts.find((ip) => ip.id === p.id);
+      const mapFix = p.mapLocation || matchingInitial?.mapLocation;
+      const thumbFix =
+        p.thumbnail && !p.thumbnail.includes('placeholder') && p.thumbnail !== '/images/hero_bg.webp'
+          ? p.thumbnail
+          : matchingInitial?.thumbnail;
+      const imgsFix =
+        Array.isArray(p.images) && p.images.length > 0 && p.images[0] !== '/images/hero_bg.webp'
+          ? p.images
+          : (matchingInitial?.images && matchingInitial.images.length > 0
+              ? matchingInitial.images
+              : (thumbFix ? [thumbFix] : undefined));
+      const contentFix =
+        p.content && p.content.length > 50 ? p.content : (matchingInitial?.content || p.content);
+
+      return {
+        ...p,
+        thumbnail: thumbFix,
+        images: imgsFix,
+        mapLocation: mapFix,
+        content: contentFix,
+        viewCount:
+          typeof p.viewCount === 'number' && !isNaN(p.viewCount)
+            ? p.viewCount
+            : (matchingInitial?.viewCount || 392),
+      };
+    });
   });
 
   const [inquiryLeads, setInquiryLeadsState] = useState<InquiryLead[]>(() => {
-    const saved = localStorage.getItem(STORAGE_KEYS.LEADS);
+    const saved = localStorage.getItem(STORAGE_KEYS.LEADS) || localStorage.getItem('oasis_inquiry_leads_v9') || localStorage.getItem('oasis_inquiry_leads_v8');
     return saved ? JSON.parse(saved) : initialInquiryLeads;
   });
 
   const [serviceSteps, setServiceStepsState] = useState<ServiceStep[]>(() => {
-    const saved = localStorage.getItem(STORAGE_KEYS.STEPS);
+    const saved = localStorage.getItem(STORAGE_KEYS.STEPS) || localStorage.getItem('oasis_service_steps_v9') || localStorage.getItem('oasis_service_steps_v8');
     return saved ? JSON.parse(saved) : initialServiceSteps;
   });
 
   const [faqs, setFaqsState] = useState<FAQItem[]>(() => {
-    const saved = localStorage.getItem(STORAGE_KEYS.FAQS);
+    const saved = localStorage.getItem(STORAGE_KEYS.FAQS) || localStorage.getItem('oasis_faqs_v9') || localStorage.getItem('oasis_faqs_v8');
     return saved ? JSON.parse(saved) : initialFAQs;
   });
 
@@ -314,172 +410,209 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  // 1. Setup Firestore Realtime Listeners (Deferred until idle to maximize PageSpeed & minimize TBT)
+  const [isQuotaExceeded, setIsQuotaExceeded] = useState<boolean>(() => isFirestoreQuotaExceeded());
+
+  // 1. Smart Firestore Synchronization with Cache TTL & Quota Circuit Breaker
+  const refreshCloudData = async (force: boolean = false) => {
+    if (!force && isQuotaExceededFlag) return;
+
+    try {
+      const { db, fs } = await loadFirebase();
+      const { doc, collection, getDoc, getDocs } = fs;
+
+      const results = await Promise.allSettled([
+        getDoc(doc(db, 'site_config', 'main')),
+        getDocs(collection(db, 'posts')),
+        getDocs(collection(db, 'casinos')),
+        getDocs(collection(db, 'philippine_spots')),
+        getDocs(collection(db, 'banner_slides')),
+        getDocs(collection(db, 'faqs')),
+        getDoc(doc(db, 'site_config', 'service_steps')),
+      ]);
+
+      // Check for quota exceeded error in any request
+      for (const res of results) {
+        if (res.status === 'rejected') {
+          const err = res.reason;
+          if (err?.code === 'resource-exhausted' || err?.message?.includes('quota') || err?.message?.includes('RESOURCE_EXHAUSTED')) {
+            markFirestoreQuotaExceeded();
+            setIsQuotaExceeded(true);
+            return;
+          }
+        }
+      }
+
+      // 0) Config
+      if (results[0].status === 'fulfilled' && results[0].value.exists()) {
+        const cfgData = results[0].value.data() as Partial<SiteConfig>;
+        setSiteConfigState(sanitizeConfig(cfgData));
+      }
+
+      // 1) Posts
+      if (results[1].status === 'fulfilled' && !results[1].value.empty) {
+        clearFirestoreQuotaExceeded();
+        setIsQuotaExceeded(false);
+        const snap = results[1].value;
+        const remoteItems = snap.docs
+          .map((d) => {
+            const data = d.data();
+            const matchingInitial = initialPosts.find((ip) => ip.id === d.id);
+            const thumb =
+              data.thumbnail && !data.thumbnail.includes('placeholder') && data.thumbnail !== '/images/hero_bg.webp'
+                ? data.thumbnail
+                : matchingInitial?.thumbnail;
+            const imgs =
+              Array.isArray(data.images) && data.images.length > 0 && data.images[0] !== '/images/hero_bg.webp'
+                ? data.images
+                : (matchingInitial?.images && matchingInitial.images.length > 0
+                    ? matchingInitial.images
+                    : (thumb ? [thumb] : undefined));
+            const content =
+              data.content && data.content.length > 50 ? data.content : (matchingInitial?.content || data.content);
+            return {
+              ...data,
+              id: d.id,
+              thumbnail: thumb,
+              images: imgs,
+              content: content,
+              viewCount: typeof data.viewCount === 'number' && !isNaN(data.viewCount) ? data.viewCount : 392,
+            } as PostItem;
+          })
+          .filter((p) => !(p as any).isDeleted);
+
+        setPostsState((prev) => {
+          const remoteMap = new Map(remoteItems.map((p) => [p.id, p]));
+          const merged = [...remoteItems];
+          // Always ensure all official initialPosts are present
+          initialPosts.forEach((ip) => {
+            if (!remoteMap.has(ip.id)) {
+              merged.push(ip);
+            }
+          });
+          // Also preserve any custom local posts created by user
+          prev.forEach((localPost) => {
+            if (!remoteMap.has(localPost.id) && !merged.some((m) => m.id === localPost.id)) {
+              merged.push(localPost);
+            }
+          });
+          merged.sort((a, b) => {
+            if (a.isPinned && !b.isPinned) return -1;
+            if (!a.isPinned && b.isPinned) return 1;
+            const dateComp = (b.date || '').localeCompare(a.date || '');
+            if (dateComp !== 0) return dateComp;
+            return (b.createdAt || 0) - (a.createdAt || 0);
+          });
+          return merged;
+        });
+      }
+
+      // 2) Casinos
+      if (results[2].status === 'fulfilled' && !results[2].value.empty) {
+        const rawItems = results[2].value.docs.map((d) => ({ ...d.data(), id: d.id } as CasinoItem));
+        setCasinosState(sortCasinos(rawItems));
+      }
+
+      // 3) Spots
+      if (results[3].status === 'fulfilled' && !results[3].value.empty) {
+        const items = results[3].value.docs.map((d) => ({ ...d.data(), id: d.id } as PhilippineTourSpot));
+        setPhilippineSpotsState(items);
+      }
+
+      // 4) Slides
+      if (results[4].status === 'fulfilled' && !results[4].value.empty) {
+        const rawItems = results[4].value.docs.map((d) => ({ ...d.data(), id: d.id } as BannerSlide));
+        setBannerSlidesState(sanitizeSlides(rawItems));
+      }
+
+      // 5) FAQs
+      if (results[5].status === 'fulfilled' && !results[5].value.empty) {
+        const items = results[5].value.docs.map((d) => ({ ...d.data(), id: d.id } as FAQItem));
+        setFaqsState(items);
+      }
+
+      // 6) Steps
+      if (results[6].status === 'fulfilled' && results[6].value.exists()) {
+        const data = results[6].value.data();
+        if (Array.isArray(data.steps)) {
+          setServiceStepsState(data.steps);
+        }
+      }
+
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.setItem(STORAGE_KEYS.LAST_SYNC, String(Date.now()));
+        } catch {}
+      }
+      setIsCloudSynced(true);
+    } catch (err: any) {
+      if (err?.code === 'resource-exhausted' || err?.message?.includes('quota') || err?.message?.includes('RESOURCE_EXHAUSTED')) {
+        markFirestoreQuotaExceeded();
+        setIsQuotaExceeded(true);
+      } else {
+        console.warn('[Firebase] Background sync skipped or unavailable:', err);
+      }
+    }
+  };
+
   useEffect(() => {
-    let unsubscribeConfig = () => {};
-    let unsubscribePosts = () => {};
-    let unsubscribeCasinos = () => {};
-    let unsubscribeSpots = () => {};
-    let unsubscribeSlides = () => {};
-    let unsubscribeSteps = () => {};
-    let unsubscribeFaqs = () => {};
     let isCancelled = false;
 
-    // Start listeners during browser idle time or after initial render
-    const startListeners = async () => {
-      if (isCancelled) return;
-      try {
-        const { db, fs } = await loadFirebase();
-        if (isCancelled) return;
-        const { doc, collection, onSnapshot } = fs;
+    // Check if posts have missing images or contaminated fallback images
+    const hasMissingImages = posts.some((p) => !p.thumbnail && (!p.images || p.images.length === 0));
+    const hasContaminatedImages = posts.some(
+      (p) => p.thumbnail === '/images/hero_bg.webp' || (p.images && p.images[0] === '/images/hero_bg.webp')
+    );
 
-        // 1) Listen to Site Config
-        const configDocRef = doc(db, 'site_config', 'main');
-        unsubscribeConfig = onSnapshot(configDocRef, (snap) => {
-          if (snap.exists()) {
-            const data = snap.data() as Partial<SiteConfig>;
-            setSiteConfigState(sanitizeConfig(data));
-            setIsCloudSynced(true);
-          }
-        }, (err) => console.warn('Firestore config listener error:', err));
+    const hasDefaultHeroBg = bannerSlides.length > 0 && bannerSlides[0].bgImage === '/images/hero_bg.webp';
 
-        // 2) Listen to Posts
-        const postsColRef = collection(db, 'posts');
-        unsubscribePosts = onSnapshot(postsColRef, (snap) => {
-          const deletedIds = getDeletedPostIds();
-          if (!snap.empty) {
-            const remoteItems = snap.docs
-              .map((d) => {
-                const data = d.data();
-                return {
-                  ...data,
-                  id: d.id,
-                  viewCount: typeof data.viewCount === 'number' && !isNaN(data.viewCount) ? data.viewCount : 392,
-                } as PostItem;
-              })
-              .filter((p) => !deletedIds.has(p.id) && !(p as any).isDeleted);
+    // Check Cache Freshness: if synced within last 30 minutes AND no missing/contaminated images, skip network calls
+    const lastSyncStr = typeof window !== 'undefined' ? localStorage.getItem(STORAGE_KEYS.LAST_SYNC) : null;
+    const lastSyncTime = lastSyncStr ? parseInt(lastSyncStr, 10) : 0;
+    const now = Date.now();
+    const CACHE_TTL_MS = 30 * 60 * 1000; // 30 minutes cache
 
-            setPostsState((prev) => {
-              const remoteMap = new Map(remoteItems.map((p) => [p.id, p]));
-              const merged = [...remoteItems];
-              prev.forEach((localPost) => {
-                if (!remoteMap.has(localPost.id) && !deletedIds.has(localPost.id)) {
-                  merged.push(localPost);
-                }
-              });
-              merged.sort((a, b) => {
-                if (a.isPinned && !b.isPinned) return -1;
-                if (!a.isPinned && b.isPinned) return 1;
-                const dateComp = (b.date || '').localeCompare(a.date || '');
-                if (dateComp !== 0) return dateComp;
-                return (b.createdAt || 0) - (a.createdAt || 0);
-              });
-              return merged;
-            });
-            setIsCloudSynced(true);
-          }
-        }, (err) => console.warn('Firestore posts listener error:', err));
+    if (!hasDefaultHeroBg && !hasContaminatedImages && !hasMissingImages && now - lastSyncTime < CACHE_TTL_MS && posts.length > 0) {
+      setIsCloudSynced(true);
+      return;
+    }
 
-        // 3) Listen to Casinos
-        const casinosColRef = collection(db, 'casinos');
-        unsubscribeCasinos = onSnapshot(casinosColRef, (snap) => {
-          if (!snap.empty) {
-            const rawItems = snap.docs.map((d) => ({ ...d.data(), id: d.id } as CasinoItem));
-            const sorted = sortCasinos(rawItems);
-            setCasinosState(sorted);
-          }
-        }, (err) => console.warn('Firestore casinos listener error:', err));
-
-        // 4) Listen to Philippine Tour Spots
-        const spotsColRef = collection(db, 'philippine_spots');
-        unsubscribeSpots = onSnapshot(spotsColRef, (snap) => {
-          if (!snap.empty) {
-            const items = snap.docs.map((d) => ({ ...d.data(), id: d.id } as PhilippineTourSpot));
-            setPhilippineSpotsState(items);
-          }
-        }, (err) => console.warn('Firestore spots listener error:', err));
-
-        // 5) Listen to Banner Slides
-        const slidesColRef = collection(db, 'banner_slides');
-        unsubscribeSlides = onSnapshot(slidesColRef, (snap) => {
-          if (!snap.empty) {
-            const rawItems = snap.docs.map((d) => ({ ...d.data(), id: d.id } as BannerSlide));
-            const cleanedItems = sanitizeSlides(rawItems);
-            setBannerSlidesState(cleanedItems);
-          }
-        }, (err) => console.warn('Firestore banner slides listener error:', err));
-
-        // 6) Listen to FAQs
-        const faqsColRef = collection(db, 'faqs');
-        unsubscribeFaqs = onSnapshot(faqsColRef, (snap) => {
-          if (!snap.empty) {
-            const items = snap.docs.map((d) => ({ ...d.data(), id: d.id } as FAQItem));
-            setFaqsState(items);
-          }
-        }, (err) => console.warn('Firestore faqs listener error:', err));
-
-        // 7) Listen to Service Steps Doc
-        const stepsDocRef = doc(db, 'site_config', 'service_steps');
-        unsubscribeSteps = onSnapshot(stepsDocRef, (snap) => {
-          if (snap.exists()) {
-            const data = snap.data();
-            if (Array.isArray(data.steps)) {
-              setServiceStepsState(data.steps);
-            }
-          }
-        }, (err) => console.warn('Firestore service steps listener error:', err));
-
-      } catch (err) {
-        console.error('Firebase initialization error:', err);
-      }
-    };
-
-    // Defer listener initialization to free main thread for initial paint & interaction
     const timer = setTimeout(() => {
-      if ('requestIdleCallback' in window) {
-        (window as any).requestIdleCallback(startListeners, { timeout: 3500 });
-      } else {
-        startListeners();
-      }
-    }, 2500);
+      if (isCancelled) return;
+      refreshCloudData(true);
+    }, 150);
 
     return () => {
       isCancelled = true;
       clearTimeout(timer);
-      unsubscribeConfig();
-      unsubscribePosts();
-      unsubscribeCasinos();
-      unsubscribeSpots();
-      unsubscribeSlides();
-      unsubscribeSteps();
-      unsubscribeFaqs();
     };
   }, []);
 
-  // 1-B. Inquiries listener: ONLY active when Admin panel is opened
+  // 1-B. Inquiries fetch: ONLY active when Admin panel is opened (one-time fetch)
   useEffect(() => {
-    if (!isAdminOpen) return;
-    let unsubscribe = () => {};
+    if (!isAdminOpen || isFirestoreQuotaExceeded()) return;
     let isCancelled = false;
     (async () => {
       try {
         const { db, fs } = await loadFirebase();
         if (isCancelled) return;
         const inquiriesColRef = fs.collection(db, 'inquiries');
-        unsubscribe = fs.onSnapshot(inquiriesColRef, (snap) => {
-          if (!snap.empty) {
-            const items = snap.docs.map((d) => ({ ...d.data(), id: d.id } as InquiryLead));
-            items.sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
-            setInquiryLeadsState(items);
-          }
-        }, (err) => console.warn('Firestore inquiries listener error:', err));
-      } catch (err) {
-        console.warn('Inquiries listener error:', err);
+        const snap = await fs.getDocs(inquiriesColRef);
+        if (!snap.empty) {
+          const items = snap.docs.map((d) => ({ ...d.data(), id: d.id } as InquiryLead));
+          items.sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+          setInquiryLeadsState(items);
+        }
+      } catch (err: any) {
+        if (err?.code === 'resource-exhausted' || err?.message?.includes('quota')) {
+          markFirestoreQuotaExceeded();
+          setIsQuotaExceeded(true);
+        } else {
+          console.warn('[Firebase] Inquiries fetch warning:', err);
+        }
       }
     })();
     return () => {
       isCancelled = true;
-      unsubscribe();
     };
   }, [isAdminOpen]);
 
@@ -494,11 +627,10 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
         try {
           const parsed = JSON.parse(value);
           if (Array.isArray(parsed)) {
-            // Strip heavy base64 images from localStorage mirror to stay under 5MB browser quota
+            // If localStorage 5MB quota is exceeded, strip heavy secondary images while preserving real thumbnails
             const lightweight = parsed.map((p) => ({
               ...p,
-              images: undefined,
-              thumbnail: p.thumbnail?.startsWith('data:') ? undefined : p.thumbnail,
+              images: p.images && p.images.length > 0 ? [p.images[0]] : undefined,
             }));
             localStorage.setItem(key, JSON.stringify(lightweight));
           }
@@ -780,6 +912,10 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     }
 
+    if (isFirestoreQuotaExceeded()) {
+      return; // Save write quota, don't spam Firestore
+    }
+
     try {
       const { db, fs } = await loadFirebase();
       const docRef = fs.doc(db, 'posts', id);
@@ -787,8 +923,13 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (target) {
         await fs.updateDoc(docRef, { viewCount: (target.viewCount || 0) + 1 });
       }
-    } catch (err) {
-      console.warn('Failed to increment view count in Firestore:', err);
+    } catch (err: any) {
+      if (err?.code === 'resource-exhausted' || err?.message?.includes('quota')) {
+        markFirestoreQuotaExceeded();
+        setIsQuotaExceeded(true);
+      } else {
+        console.warn('Failed to increment view count in Firestore:', err);
+      }
     }
   };
 
@@ -937,6 +1078,71 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const restoreOriginalBranding = async () => {
+    const brandingConfig: Partial<SiteConfig> = {
+      headerLogo: initialSiteConfig.headerLogo,
+      siteName: initialSiteConfig.siteName,
+      subTitle: initialSiteConfig.subTitle,
+      bannerTitle: initialSiteConfig.bannerTitle,
+      bannerSubtitle: initialSiteConfig.bannerSubtitle,
+      bannerBadge: initialSiteConfig.bannerBadge,
+      aboutTitle: initialSiteConfig.aboutTitle,
+      aboutStoryHeading: initialSiteConfig.aboutStoryHeading,
+      aboutBadge: initialSiteConfig.aboutBadge,
+    };
+    setSiteConfigState((prev) => ({ ...prev, ...brandingConfig }));
+    setBannerSlidesState(initialBannerSlides);
+    safeStorageSet(STORAGE_KEYS.CONFIG, JSON.stringify({ ...siteConfig, ...brandingConfig }));
+    safeStorageSet(STORAGE_KEYS.SLIDES, JSON.stringify(initialBannerSlides));
+
+    try {
+      const { db, fs } = await loadFirebase();
+      await fs.setDoc(fs.doc(db, 'site_config', 'main'), brandingConfig, { merge: true });
+      for (const slide of initialBannerSlides) {
+        await fs.setDoc(fs.doc(db, 'banner_slides', slide.id), slide, { merge: true });
+      }
+    } catch (err) {
+      console.warn('Firestore branding restore:', err);
+    }
+  };
+
+  const restoreAllPostsAndImages = async () => {
+    // 0. Reset quota circuit breaker flag
+    clearFirestoreQuotaExceeded();
+    setIsQuotaExceeded(false);
+
+    // 1. Clear any corrupted legacy deleted post IDs & local caches
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.removeItem(STORAGE_KEYS.DELETED_POSTS);
+        localStorage.removeItem('oasis_deleted_post_ids_v8');
+        localStorage.removeItem('oasis_deleted_post_ids_v9');
+        localStorage.removeItem('oasis_deleted_post_ids_v10');
+        localStorage.removeItem('oasis_deleted_post_ids_v11');
+      } catch {}
+    }
+
+    // 2. Set posts state directly to pristine initialPosts
+    setPostsState(initialPosts);
+    safeStorageSet(STORAGE_KEYS.POSTS, JSON.stringify(initialPosts));
+    safeStorageSet('oasis_posts_v8', JSON.stringify(initialPosts));
+
+    // 3. Gracefully sync with Firestore
+    try {
+      const { db, fs } = await loadFirebase();
+      for (const post of initialPosts) {
+        await fs.setDoc(fs.doc(db, 'posts', post.id), sanitizeForFirestore(post), { merge: true });
+      }
+      console.log('[Restore] All community posts and images successfully synced to Firestore!');
+    } catch (err: any) {
+      if (err?.code === 'resource-exhausted' || err?.message?.includes('quota')) {
+        markFirestoreQuotaExceeded();
+        setIsQuotaExceeded(true);
+      }
+      console.warn('[Restore] Firestore sync completed in local cache mode:', err);
+    }
+  };
+
   const resetToDefaults = async () => {
     setSiteConfigState(initialSiteConfig);
     setBannerSlidesState(initialBannerSlides);
@@ -946,29 +1152,33 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setInquiryLeadsState(initialInquiryLeads);
     setServiceStepsState(initialServiceSteps);
     setFaqsState(initialFAQs);
-    localStorage.removeItem(STORAGE_KEYS.CONFIG);
-    localStorage.removeItem(STORAGE_KEYS.SLIDES);
-    localStorage.removeItem(STORAGE_KEYS.CASINOS);
-    localStorage.removeItem(STORAGE_KEYS.SPOTS);
-    localStorage.removeItem(STORAGE_KEYS.POSTS);
-    localStorage.removeItem(STORAGE_KEYS.LEADS);
-    localStorage.removeItem(STORAGE_KEYS.STEPS);
-    localStorage.removeItem(STORAGE_KEYS.FAQS);
+    Object.values(STORAGE_KEYS).forEach((k) => {
+      try {
+        localStorage.removeItem(k);
+      } catch {}
+    });
 
-    // Sync reset to Firestore
+    // Sync reset to Firestore gracefully
     try {
       const { db, fs } = await loadFirebase();
       await fs.setDoc(fs.doc(db, 'site_config', 'main'), initialSiteConfig);
       await fs.setDoc(fs.doc(db, 'site_config', 'service_steps'), { steps: initialServiceSteps });
 
-      // Clean & re-seed posts
-      const postsSnap = await fs.getDocs(fs.collection(db, 'posts'));
-      const batch = fs.writeBatch(db);
-      postsSnap.docs.forEach((d) => batch.delete(d.ref));
-      initialPosts.forEach((p) => batch.set(fs.doc(db, 'posts', p.id), p));
-      await batch.commit();
-    } catch (err) {
-      console.error('Failed to reset Firestore to defaults:', err);
+      // Clean & re-seed banner slides
+      for (const slide of initialBannerSlides) {
+        await fs.setDoc(fs.doc(db, 'banner_slides', slide.id), slide);
+      }
+
+      // Re-seed posts individually to avoid batch size failure
+      for (const post of initialPosts) {
+        await fs.setDoc(fs.doc(db, 'posts', post.id), sanitizeForFirestore(post), { merge: true });
+      }
+    } catch (err: any) {
+      if (err?.code === 'resource-exhausted' || err?.message?.includes('quota')) {
+        markFirestoreQuotaExceeded();
+        setIsQuotaExceeded(true);
+      }
+      console.warn('Failed to reset Firestore to defaults (cached mode active):', err);
     }
   };
 
@@ -1101,7 +1311,11 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
         activeSection,
         setActiveSection,
         isCloudSynced,
+        isQuotaExceeded,
+        refreshCloudData,
         resetToDefaults,
+        restoreOriginalBranding,
+        restoreAllPostsAndImages,
         exportDataJSON,
         getExportJSONString,
         importDataJSON,

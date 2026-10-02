@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useSite } from '../../context/SiteContext';
+import { initialPosts } from '../../data/initialData';
 import {
   X,
   Eye,
@@ -56,12 +57,19 @@ export const PostDetailModal: React.FC = () => {
     여행정보: 'bg-emerald-50 text-emerald-600 border-emerald-200',
   };
 
-  // Determine images to show (prefer images array, fallback to thumbnail)
+  // Determine images to show (prefer images array, fallback to initial sample)
+  const matchingInitial = initialPosts.find((ip) => ip.id === selectedPost.id);
+  const rawImages = (selectedPost.images && selectedPost.images.length > 0)
+    ? selectedPost.images
+    : (matchingInitial?.images && matchingInitial.images.length > 0 ? matchingInitial.images : []);
+
   const displayImages: string[] =
-    selectedPost.images && selectedPost.images.length > 0
-      ? selectedPost.images.slice(0, 6)
+    rawImages.length > 0
+      ? rawImages.slice(0, 6)
       : selectedPost.thumbnail
       ? [selectedPost.thumbnail]
+      : matchingInitial?.thumbnail
+      ? [matchingInitial.thumbnail]
       : [];
 
   // Detect which photos are placed inline in body with [사진1] ~ [사진6]

@@ -508,6 +508,82 @@ export function createVisualMapHtml(title: string, address?: string, query?: str
 }
 
 /**
+ * Strips dangerous inline layout styles from pasted HTML while preserving rich formatting
+ */
+export function cleanPastedHtml(rawHtml: string): string {
+  if (!rawHtml) return '';
+  if (typeof window === 'undefined') return rawHtml;
+
+  try {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(`<body>${rawHtml}</body>`, 'text/html');
+
+    // Remove script, style, meta, link tags
+    doc.querySelectorAll('script, style, meta, link, object, embed').forEach((el) => el.remove());
+
+    const allEls = doc.querySelectorAll('*');
+    allEls.forEach((el) => {
+      const htmlEl = el as HTMLElement;
+      if (htmlEl.style) {
+        // Strip layout-breaking positioning, floats, and zero/fixed heights
+        htmlEl.style.removeProperty('position');
+        htmlEl.style.removeProperty('top');
+        htmlEl.style.removeProperty('left');
+        htmlEl.style.removeProperty('bottom');
+        htmlEl.style.removeProperty('right');
+        htmlEl.style.removeProperty('float');
+        htmlEl.style.removeProperty('clear');
+        htmlEl.style.removeProperty('height');
+        htmlEl.style.removeProperty('min-height');
+        htmlEl.style.removeProperty('max-height');
+        htmlEl.style.removeProperty('width');
+        htmlEl.style.removeProperty('overflow');
+        htmlEl.style.removeProperty('display');
+        htmlEl.style.removeProperty('line-height');
+        htmlEl.style.removeProperty('margin');
+        htmlEl.style.removeProperty('margin-top');
+        htmlEl.style.removeProperty('margin-bottom');
+        htmlEl.style.removeProperty('margin-left');
+        htmlEl.style.removeProperty('margin-right');
+        htmlEl.style.removeProperty('transform');
+      }
+
+      // Convert wrapper divs to paragraphs
+      if (el.tagName === 'DIV' && !el.querySelector('p, div, table, ul, ol, blockquote, h1, h2, h3, h4, h5, h6')) {
+        const p = doc.createElement('p');
+        p.innerHTML = el.innerHTML || '<br>';
+        el.parentNode?.replaceChild(p, el);
+      }
+    });
+
+    return doc.body.innerHTML;
+  } catch {
+    return rawHtml;
+  }
+}
+
+/**
+ * Converts pasted plain text with line breaks into clean paragraph HTML
+ */
+export function textToCleanHtmlParagraphs(plainText: string): string {
+  if (!plainText) return '<p><br></p>';
+  const lines = plainText.split(/\r?\n/);
+  return lines
+    .map((line) => {
+      const trimmed = line.trim();
+      if (!trimmed) {
+        return '<p><br></p>';
+      }
+      const escaped = line
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+      return `<p>${escaped}</p>`;
+    })
+    .join('');
+}
+
+/**
  * Detects whether content is formatted as HTML (contains HTML tags)
  */
 export function isHtmlContent(str: string): boolean {
@@ -577,7 +653,10 @@ export function postContentToHtml(
     (match, p1) => {
       const photoNum = parseInt(p1, 10);
       const idx = photoNum - 1;
-      const imgUrl = images[idx];
+      let imgUrl = images && images[idx] ? images[idx] : undefined;
+      if (!imgUrl && images && images.length > 0) {
+        imgUrl = images[idx % images.length];
+      }
       if (imgUrl) {
         return isEditorMode
           ? createVisualPhotoHtml(idx, imgUrl)
@@ -637,12 +716,8 @@ export function postContentToHtml(
     // Strictly avoid h1 in article body to preserve 100-point SEO single-H1 score
     html = html.replace(/<h1(\b[^>]*)>/gi, '<h2$1>').replace(/<\/h1>/gi, '</h2>');
 
-    // Clean up excessive empty paragraphs: collapse multiple empty <p><br></p> into at most one
-    html = html.replace(/(?:<p[^>]*>\s*(?:<br\s*\/?>|&nbsp;|\s*)\s*<\/p>\s*){2,}/gi, '<p><br></p>');
-
-    // Remove empty paragraphs that sit immediately right after or right before block elements
-    html = html.replace(/(<\/(?:h[2-6]|figure|table|blockquote|ul|ol|div)>)\s*(?:<p[^>]*>\s*(?:<br\s*\/?>|&nbsp;|\s*)\s*<\/p>\s*)+/gi, '$1');
-    html = html.replace(/(?:<p[^>]*>\s*(?:<br\s*\/?>|&nbsp;|\s*)\s*<\/p>\s*)+(<(?:h[2-6]|figure|table|blockquote|ul|ol|div)\b)/gi, '$1');
+    // Collapse excessive empty paragraphs (only if 4 or more consecutive blank lines)
+    html = html.replace(/(?:<p[^>]*>\s*(?:<br\s*\/?>|&nbsp;|\s*)\s*<\/p>\s*){4,}/gi, '<p><br></p><p><br></p>');
 
     return html.trim();
   }
@@ -669,11 +744,20 @@ export function postContentToHtml(
     const listMatch = rawLine.match(/^[-*•]\s+(.*)$/);
     if (listMatch) {
       flushParagraph();
+      const bulletContent = listMatch[1].trim();
+      if (!bulletContent) {
+        if (inList) {
+          htmlParts.push('</ul>');
+          inList = false;
+        }
+        htmlParts.push('<p><br></p>');
+        continue;
+      }
       if (!inList) {
         htmlParts.push('<ul class="list-disc ml-5 my-1 text-slate-800 space-y-0.5">');
         inList = true;
       }
-      const formatted = inlineTagsToHtml(listMatch[1]);
+      const formatted = inlineTagsToHtml(bulletContent);
       htmlParts.push(`<li>${formatted}</li>`);
       continue;
     } else if (inList) {
@@ -684,9 +768,7 @@ export function postContentToHtml(
     // Empty line separates paragraphs
     if (trimmed === '') {
       flushParagraph();
-      if (htmlParts.length > 0 && !htmlParts[htmlParts.length - 1].includes('<p><br></p>')) {
-        htmlParts.push('<p><br></p>');
-      }
+      htmlParts.push('<p><br></p>');
       continue;
     }
 
@@ -783,6 +865,9 @@ function inlineTagsToHtml(text: string): string {
  */
 export function htmlToPostContent(htmlOrElement: HTMLElement | string): string {
   if (!htmlOrElement) return '';
+  if (typeof window === 'undefined') {
+    return typeof htmlOrElement === 'string' ? htmlOrElement : '';
+  }
 
   let container: HTMLElement;
 
@@ -858,12 +943,8 @@ export function htmlToPostContent(htmlOrElement: HTMLElement | string): string {
   html = html.replace(/<p[^>]*>\s*<\/p>/gi, '<p><br></p>');
   html = html.replace(/<div>\s*<\/div>/gi, '');
 
-  // Normalize excessive <p><br></p> occurrences (collapse 2 or more into at most 1)
-  html = html.replace(/(?:<p[^>]*>\s*(?:<br\s*\/?>|&nbsp;|\s*)\s*<\/p>\s*){2,}/gi, '<p><br></p>');
-
-  // Clean empty paragraphs adjacent to block elements
-  html = html.replace(/(<\/(?:h[2-6]|figure|table|blockquote|ul|ol|div)>)\s*(?:<p[^>]*>\s*(?:<br\s*\/?>|&nbsp;|\s*)\s*<\/p>\s*)+/gi, '$1');
-  html = html.replace(/(?:<p[^>]*>\s*(?:<br\s*\/?>|&nbsp;|\s*)\s*<\/p>\s*)+(<(?:h[2-6]|figure|table|blockquote|ul|ol|div)\b)/gi, '$1');
+  // Normalize excessive <p><br></p> occurrences (collapse 4 or more into at most 2)
+  html = html.replace(/(?:<p[^>]*>\s*(?:<br\s*\/?>|&nbsp;|\s*)\s*<\/p>\s*){4,}/gi, '<p><br></p><p><br></p>');
 
   // Strip empty paragraphs from very beginning and very end of post
   html = html.replace(/^(?:\s*<p[^>]*>\s*(?:<br\s*\/?>|&nbsp;|\s*)\s*<\/p>\s*)+/i, '');

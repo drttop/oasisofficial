@@ -15,7 +15,7 @@
     </image:image>
   </url>
 
-  <!-- Community Individual Posts (9 entries) -->
+  <!-- Community Individual Posts (15 entries) -->
 
   <url>
     <loc>https://oasis46.com/?post=post-1</loc>
@@ -25,6 +25,83 @@
     <image:image>
       <image:loc>https://images.unsplash.com/photo-1511193311914-0346f16efe90?auto=format&amp;fit=crop&amp;w=800&amp;q=80</image:loc>
       <image:title>[필독] 오아시스 공식 에이전트 2026년 VIP 멤버십 혜택 &amp; 안전 이용 수칙 안내</image:title>
+    </image:image>
+  </url>
+
+  <url>
+    <loc>https://oasis46.com/?post=2</loc>
+    <lastmod>2026-09-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://oasis46.com/logo.jpg</image:loc>
+      <image:title>필리핀 마닐라 카지노 에이전시 왜 필요해? 실제 비용혜택 정리</image:title>
+    </image:image>
+  </url>
+
+  <url>
+    <loc>https://oasis46.com/?post=3</loc>
+    <lastmod>2026-09-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://oasis46.com/logo.jpg</image:loc>
+      <image:title>[단독 지원] 오카다 마닐라 '선미(SUNMI)' 10월 3일 VIP 전용 콘서트 단독 배정</image:title>
+    </image:image>
+  </url>
+
+  <url>
+    <loc>https://oasis46.com/?post=4</loc>
+    <lastmod>2026-09-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&amp;fit=crop&amp;w=800&amp;q=80</image:loc>
+      <image:title>필리핀 여행주의! 금연법 강력처벌! 대처 가이드</image:title>
+    </image:image>
+  </url>
+
+  <url>
+    <loc>https://oasis46.com/?post=0</loc>
+    <lastmod>2026-09-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://oasis46.com/logo.jpg</image:loc>
+      <image:title>9월 신규회원대상 이벤트!! 마닐라 5성급호텔 프리룸 3박</image:title>
+    </image:image>
+  </url>
+
+  <url>
+    <loc>https://oasis46.com/?post=5</loc>
+    <lastmod>2026-09-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://oasis46.com/logo.jpg</image:loc>
+      <image:title>유류할증료 두달연속 인상! 필리핀 마닐라 무료항공권 혜택 노려야 하는 이유</image:title>
+    </image:image>
+  </url>
+
+  <url>
+    <loc>https://oasis46.com/?post=post-6</loc>
+    <lastmod>2026-09-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://oasis46.com/logo.jpg</image:loc>
+      <image:title>마닐라 카지노 4대호텔 오카다,COD,솔레어 완벽 비교 가이드</image:title>
+    </image:image>
+  </url>
+
+  <url>
+    <loc>https://oasis46.com/?post=7</loc>
+    <lastmod>2026-09-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://oasis46.com/logo.jpg</image:loc>
+      <image:title>페소환율 7년만의 최저기록 지금이 여행 최적기!</image:title>
     </image:image>
   </url>
 
@@ -69,17 +146,6 @@
     <image:image>
       <image:loc>https://oasis46.com/logo.jpg</image:loc>
       <image:title>마닐라 BGC 하이엔드 다이닝 &amp; 루프탑 라운지 BEST 5</image:title>
-    </image:image>
-  </url>
-
-  <url>
-    <loc>https://oasis46.com/?post=post-6</loc>
-    <lastmod>2026-09-16</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-    <image:image>
-      <image:loc>https://oasis46.com/logo.jpg</image:loc>
-      <image:title>마닐라 카지노 4대호텔 오카다,COD,솔레어 완벽 비교 가이드</image:title>
     </image:image>
   </url>
 

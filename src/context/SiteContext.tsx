@@ -280,37 +280,60 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
   });
 
   const [posts, setPostsState] = useState<PostItem[]>(() => {
-    // Clean up any legacy deleted post ID keys that could have suppressed sample posts
+    // Clean up all legacy contaminated keys from old builds
     if (typeof window !== 'undefined') {
       try {
-        localStorage.removeItem(STORAGE_KEYS.DELETED_POSTS);
+        localStorage.removeItem('oasis_posts_v11');
+        localStorage.removeItem('oasis_posts_v10');
+        localStorage.removeItem('oasis_posts_v9');
+        localStorage.removeItem('oasis_posts_v8');
         localStorage.removeItem('oasis_deleted_post_ids_v8');
         localStorage.removeItem('oasis_deleted_post_ids_v11');
+        localStorage.removeItem('oasis_deleted_post_ids_v12');
       } catch {}
     }
 
-    const saved =
-      (typeof window !== 'undefined' ? localStorage.getItem(STORAGE_KEYS.POSTS) : null) ||
-      (typeof window !== 'undefined' ? localStorage.getItem('oasis_posts_v11') : null) ||
-      (typeof window !== 'undefined' ? localStorage.getItem('oasis_posts_v8') : null);
+    const saved = typeof window !== 'undefined' ? localStorage.getItem(STORAGE_KEYS.POSTS) : null;
 
     const baseList: PostItem[] = saved
       ? (() => {
           try {
             const parsed = JSON.parse(saved);
-            return Array.isArray(parsed) && parsed.length > 0 ? parsed : initialPosts;
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              const parsedTitles = new Set(parsed.map((p) => (p.title || '').trim().toLowerCase()));
+              const missingFromInitial = initialPosts.filter(
+                (ip) => !parsedTitles.has((ip.title || '').trim().toLowerCase())
+              );
+              return [...parsed, ...missingFromInitial];
+            }
+            return initialPosts;
           } catch {
             return initialPosts;
           }
         })()
       : initialPosts;
 
-    const existingIds = new Set(baseList.map((p) => p.id));
-    const missingInitial = initialPosts.filter((ip) => !existingIds.has(ip.id));
-    const combined = [...baseList, ...missingInitial];
+    // Deduplicate strictly by title (case-insensitive, trimmed) so duplicate posts never exist
+    const seenTitles = new Set<string>();
+    const deduplicated = baseList.filter((item) => {
+      if ((item as any).isDeleted) return false;
+      const norm = (item.title || '').trim().toLowerCase();
+      if (!norm) return true;
+      if (seenTitles.has(norm)) return false;
+      seenTitles.add(norm);
+      return true;
+    });
+
+    deduplicated.sort((a, b) => {
+      if (a.isPinned && !b.isPinned) return -1;
+      if (!a.isPinned && b.isPinned) return 1;
+      const dateComp = (b.date || '').localeCompare(a.date || '');
+      if (dateComp !== 0) return dateComp;
+      return (b.createdAt || 0) - (a.createdAt || 0);
+    });
 
     // Ensure posts inherit complete images, thumbnails, map data, and rich content
-    return combined.map((p) => {
+    return deduplicated.map((p) => {
       const matchingInitial = initialPosts.find((ip) => ip.id === p.id);
       const mapFix = p.mapLocation || matchingInitial?.mapLocation;
       const thumbFix =
@@ -365,7 +388,21 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (targetPostId) {
         const saved = localStorage.getItem(STORAGE_KEYS.POSTS);
         const postsList: PostItem[] = saved ? JSON.parse(saved) : initialPosts;
-        return postsList.find((p) => String(p.id) === String(targetPostId)) || null;
+        const normTarget = String(targetPostId).toLowerCase();
+        return (
+          postsList.find((p) => {
+            const pId = String(p.id).toLowerCase();
+            if (pId === normTarget) return true;
+            if (pId === `post-${normTarget}`) return true;
+            if (normTarget === `post-${pId}`) return true;
+            if (normTarget === '8' && pId === 'post-2') return true;
+            if (normTarget === '9' && pId === 'post-3') return true;
+            if (normTarget === '10' && pId === 'post-4') return true;
+            if (normTarget === '6' && pId === 'post-6') return true;
+            if (normTarget === '1' && pId === 'post-1') return true;
+            return false;
+          }) || null
+        );
       }
     } catch {
       // fallback
@@ -480,30 +517,29 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
           })
           .filter((p) => !(p as any).isDeleted);
 
-        setPostsState((prev) => {
-          const remoteMap = new Map(remoteItems.map((p) => [p.id, p]));
-          const merged = [...remoteItems];
-          // Always ensure all official initialPosts are present
-          initialPosts.forEach((ip) => {
-            if (!remoteMap.has(ip.id)) {
-              merged.push(ip);
-            }
-          });
-          // Also preserve any custom local posts created by user
-          prev.forEach((localPost) => {
-            if (!remoteMap.has(localPost.id) && !merged.some((m) => m.id === localPost.id)) {
-              merged.push(localPost);
-            }
-          });
-          merged.sort((a, b) => {
-            if (a.isPinned && !b.isPinned) return -1;
-            if (!a.isPinned && b.isPinned) return 1;
-            const dateComp = (b.date || '').localeCompare(a.date || '');
-            if (dateComp !== 0) return dateComp;
-            return (b.createdAt || 0) - (a.createdAt || 0);
-          });
-          return merged;
+        // Single Source of Truth: Firestore remote items
+        // Strictly deduplicate by title (case-insensitive, trimmed) so duplicate posts never exist
+        const seenTitles = new Set<string>();
+        const deduplicated = remoteItems.filter((item) => {
+          const normTitle = (item.title || '').trim().toLowerCase();
+          if (!normTitle) return true;
+          if (seenTitles.has(normTitle)) {
+            return false;
+          }
+          seenTitles.add(normTitle);
+          return true;
         });
+
+        deduplicated.sort((a, b) => {
+          if (a.isPinned && !b.isPinned) return -1;
+          if (!a.isPinned && b.isPinned) return 1;
+          const dateComp = (b.date || '').localeCompare(a.date || '');
+          if (dateComp !== 0) return dateComp;
+          return (b.createdAt || 0) - (a.createdAt || 0);
+        });
+
+        setPostsState(deduplicated);
+        safeStorageSet(STORAGE_KEYS.POSTS, JSON.stringify(deduplicated));
       }
 
       // 2) Casinos
@@ -557,29 +593,11 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     let isCancelled = false;
 
-    // Check if posts have missing images or contaminated fallback images
-    const hasMissingImages = posts.some((p) => !p.thumbnail && (!p.images || p.images.length === 0));
-    const hasContaminatedImages = posts.some(
-      (p) => p.thumbnail === '/images/hero_bg.webp' || (p.images && p.images[0] === '/images/hero_bg.webp')
-    );
-
-    const hasDefaultHeroBg = bannerSlides.length > 0 && bannerSlides[0].bgImage === '/images/hero_bg.webp';
-
-    // Check Cache Freshness: if synced within last 30 minutes AND no missing/contaminated images, skip network calls
-    const lastSyncStr = typeof window !== 'undefined' ? localStorage.getItem(STORAGE_KEYS.LAST_SYNC) : null;
-    const lastSyncTime = lastSyncStr ? parseInt(lastSyncStr, 10) : 0;
-    const now = Date.now();
-    const CACHE_TTL_MS = 30 * 60 * 1000; // 30 minutes cache
-
-    if (!hasDefaultHeroBg && !hasContaminatedImages && !hasMissingImages && now - lastSyncTime < CACHE_TTL_MS && posts.length > 0) {
-      setIsCloudSynced(true);
-      return;
-    }
-
+    // Fast initial sync from Firestore on page load (always fetch fresh data)
     const timer = setTimeout(() => {
       if (isCancelled) return;
       refreshCloudData(true);
-    }, 150);
+    }, 50);
 
     return () => {
       isCancelled = true;

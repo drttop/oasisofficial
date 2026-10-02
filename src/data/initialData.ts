@@ -277,26 +277,267 @@ export const initialServiceSteps: ServiceStep[] = [
 
 export const initialPosts: PostItem[] = [
   {
-    "category": "공지사항",
-    "title": "[필독] 오아시스 공식 에이전트 2026년 VIP 멤버십 혜택 & 안전 이용 수칙 안내",
-    "date": "2026-08-25",
-    "isPinned": true,
-    "viewCount": 1428,
-    "author": "오아시스 총괄운영팀",
-    "id": "post-1",
-    "summary": "오아시스 공식 에이전트를 이용해 주시는 VIP 고객님들을 위한 2026년 특급 호텔 무료 숙박 및 전용 의전 지원 기준 안내입니다.",
-    "thumbnail": "https://images.unsplash.com/photo-1511193311914-0346f16efe90?auto=format&fit=crop&w=800&q=80",
-    "images": [
+    category: "공지사항",
+    title: "[필독] 오아시스 공식 에이전트 2026년 VIP 멤버십 혜택 & 안전 이용 수칙 안내",
+    date: "2026-08-25",
+    isPinned: true,
+    viewCount: 1428,
+    author: "오아시스 총괄운영팀",
+    id: "post-1",
+    summary: "오아시스 공식 에이전트를 이용해 주시는 VIP 고객님들을 위한 2026년 특급 호텔 무료 숙박 및 전용 의전 지원 기준 안내입니다.",
+    thumbnail: "https://images.unsplash.com/photo-1511193311914-0346f16efe90?auto=format&fit=crop&w=800&q=80",
+    images: [
       "https://images.unsplash.com/photo-1511193311914-0346f16efe90?auto=format&fit=crop&w=800&q=80"
     ],
-    "content": "안녕하세요, 오아시스 공식 에이전트(OASIS VIP AGENCY) 총괄운영팀입니다.\n\n저희 오아시스는 필리핀 정부 공인 PAGCOR 정식 라이센스 협력 에이전시로서, 10년 무사고 원칙과 신뢰를 바탕으로 최상의 VIP 서비스를 제공해 드리고 있습니다.\n\n■ 2026년 오아시스 VIP 주요 혜택\n1. 마닐라 & 클락 5성급 복합리조트(오카다, 솔레어, COD, 한 카지노등 ) 무료 숙박 지원\n2. 마닐라(NAIA) 및 클락(CRK) 국제공항 도착 시 전용 VIP 패스트트랙 입국 에스코트\n3. 최고급 토요타 알파드(Alphard) / 현대 스타리아 리무진 단독 왕복 픽업 및 전용 기사 배차\n4. 전 일정 24시간 한국인 베테랑 VIP 전담 실장 밀착 케어 (언어 소통, 테이블 에스코트, 식음료 무제한 지원)\n5. 클락 썬밸리, 미모사 등 명문 골프장 VIP 패스트 티오프 부킹 및 의전 차량 지원\n\n■ 안전 이용 및 개인정보 보안 수칙\n- 모든 고객님의 방문 내역 및 상담 기록은 철저히 암호화 관리되며, 귀국 즉시 영구 파기 처리됩니다.\n- 24시간 공식 카카오톡(oasis66) 및 공식 텔레그램 채널(oasis46)을 통해서만 공식 계좌 및 픽업 예약이 진행됩니다. 유사 사칭 채널에 각별히 유의해 주시기 바랍니다.\n\n고객님의 품격 있는 필리핀 여정을 오아시스가 가장 완벽하게 완성해 드리겠습니다. 감사합니다.",
-    "tags": [
+    content: `안녕하세요, 오아시스 공식 에이전트(OASIS VIP AGENCY) 총괄운영팀입니다.
+
+저희 오아시스는 필리핀 정부 공인 PAGCOR 정식 라이센스 협력 에이전시로서, 10년 무사고 원칙과 신뢰를 바탕으로 최상의 VIP 서비스를 제공해 드리고 있습니다.
+
+■ 2026년 오아시스 VIP 주요 혜택
+1. 마닐라 & 클락 5성급 복합리조트(오카다, 솔레어, COD, 한 카지노등 ) 무료 숙박 지원
+2. 마닐라(NAIA) 및 클락(CRK) 국제공항 도착 시 전용 VIP 패스트트랙 입국 에스코트
+3. 최고급 토요타 알파드(Alphard) / 현대 스타리아 리무진 단독 왕복 픽업 및 전용 기사 배차
+4. 전 일정 24시간 한국인 베테랑 VIP 전담 실장 밀착 케어 (언어 소통, 테이블 에스코트, 식음료 무제한 지원)
+5. 클락 썬밸리, 미모사 등 명문 골프장 VIP 패스트 티오프 부킹 및 의전 차량 지원
+
+■ 안전 이용 및 개인정보 보안 수칙
+- 모든 고객님의 방문 내역 및 상담 기록은 철저히 암호화 관리되며, 귀국 즉시 영구 파기 처리됩니다.
+- 24시간 공식 카카오톡(oasis66) 및 공식 텔레그램 채널(oasis46)을 통해서만 공식 계좌 및 픽업 예약이 진행됩니다. 유사 사칭 채널에 각별히 유의해 주시기 바랍니다.
+
+고객님의 품격 있는 필리핀 여정을 오아시스가 가장 완벽하게 완성해 드리겠습니다. 감사합니다.`,
+    tags: [
       "공지사항",
       "VIP혜택",
       "오아시스공식",
       "마닐라",
       "클락"
     ]
+  },
+  {
+    id: "2",
+    category: "VIP매거진",
+    title: "필리핀 마닐라 카지노 에이전시 왜 필요해? 실제 비용혜택 정리",
+    date: "2026-09-26",
+    isPinned: false,
+    viewCount: 1250,
+    author: "오아시스 VIP컨시어지",
+    summary: "핵심 요약: 여행하는 동안 손만 까닥 하셔도 됩니다. 시간과 비용을 40% 이상 절감합니다.",
+    thumbnail: "/images/posts/post-2-thumb.webp",
+    images: [
+      "/images/posts/post-2-img-1.webp"
+    ],
+    content: `[크기:대][굵게]필리핀 마닐라 카지노 에이전시 왜 필요해? 실제 비용혜택 정리[/굵게][/크기]
+
+핵심 요약: 여행하는 동안 손만 까닥 하셔도 됩니다. 시간과 비용을 40% 이상 절감합니다.
+
+[크기:중][굵게]■ Executive Summary[/굵게][/크기]
+필리핀 마닐라는 한국에서 항공편으로 약 4시간이면 도달할 수 있는 지리적 이점이 뛰어난 여행지이지만, 현지의 악명 높은 교통 체증과 복잡한 인프라로 인해 일반 자유여행 시 예상치 못한 심각한 일정 지연과 불필요한 지출이 발생하기 쉽습니다.
+
+오아시스 공식 VIP 에이전시를 이용하시면 다음과 같은 실질적인 비용 절감과 특급 의전 혜택을 누리실 수 있습니다.
+
+[크기:중][굵게]■ 오아시스 공식 에이전시 핵심 5대 혜택[/굵게][/크기]
+1. **5성급 호텔 스위트룸 무료 바우처 제공** (오카다 마닐라, 솔레어, COD, 한 등 1박당 30~80만원 상당 전액 무료 지원)
+2. **공항 VIP 패스트트랙 입출국 에스코트** (입국 대기 시간 1~2시간 -> 10분 이내 초고속 통과)
+3. **최고급 전용 리무진 단독 픽업/샌딩** (토요타 알파드 / 스타리아 리무진 전 일정 무료 배차)
+4. **24시간 1:1 한국인 전담 컨시어지 상주 케어** (언어 장벽 없는 밀착 안내, 맛집/골프/관광 가이드)
+5. **투명한 실시간 정산 및 우대 환율 환전 지원** (단 1원의 오차 없는 실시간 투명 정산)
+
+혼자 준비하는 여행 대비 전체 일정의 시간과 비용을 40% 이상 절감할 수 있는 오아시스 VIP 케어를 지금 바로 경험해 보세요.`,
+    tags: ["마닐라에이전시", "VIP혜택", "카지노에이전시", "호텔프리룸", "비용절감"]
+  },
+  {
+    id: "3",
+    category: "VIP매거진",
+    title: "[단독 지원] 오카다 마닐라 '선미(SUNMI)' 10월 3일 VIP 전용 콘서트 단독 배정",
+    date: "2026-09-23",
+    isPinned: false,
+    viewCount: 1120,
+    author: "오아시스 현지운영팀",
+    summary: "오카다 코브 마닐라 선미 콘서트, 오아시스 고객 한정 VIP 티켓 지원.",
+    thumbnail: "/images/casino_table.webp",
+    images: [
+      "/images/casino_table.webp"
+    ],
+    content: `[크기:대][굵게][단독 지원] 오카다 마닐라 '선미(SUNMI)' 10월 3일 VIP 전용 콘서트 단독 배정[/굵게][/크기]
+
+오카다 코브 마닐라 선미 콘서트, 오아시스 고객 한정 VIP 티켓 지원!
+
+오는 2026년 10월 3일, 오카다 마닐라의 '코브 마닐라(Cove Manila)'에서 K-POP 스타 선미(SUNMI)의 특별 콘서트 '골든 문 멜로디스'가 개최됩니다.
+본 공연은 일반 티켓 예매 창구가 없는 초청 전용(By Invitation Only) 프라이빗 콘서트로, 오아시스 VIP 고객님들을 위한 단독 VIP 좌석을 확보하였습니다.
+
+[크기:중][굵게]■ 콘서트 개요 및 오아시스 특전[/굵게][/크기]
+- **일시**: 2026년 10월 3일 (토)
+- **장소**: 오카다 마닐라 코브 마닐라 (Cove Manila)
+- **혜택 1**: 오카다 코브 마닐라 VIP 프라이빗 구역 좌석 배정
+- **혜택 2**: 공연 당일 오카다 마닐라 스위트룸 무료 숙박 바우처
+- **혜택 3**: 공항-리조트 간 알파드 리무진 단독 의전 왕복 픽업
+
+한정 수량으로 조기 마감될 수 있으니 참가를 희망하시는 회원님은 24시간 실시간 고객센터로 문의해 주시기 바랍니다.`,
+    tags: ["오카다마닐라", "선미콘서트", "VIP이벤트", "코브마닐라", "KPOP"]
+  },
+  {
+    id: "4",
+    category: "공지사항",
+    title: "필리핀 여행주의! 금연법 강력처벌! 대처 가이드",
+    date: "2026-09-21",
+    isPinned: false,
+    viewCount: 1390,
+    author: "오아시스 VIP컨시어지",
+    summary: "필리핀 금연법 여행자도 강력처벌! 공공장소 흡연 규정 및 안전 대처 가이드.",
+    thumbnail: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=800&q=80",
+    images: [
+      "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=800&q=80"
+    ],
+    content: `[크기:대][굵게]필리핀 여행주의! 금연법 강력처벌! 대처 가이드[/굵게][/크기]
+
+필리핀 금연법 여행자도 강력처벌! 금연법 완벽 가이드!
+
+[크기:중][굵게]■ Executive Summary[/굵게][/크기]
+필리핀은 동남아시아에서 가장 강력한 국가 단위의 금연 정책(행정명령 제26호, EO 26)을 시행하고 있는 국가입니다. 특히 외국인 관광객에 대한 예외가 전혀 없으며, 공공장소 흡연 적발 시 현장 벌금 부과는 물론 불응 시 구금까지 이어질 수 있어 각별한 주의가 필요합니다.
+
+[크기:중][굵게]■ 반드시 숙지해야 할 핵심 흡연 수칙[/굵게][/크기]
+1. **공공장소 전면 금연**: 거리, 도로, 보도, 대중교통, 공항 청사, 일반 식당 내부는 전면 금연입니다.
+2. **전자담배 규제**: 액상 및 궐련형 전자담배도 연초와 동일하게 강력 처벌 대상입니다.
+3. **지정 흡연 구역(DSA) 이용**: 정부 공인 DSA(Designated Smoking Area) 표지판이 부착된 공식 구역에서만 흡연 가능합니다.
+4. **리조트 내 흡연 구역**: 오카다, 솔레어 등 복합리조트 내부의 지정 VIP 전용 흡연실을 이용하시면 가장 안전합니다.
+
+오아시스는 공항 픽업부터 전 일정 고객님의 동선을 전담 케어하여 어떠한 법적 리스크도 없도록 완벽하게 가이드해 드립니다.`,
+    tags: ["필리핀여행", "금연법", "여행자주의", "마닐라안내", "안전수칙"]
+  },
+  {
+    id: "0",
+    category: "프로모션",
+    title: "9월 신규회원대상 이벤트!! 마닐라 5성급호텔 프리룸 3박",
+    date: "2026-09-18",
+    isPinned: false,
+    viewCount: 1470,
+    author: "오아시스 마케팅팀",
+    summary: "오아시스 9월프로모션 마닐라 5성급호텔 프리룸3박 혜택 - 신규고객 풀패키지 쏜다!",
+    thumbnail: "/images/hero_bg.webp",
+    images: [
+      "/images/hero_bg.webp"
+    ],
+    content: `[크기:대][굵게]9월 신규회원대상 이벤트!! 마닐라 5성급호텔 프리룸 3박[/굵게][/크기]
+
+오아시스 9월 프로모션: 마닐라 5성급 호텔 프리룸 3박 혜택!
+✈️ 오아시스 9월 마지막 이벤트! 신규 고객 풀패키지 쏜다!
+
+추석 연휴 및 가을 여행, 아직 고민 중이신가요?
+오아시스에 처음 오시는 분들을 위해 몸만 오셔도 되는 완벽한 혜택을 준비했습니다.
+
+[크기:중][굵게]■ 9월 신규 회원 한정 혜택[/굵게][/크기]
+- **기간**: 2026년 9월 한정
+- **대상**: 오아시스 공식 에이전트 신규 등록 VIP 회원
+- **혜택 1**: 오카다 / 솔레어 / COD 5성급 스위트룸 최대 3박 전액 무료 지원
+- **혜택 2**: 마닐라 공항 VIP 패스트트랙 및 최고급 알파드 리무진 단독 픽업/샌딩
+- **혜택 3**: 호텔 내 최고급 파인다이닝 식음료 크레딧 바우처 증정
+- **혜택 4**: 24시간 한국인 베테랑 실장 1:1 전담 의전
+
+지금 24시간 실시간 메신저(카카오톡 / 텔레그램)로 문의하시면 바로 예약 가능합니다.`,
+    tags: ["9월이벤트", "신규회원", "호텔프리룸", "마닐라스위트룸", "프로모션"]
+  },
+  {
+    id: "5",
+    category: "VIP매거진",
+    title: "유류할증료 두달연속 인상! 필리핀 마닐라 무료항공권 혜택 노려야 하는 이유",
+    date: "2026-09-17",
+    isPinned: false,
+    viewCount: 998,
+    author: "오아시스 마케팅팀",
+    summary: "국제유가상승으로 인한 유류할증료 인상. 무료항공권이 절실한 때!",
+    thumbnail: "/images/posts/post-2-thumb.webp",
+    images: [
+      "/images/posts/post-2-img-1.webp"
+    ],
+    content: `[크기:대][굵게]유류할증료 두달연속 인상! 필리핀 마닐라 무료항공권 혜택 노려야 하는 이유[/굵게][/크기]
+
+국제유가상승으로 인한 유류할증료 인상. 무료항공권이 절실한 때!
+
+올가을, 겨울 해외여행을 계획하고 계신다면 항공권 예매를 서두르셔야겠습니다. 국제유가 고공행진의 여파로 국제선 항공권 유류할증료가 두 달 연속 인상되고 있습니다.
+
+[크기:중][굵게]■ 항공료 부담을 제로로 만드는 오아시스 솔루션[/굵게][/크기]
+오아시스 공식 VIP 에이전시에서는 회원님들의 출입국 부담을 덜어드리기 위해 **왕복 비즈니스/이코노미 항공권 100% 실비 페이백 프로모션**을 진행합니다.
+
+1. **항공권 실비 전액 지원**: 오아시스 제휴 기준 충족 시 항공권 결제 금액 전액 페이백
+2. **유류할증료 & 공항세 포함**: 추가 비용 일체 없이 순수 무료 혜택 제공
+3. **최적 비행 스케줄 예약 대행**: 마닐라 및 클락 직항 노선 우선 배정
+
+항공료 상승 걱정 없이, 오아시스의 럭셔리 VIP 의전과 함께 가장 편안하고 경제적인 여정을 계획하십시오.`,
+    tags: ["유류할증료", "무료항공권", "항공권페이백", "마닐라여행", "VIP혜택"]
+  },
+  {
+    id: "post-6",
+    category: "VIP매거진",
+    title: "마닐라 카지노 4대호텔 오카다,COD,솔레어 완벽 비교 가이드",
+    date: "2026-09-16",
+    isPinned: false,
+    viewCount: 1530,
+    author: "오아시스 VIP컨시어지",
+    summary: "마닐라 4대 카지노 리조트(솔레어, 오카다, 시오디, 뉴포트) 비교 가이드.",
+    thumbnail: "/images/posts/post-6-thumb.webp",
+    images: [
+      "/images/posts/post-6-img-1.webp",
+      "/images/posts/post-6-img-2.webp",
+      "/images/posts/post-6-img-3.webp",
+      "/images/posts/post-6-img-4.webp"
+    ],
+    content: `[크기:대][굵게]마닐라 카지노 4대호텔 오카다,COD,솔레어 완벽 비교 가이드[/굵게][/크기]
+
+마닐라 4대 카지노 리조트(솔레어, 오카다, 시오디, 뉴포트) 비교 분석!
+
+[크기:중][굵게]■ Executive Summary[/굵게][/크기]
+아시아 프리미엄 게이밍 시장의 중심축이 필리핀 마닐라로 이동하고 있습니다. 마닐라의 복합 리조트(Integrated Resorts)들은 단순히 규모를 키우는 것을 넘어, 각기 다른 타깃층과 명확한 서비스 철학을 바탕으로 고유의 브랜딩을 구축하고 있습니다.
+
+[크기:중][굵게]1. 오카다 마닐라 (Okada Manila)[/굵게][/크기]
+- **특징**: 압도적인 황금빛 외관과 아시아 최대 규모의 복합 리조트
+- **장점**: 세계 최대 분수쇼, 실내 비치 클럽 '코브 마닐라', 최신식 시설과 다양한 레스토랑
+- **추천**: 화려함과 다채로운 엔터테인먼트를 선호하는 고객
+
+[크기:중][굵게]2. 솔레어 리조트 (Solaire Resort)[/굵게][/크기]
+- **특징**: 마닐라 베이의 하이엔드 럭셔리 정통 강자
+- **장점**: 엄격한 VIP 보안, 최상급 프라이빗 살롱, 마닐라 최고 수준의 파인다이닝
+- **추천**: 품격 있는 정통 카지노 환경과 보안을 중시하는 하이롤러
+
+[크기:중][굵게]3. 시티오브드림즈 (City of Dreams Manila)[/굵게][/크기]
+- **특징**: 글로벌 3대 럭셔리 호텔(누와, 노부, 하얏트) 결합 단지
+- **장점**: 미슐랭 스타 셰프 레스토랑, 감각적인 라이프스타일 인프라
+- **추천**: 세련된 호스피탈리티와 미식을 함께 즐기려는 고객
+
+[크기:중][굵게]4. 뉴포트 월드 리조트 (Newport World Resorts)[/굵게][/크기]
+- **특징**: 공항 3터미널 도보 육교 연결 최상의 접근성
+- **장점**: 메리어트, 힐튼, 쉐라톤, 오쿠라 등 풍부한 호텔 인프라
+- **추천**: 단기 체류 및 빠른 출입국 동선을 선호하는 고객
+
+오아시스 공식 에이전트는 고객님의 성향과 목적에 가장 부합하는 최적의 리조트를 매칭해 드립니다.`,
+    tags: ["마닐라카지노", "오카다", "솔레어", "COD", "카지노비교"]
+  },
+  {
+    id: "7",
+    category: "VIP매거진",
+    title: "페소환율 7년만의 최저기록 지금이 여행 최적기!",
+    date: "2026-09-14",
+    isPinned: false,
+    viewCount: 1180,
+    author: "오아시스 경제분석팀",
+    summary: "7년만의 페소 환율 최저기록 - 구매력 극대화와 필리핀 여행 최적기 분석.",
+    thumbnail: "/images/posts/post-3-thumb.webp",
+    images: [
+      "/images/posts/post-3-img-1.webp"
+    ],
+    content: `[크기:대][굵게]페소환율 7년만의 최저기록 지금이 여행 최적기![/굵게][/크기]
+
+7년만의 페소 환율 최저기록 - 필리핀 여행 최적기 분석!
+
+[크기:중][굵게]■ Executive Summary[/굵게][/크기]
+최근 원·페소 환율이 7년 만에 최저점을 돌파하며 필리핀 여행 시장에 전례 없는 경제적 기회가 열렸습니다. 글로벌 인플레이션으로 인해 전 세계적인 여행 경비가 상승하는 추세 속에서, 필리핀 페소화의 약세는 한국 여행객들에게 '구매력 극대화(Purchasing Power Maximization)'라는 독보적인 장점을 선사합니다.
+
+[크기:중][굵게]■ 페소 약세 시기 VIP 고객 체감 혜택[/굵게][/크기]
+1. **바이인 시드머니 극대화**: 동일한 원화 예산 대비 훨씬 많은 페소 칩스 환전 가능
+2. **현지 지출 경비 대폭 절감**: 쇼핑, 파인다이닝, 골프 라운딩 등 부대 비용 30% 이상 체감 하락
+3. **오아시스 우대 환율 적용**: 시중 공항 환전소 대비 가장 유리한 환전 및 송금 지원
+
+지금이 가장 적은 비용으로 가장 큰 만족을 얻을 수 있는 필리핀 방문의 골든타임입니다.`,
+    tags: ["페소환율", "환율최저", "마닐라여행", "환전우대", "경제분석"]
   },
   {
     "category": "프로모션",
@@ -397,40 +638,6 @@ export const initialPosts: PostItem[] = [
       "파인다이닝",
       "미식투어",
       "마닐라야경"
-    ]
-  },
-  {
-    "title": "마닐라 카지노 4대호텔 오카다,COD,솔레어 완벽 비교 가이드",
-    "id": "post-6",
-    "date": "2026-09-16",
-    "thumbnail": "/images/posts/post-6-thumb.webp",
-    "category": "VIP매거진",
-    "author": "오아시스 VIP매거진",
-    "createdAt": 1789549923664,
-    "summary": "마닐라 4대 카지노 리조트(솔레어, 오카다, 시오디, 뉴포트) 비교",
-    "images": [
-      "/images/posts/post-6-img-1.webp",
-      "/images/posts/post-6-img-2.webp",
-      "/images/posts/post-6-img-3.webp",
-      "/images/posts/post-6-img-4.webp"
-    ],
-    "content": "<div style=\"color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; font-size: medium; background-color: rgb(247, 250, 252); border-left: 4px solid rgb(49, 130, 206); padding: 20px; border-radius: 4px; margin-bottom: 32px;\"><strong style=\"color: rgb(43, 108, 176); font-size: 16px; display: block; margin-bottom: 8px;\">Executive Summary</strong><p style=\"margin: 0px; font-size: 15px; color: rgb(74, 85, 104);\">아시아 프리미엄 게이밍 시장의 중심축이 필리핀 마닐라로 이동하고 있습니다. 마닐라의 복합 리조트(Integrated Resorts)들은 단순히 규모를 키우는 것을 넘어, 각기 다른 타깃층과 명확한 서비스 철학을 바탕으로 독자적인 생태계를 구축했습니다. 본 리포트에서는 마닐라를 대표하는 4대 랜드마크인 <strong>솔레어, 오카다, 시티 오브 드림스, 뉴포트 월드 리조트</strong>의 게이밍 환경, VIP 인프라, 그리고 핵심 호스피탈리티 경쟁력을 하나씩 해부하여 성공적이고 올바른 카지노 투어를 위한 명확한 선택 기준을 제시합니다.</p></div><p style=\"color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; margin-bottom: 36px;\">최상위 롤러(High-Roller)를 위한 프라이빗한 공간부터, 화려한 볼거리를 찾는 레저형 게이머를 위한 메가 리조트까지 마닐라의 선택지는 다채롭습니다. 각 리조트가 지닌 하드웨어 스펙과 소프트웨어적 서비스 지향점을 개별적으로 면밀히 파악하는 것은 고품격 휴식과 효율적인 게이밍을 위한 첫걸음입니다.</p><p style=\"color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; margin-bottom: 36px;\"><br></p><hr style=\"font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; font-size: medium; border-style: solid none none; border-color: rgb(226, 232, 240) currentcolor currentcolor; margin: 36px 0px;\"><h2 style=\"color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; font-size: 24px; margin-bottom: 16px;\">1. 오카다 마닐라: 압도적 스케일의 엔터테인먼트 메가플렉스</h2><p>[사진1]</p><p><span style=\"color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif;\">일본 유니버설 엔터테인먼트 그룹이 투자한 '오카다(Okada)'는 마닐라 최대 부지(약 44헥타르)에 세워진 거대한 엔터테인먼트 제국입니다. 시각적인 화려함과 다이내믹한 분위기를 선호하는 방문객에게 최적화되어 있으며, </span><span style=\"color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; font-weight: bolder;\">일본식 환대(오모테나시)와 필리핀의 열정</span><span style=\"color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif;\">이 결합된 독특한 문화를 선보입니다.</span></p><p style=\"margin: 0.12rem 0px 20px; color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif;\">드라마 카지노의 배경이 된 카지노 중 한 곳으로 팬들의 방문또한 끊이지 않습니다.</p><p style=\"color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; margin-bottom: 20px;\"><span style=\"font-weight: bolder;\">게이밍 및 주요 시설:</span> 오카다의 카지노 플로어는 단일 층 면적으로 아시아 최대 규모 수준이며, 500개 이상의 테이블과 3,000대가 넘는 전자 게이밍 기기를 갖추고 있습니다. 카지노 플로어 전체가 핑크와 골드 톤으로 화려하게 장식되어 있어 축제 같은 텐션을 유지합니다. 게임 외에도 세계 최대 규모급의 다색 분수쇼 '더 파운틴(The Fountain)'과 실내 비치 클럽인 '코브 마닐라(Cove Manila)'가 리조트 중심에 위치하여 게이머와 동반 가족 모두에게 압도적인 볼거리를 제공합니다.</p><h2 style=\"color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; font-size: 24px; margin-top: 40px; margin-bottom: 16px;\">2. 솔레어 리조트 &amp; 카지노: 정통 럭셔리와 VIP 케어의 정수</h2><p>[사진2]</p><p>엔터테인먼트 시티의 포문을 연 '솔레어(Solaire)'는 마닐라 내에서 가장 클래식하고 우아한 럭셔리를 표방합니다. 포브스 트래블 가이드(Forbes Travel Guide) 5성급 평가를 지속적으로 유지하고 있는 이곳은, 방대한 규모로 승부하기보다는 <span style=\"font-weight: bolder;\">디테일한 접객 서비스와 프라이빗한 환경 조성</span>에 집중합니다.</p><p><br></p><p style=\"margin: 0.12rem 0px 20px; color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif;\"><span style=\"font-weight: bolder;\">게이밍 및 VIP 환경:</span> 솔레어의 카지노 플로어는 베이 타워(Bay Tower)와 스카이 타워(Sky Tower) 구역으로 나뉘며, 약 360여 개의 테이블 게임과 1,600대 이상의 슬롯머신을 보유하고 있습니다. 특히 하이롤러를 타깃으로 한 스카이 타워의 VIP 살롱은 마닐라 최고 수준의 프라이버시와 정숙성을 자랑합니다. 높은 층고와 베르사체 풍의 고급스러운 인테리어, 전담 버틀러 서비스가 결합되어 차분하고 몰입도 높은 럭셔리 게이밍 경험을 제공합니다.</p><h2 style=\"color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; font-size: 24px; margin-top: 40px; margin-bottom: 16px;\">3. 시티 오브 드림스 (COD): 3대 글로벌 브랜드가 빚어낸 세련된 복합 공간</h2><p style=\"color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; margin-bottom: 20px;\"><p>[사진3]</p><p>황금빛 돔 건축물 '포춘 에그(Fortune Egg)'로 유명한 '시티 오브 드림스(이하 시오디)'는 멜코 리조트(Melco Resorts)의 세련된 운영 노하우가 돋보이는 곳입니다. 누와(Nüwa), 노부(Nobu), 하얏트 리젠시(Hyatt Regency)라는 <strong>글로벌 최고급 호텔 브랜드 3개가 유기적으로 결합</strong>되어 있어, 방문객의 취향에 따른 숙박 인프라 선택의 폭이 가장 넓습니다.</p></p><p style=\"color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; margin-bottom: 20px;\"><strong>게이밍 및 라이프스타일:</strong> 약 280개의 테이블과 1,600대의 슬롯머신을 운영하는 시오디의 게이밍 공간은 모던하고 트렌디한 분위기를 연출합니다. 무겁고 엄숙한 전통적 카지노보다는 밝고 캐주얼한 '프리미엄 매스(Premium Mass)' 고객층에게 각광받고 있습니다. 특히 미슐랭 스타 셰프의 숨결이 담긴 '노부 레스토랑'을 비롯한 파인다이닝 클러스터와, 드림웍스 애니메이션 테마파크 '드림플레이(DreamPlay)'는 게이밍과 라이프스타일의 완벽한 밸런스를 맞추어 줍니다.</p><h2 style=\"color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; font-size: 24px; margin-top: 40px; margin-bottom: 16px;\">4. 뉴포트 월드 리조트: 최고의 접근성과 올인원 도심 인프라</h2><p style=\"color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; margin-bottom: 20px;\"><p>[사진4]</p><p>엔터테인먼트 시티와 떨어져 니노이 아키노 국제공항(NAIA) 터미널 3과 직접 연결된 '뉴포트 월드 리조트'는 마닐라 카지노 산업의 선구자입니다. (구 리조트 월드 마닐라) <strong>교통 체증을 피할 수 있는 지리적 이점과 방대한 메가 타운 인프라</strong>는 단기 비즈니스 일정이나 실속형 투어에 대체 불가능한 강점입니다.</p></p><p style=\"color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; margin-bottom: 20px;\"><strong>게이밍 및 편의성:</strong> 메리어트, 힐튼, 쉐라톤, 오쿠라 등 5개 이상의 호텔 윙(Wing)이 하나의 거대한 쇼핑몰(Newport Mall) 및 카지노 플로어와 거미줄처럼 연결되어 있습니다. 가장 대중적인 미니멈 베팅 금액부터 하이엔드 정킷 룸까지 스펙트럼이 매우 넓어 진입 장벽이 낮습니다. 공항 보딩 타임 직전까지도 여유롭게 게임과 쇼핑을 즐길 수 있는 극한의 동선 효율을 제공합니다.</p><p><br></p><hr style=\"font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; font-size: medium; border-style: solid none none; border-color: rgb(226, 232, 240) currentcolor currentcolor; margin: 36px 0px;\"><h2 style=\"color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; font-size: 24px; margin-bottom: 16px;\">5. 4대 리조트 핵심 스펙 브리핑 테이블</h2><p style=\"color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; margin-bottom: 20px;\">각 리조트의 특성을 한눈에 비교할 수 있도록 요약한 핵심 스펙 데이터입니다.</p><div style=\"color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; font-size: medium; overflow-x: auto; margin-bottom: 28px;\"><div class=\"oasis-table-wrap overflow-x-auto my-3 max-w-full\"><table style=\"width: 860px; font-size: 14px; border-color: rgb(226, 232, 240);\" class=\"oasis-table min-w-full border-collapse border border-slate-300 rounded-xl overflow-hidden text-sm\"><thead><tr style=\"background-color: rgb(237, 242, 247); border-bottom: 2px solid rgb(203, 213, 224);\"><th style=\"padding: 12px 14px;\">리조트명</th><th style=\"padding: 12px 14px;\">핵심 포지셔닝</th><th style=\"padding: 12px 14px;\">호텔 객실 브랜드</th><th style=\"padding: 12px 14px;\">게이밍 플로어 톤앤매너</th></tr></thead><tbody><tr style=\"border-bottom: 1px solid rgb(226, 232, 240);\"><td style=\"padding: 12px 14px; font-weight: 600; background-color: rgb(247, 250, 252);\">솔레어 (Solaire)</td><td style=\"padding: 12px 14px;\">정통 럭셔리 &amp; VIP 케어</td><td style=\"padding: 12px 14px;\">베이 타워, 스카이 타워 (자체)</td><td style=\"padding: 12px 14px;\">정숙함, 프라이빗, 클래식 럭셔리</td></tr><tr style=\"border-bottom: 1px solid rgb(226, 232, 240);\"><td style=\"padding: 12px 14px; font-weight: 600; background-color: rgb(247, 250, 252);\">오카다 (Okada)</td><td style=\"padding: 12px 14px;\">메가 스케일 &amp; 화려함</td><td style=\"padding: 12px 14px;\">펄 윙, 코랄 윙 (자체)</td><td style=\"padding: 12px 14px;\">다이내믹, 방대한 텐션, 엔터테인먼트 중심</td></tr><tr style=\"border-bottom: 1px solid rgb(226, 232, 240);\"><td style=\"padding: 12px 14px; font-weight: 600; background-color: rgb(247, 250, 252);\">시티 오브 드림스</td><td style=\"padding: 12px 14px;\">글로벌 체인 &amp; 라이프스타일</td><td style=\"padding: 12px 14px;\">누와, 노부, 하얏트 리젠시</td><td style=\"padding: 12px 14px;\">트렌디, 모던, 세련된 캐주얼</td></tr><tr><td style=\"padding: 12px 14px; font-weight: 600; background-color: rgb(247, 250, 252);\">뉴포트 월드 리조트</td><td style=\"padding: 12px 14px;\">공항 직결 &amp; 동선 효율</td><td style=\"padding: 12px 14px;\">메리어트, 힐튼, 쉐라톤, 오쿠라 등</td><td style=\"padding: 12px 14px;\">대중성, 접근성 최고, 컴팩트한 밀도</td></tr></tbody></table></div></div><div style=\"color: rgb(45, 55, 72); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; font-size: medium; background-color: rgb(255, 250, 240); border-left: 4px solid rgb(221, 107, 32); padding: 20px; border-radius: 4px; margin-bottom: 32px;\"><strong style=\"color: rgb(192, 86, 33); font-size: 16px; display: block; margin-bottom: 8px;\">Expert Insight: 리스크 관리와 올바른 접근법</strong><p style=\"margin: 0px; font-size: 15px; color: rgb(116, 66, 16);\">마닐라의 복합 리조트들은 각 카지노마다 독자적인 '리워드 멤버십(Rewards Membership)'을 운영합니다. 도착 즉시 자신의 플레이 성향에 맞는 리조트 한 곳을 메인으로 선정하여 멤버십 카드를 발급받고 포인트를 집중시키는 것이 식음료(F&amp;B) 및 객실 프로모션 혜택을 극대화하는 전략입니다. 또한, 무리한 베팅보다는 예산을 명확히 설정하고 리조트 내 파인다이닝과 스파 시설을 십분 활용하는 것이 '올바른 카지노 투어'의 본질임을 잊지 마십시오.</p></div><p style=\"font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; color: rgb(113, 128, 150); font-size: 14px; margin-bottom: 8px;\"><span style=\"color: rgb(45, 55, 72); font-weight: 600; font-size: 16px;\">목적이 완벽한 프라이버시(솔레어)인지, 압도적 유희(오카다)인지, 트렌디한 휴식(COD)인지, 최강의 기동성(뉴포트)인지 결정하셨습니까? 목적에 맞는 최적의 베이스캠프를 선택하여 마닐라 하이엔드 호스피탈리티의 정수를 경험해 보시길 바랍니다.</span></p><div style=\"font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; margin-top: 32px; padding-top: 16px; border-top: 1px dashed rgb(203, 213, 224); font-size: 14px; color: rgb(74, 85, 104);\">#마닐라카지노 #마닐라호텔추천 #솔레어리조트 #오카다마닐라 #시티오브드림스 #뉴포트월드리조트 #필리핀VIP투어 #올바른카지노투어</div>",
-    "mapLocation": null,
-    "viewCount": 466,
-    "isPinned": false,
-    "tags": [
-      "마닐라카지노",
-      "필리핀카지노",
-      "오카다카지노",
-      "솔레어카지노",
-      "씨오디카지노",
-      "뉴포트카지노",
-      "마닐라여행",
-      "마닐라호텔",
-      "마닐라오카다",
-      "마닐라솔레어",
-      "마닐라씨오디",
-      "마닐라뉴포트"
     ]
   },
   {

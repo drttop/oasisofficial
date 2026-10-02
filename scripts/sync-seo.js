@@ -36,8 +36,54 @@ async function syncSEO() {
     }
   }
 
+  // Helper to load fallback initialPosts from initialData.ts
+  const loadFallbackPosts = () => {
+    try {
+      const tsPath = resolve(rootDir, 'src/data/initialData.ts');
+      if (!existsSync(tsPath)) return [];
+      const ts = readFileSync(tsPath, 'utf8');
+      const start = ts.indexOf('export const initialPosts: PostItem[] = [');
+      const end = ts.indexOf('export const initialFAQs: FAQItem[]');
+      if (start !== -1 && end !== -1) {
+        const snippet = ts.substring(start + 'export const initialPosts: PostItem[] = '.length, end).trim();
+        const cleaned = snippet.replace(/;\s*$/, '');
+        return eval(cleaned);
+      }
+    } catch (e) {
+      console.warn('⚠️ Could not load local initialPosts fallback:', e.message);
+    }
+    return [];
+  };
+
   if (posts.length === 0) {
-    console.log('ℹ️ No Firestore posts found. Skipping static update.');
+    posts = loadFallbackPosts();
+    console.log(`ℹ️ Using ${posts.length} local posts from initialData.ts as fallback.`);
+  }
+
+  // Deduplicate strictly by title (case-insensitive, trimmed) & filter isDeleted
+  const seenTitles = new Set();
+  const cleanPosts = [];
+  for (const p of posts) {
+    if (p.isDeleted) continue;
+    const norm = (p.title || '').trim().toLowerCase();
+    if (!norm || seenTitles.has(norm)) continue;
+    seenTitles.add(norm);
+    cleanPosts.push(p);
+  }
+
+  cleanPosts.sort((a, b) => {
+    if (a.isPinned && !b.isPinned) return -1;
+    if (!a.isPinned && b.isPinned) return 1;
+    const dateComp = (b.date || '').localeCompare(a.date || '');
+    if (dateComp !== 0) return dateComp;
+    return (b.createdAt || 0) - (a.createdAt || 0);
+  });
+
+  posts = cleanPosts;
+  console.log(`✅ Final clean deduplicated posts count: ${posts.length}`);
+
+  if (posts.length === 0) {
+    console.log('ℹ️ No posts found. Skipping static update.');
     return;
   }
 

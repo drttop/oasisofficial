@@ -30,13 +30,12 @@ export const CommunitySection: React.FC = () => {
     (post) => post.category !== '공지사항' && post.category !== '프로모션'
   );
 
-  // Deduplicate strictly by title (trimmed, lowercase) so no duplicate cards can ever be rendered
-  const seenTitles = new Set<string>();
+  // Deduplicate strictly by unique post ID so no duplicate cards can ever be rendered
+  const seenIds = new Set<string>();
   const uniqueCommunityPosts = communityPosts.filter((post) => {
-    const norm = (post.title || '').trim().toLowerCase();
-    if (!norm) return true;
-    if (seenTitles.has(norm)) return false;
-    seenTitles.add(norm);
+    if (!post.id) return false;
+    if (seenIds.has(post.id)) return false;
+    seenIds.add(post.id);
     return true;
   });
 

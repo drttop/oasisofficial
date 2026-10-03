@@ -60,14 +60,13 @@ async function syncSEO() {
     console.log(`ℹ️ Using ${posts.length} local posts from initialData.ts as fallback.`);
   }
 
-  // Deduplicate strictly by title (case-insensitive, trimmed) & filter isDeleted
-  const seenTitles = new Set();
+  // Deduplicate strictly by post ID & filter isDeleted
+  const seenIds = new Set();
   const cleanPosts = [];
   for (const p of posts) {
     if (p.isDeleted) continue;
-    const norm = (p.title || '').trim().toLowerCase();
-    if (!norm || seenTitles.has(norm)) continue;
-    seenTitles.add(norm);
+    if (!p.id || seenIds.has(p.id)) continue;
+    seenIds.add(p.id);
     cleanPosts.push(p);
   }
 

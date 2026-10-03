@@ -459,6 +459,57 @@ export const PostDetailPage: React.FC<PostDetailPageProps> = ({
               )}
             </div>
 
+            {/* Related Posts Internal Linking Section (SEO 내부 링크 구조 강화) */}
+            {posts && (
+              (() => {
+                const relatedPosts = posts
+                  .filter((p) => String(p.id) !== String(post.id) && !(p as any).isDeleted)
+                  .filter((p) => p.category === post.category || p.category !== '공지사항')
+                  .slice(0, 3);
+                if (relatedPosts.length === 0) return null;
+                return (
+                  <div className="pt-4 border-t border-slate-200/80 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-xs sm:text-sm font-extrabold text-slate-800 flex items-center gap-1.5">
+                        <Sparkles className="w-3.5 h-3.5 text-[#E5B54F]" />
+                        <span>함께 읽으면 좋은 추천 매거진</span>
+                      </h3>
+                      <span className="text-[11px] text-slate-400">오아시스 VIP 공식 리포트</span>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      {relatedPosts.map((rel) => (
+                        <a
+                          key={rel.id}
+                          href={`?post=${encodeURIComponent(rel.id)}`}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setSelectedPost(rel);
+                            incrementPostView(rel.id);
+                          }}
+                          className="p-3 rounded-2xl bg-white border border-slate-200 hover:border-[#30308A]/40 hover:shadow-xs transition-all flex flex-col justify-between group cursor-pointer"
+                        >
+                          <div className="space-y-1.5">
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 inline-block">
+                              {rel.category}
+                            </span>
+                            <h4 className="text-xs font-bold text-slate-900 group-hover:text-[#30308A] line-clamp-2 leading-snug transition-colors">
+                              {rel.title}
+                            </h4>
+                          </div>
+                          <div className="flex items-center justify-between text-[11px] text-slate-400 mt-2.5 pt-2 border-t border-slate-100">
+                            <span>{rel.date}</span>
+                            <span className="group-hover:translate-x-0.5 transition-transform text-[#30308A] font-bold text-[10px]">
+                              읽기 →
+                            </span>
+                          </div>
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()
+            )}
+
             {/* Bottom Actions Bar */}
             <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-200">
               <div className="flex items-center gap-2 flex-wrap">

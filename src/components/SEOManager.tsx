@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { useSite } from '../context/SiteContext';
 import { applySEO, getPostUrl } from '../utils/seo';
+import { navigateToSection, KNOWN_SECTIONS } from '../utils/navigation';
 
 export const SEOManager: React.FC = () => {
   const {
@@ -79,12 +80,22 @@ export const SEOManager: React.FC = () => {
       }
     }
 
-    // Check if initial URL is for About or Process
+    // Check if initial URL is for About, Process, or other sections (Refresh preservation)
     const hash = window.location.hash;
     if (hash === '#about') {
       setActiveInfoModal('about');
     } else if (hash === '#process') {
       setActiveInfoModal('process');
+    } else if (hash.startsWith('#') && hash.length > 1) {
+      const targetId = hash.replace(/^#/, '');
+      if (KNOWN_SECTIONS.includes(targetId)) {
+        navigateToSection(targetId, { updateHistory: false });
+      }
+    } else {
+      const savedSection = typeof window !== 'undefined' ? sessionStorage.getItem('oasis_active_section') : null;
+      if (savedSection && KNOWN_SECTIONS.includes(savedSection) && savedSection !== 'about' && savedSection !== 'process') {
+        navigateToSection(savedSection, { updateHistory: false });
+      }
     }
   }, [posts, setSelectedPost, incrementPostView, setActiveInfoModal]);
 
@@ -285,45 +296,69 @@ export const SEOManager: React.FC = () => {
       }
 
       if (targetId === 'home') {
-        window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
+        navigateToSection('home', { updateHistory: false });
         return;
       }
 
-      // Cleanly replace URL hash if returning from a post
-      if (previousPost) {
-        try {
-          sessionStorage.setItem('oasis_current_board', targetId);
-          window.history.replaceState({ section: targetId, originSection: targetId }, '', `${window.location.pathname}${targetHash}`);
-        } catch {}
-      }
-
-      // Robust scrolling to target board section with retries for lazy components mounting
-      let attempts = 0;
-      const scrollToSection = () => {
-        const element = document.getElementById(targetId);
-        if (element) {
-          element.scrollIntoView({ behavior: 'instant' as ScrollBehavior, block: 'start' });
-          const headerOffset = 80;
-          const elementPosition = element.getBoundingClientRect().top;
-          if (Math.abs(elementPosition - headerOffset) > 8) {
-            const offsetPosition = Math.max(0, elementPosition + window.pageYOffset - headerOffset);
-            window.scrollTo({ top: offsetPosition, behavior: 'instant' as ScrollBehavior });
-          }
-        }
-        if (attempts < 30) {
-          attempts++;
-          setTimeout(scrollToSection, attempts < 5 ? 25 : 80);
-        }
-      };
-
-      requestAnimationFrame(() => {
-        scrollToSection();
-      });
+      navigateToSection(targetId, { replace: true });
     };
 
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
   }, [posts, setSelectedPost, isPostEditorOpen, closePostEditor, setActiveInfoModal]);
+
+  // 4. Lightweight scroll spy: track current visible section for refresh preservation
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    let ticking = false;
+    const sections = ['philippines', 'casino', 'promotion', 'community'];
+
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        ticking = false;
+        if (selectedPost || isPostEditorOpen || activeInfoModal) return;
+
+        const scrollY = window.pageYOffset + 120;
+        let activeSec = 'home';
+        for (const secId of sections) {
+          const el = document.getElementById(secId);
+          if (el) {
+            const top = el.offsetTop;
+            const height = el.offsetHeight;
+            if (scrollY >= top && scrollY < top + height) {
+              activeSec = secId;
+              break;
+            }
+          }
+        }
+        if (activeSec !== 'home') {
+          try {
+            sessionStorage.setItem('oasis_active_section', activeSec);
+            if (window.location.hash !== `#${activeSec}`) {
+              window.history.replaceState(
+                { section: activeSec, originSection: activeSec },
+                '',
+                `${window.location.pathname}#${activeSec}`
+              );
+            }
+          } catch {}
+        } else if (window.pageYOffset < 150) {
+          try {
+            sessionStorage.removeItem('oasis_active_section');
+            if (window.location.hash) {
+              window.history.replaceState({ section: 'home' }, '', window.location.pathname);
+            }
+          } catch {}
+        }
+      });
+    };
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, [selectedPost, isPostEditorOpen, activeInfoModal]);
 
   return null;
 };

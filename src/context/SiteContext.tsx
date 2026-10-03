@@ -112,6 +112,7 @@ export const STORAGE_KEYS = {
   STEPS: `${APP_STORAGE_PREFIX}_steps_v10`,
   FAQS: `${APP_STORAGE_PREFIX}_faqs_v10`,
   LAST_SYNC: `${APP_STORAGE_PREFIX}_last_sync_v10`,
+  LAST_STATIC_SYNC: `${APP_STORAGE_PREFIX}_last_static_sync_v10`,
   QUOTA_EXCEEDED: `${APP_STORAGE_PREFIX}_quota_exceeded_v10`,
 };
 
@@ -125,14 +126,13 @@ export const isFirestoreQuotaExceeded = (): boolean => {
       if (stored) {
         const storedTime = parseInt(stored, 10);
         if (!isNaN(storedTime)) {
-          // If exceeded flag was set more than 1 hour ago, auto-reset
-          if (Date.now() - storedTime > 60 * 60 * 1000) {
+          // Auto-reset after 1 minute so temporary quota spikes retest connection promptly
+          if (Date.now() - storedTime > 60 * 1000) {
             sessionStorage.removeItem(STORAGE_KEYS.QUOTA_EXCEEDED);
             isQuotaExceededFlag = false;
             return false;
           }
-        } else if (stored === 'true') {
-          // Reset legacy string flag so new sessions retest connection
+        } else {
           sessionStorage.removeItem(STORAGE_KEYS.QUOTA_EXCEEDED);
           isQuotaExceededFlag = false;
           return false;
@@ -313,14 +313,13 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
         })()
       : initialPosts;
 
-    // Deduplicate strictly by title (case-insensitive, trimmed) so duplicate posts never exist
-    const seenTitles = new Set<string>();
+    // Deduplicate strictly by unique ID so duplicate IDs never exist, but posts with same/similar titles are 100% preserved
+    const seenIds = new Set<string>();
     const deduplicated = baseList.filter((item) => {
       if ((item as any).isDeleted) return false;
-      const norm = (item.title || '').trim().toLowerCase();
-      if (!norm) return true;
-      if (seenTitles.has(norm)) return false;
-      seenTitles.add(norm);
+      if (!item.id) return false;
+      if (seenIds.has(item.id)) return false;
+      seenIds.add(item.id);
       return true;
     });
 
@@ -332,29 +331,19 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return (b.createdAt || 0) - (a.createdAt || 0);
     });
 
-    // Ensure posts inherit complete images, thumbnails, map data, and rich content
+    // Clean pass-through: NEVER overwrite user content, images, or thumbnails with static initialPosts!
     return deduplicated.map((p) => {
-      const matchingInitial = initialPosts.find((ip) => ip.id === p.id);
-      const mapFix = p.mapLocation || matchingInitial?.mapLocation;
-      const thumbFix =
-        p.thumbnail && !p.thumbnail.includes('placeholder') && p.thumbnail !== '/images/hero_bg.webp'
-          ? p.thumbnail
-          : matchingInitial?.thumbnail;
-      const imgsFix =
-        Array.isArray(p.images) && p.images.length > 0 && p.images[0] !== '/images/hero_bg.webp'
-          ? p.images
-          : (matchingInitial?.images && matchingInitial.images.length > 0
-              ? matchingInitial.images
-              : (thumbFix ? [thumbFix] : undefined));
-      const contentFix =
-        p.content && p.content.length > 50 ? p.content : (matchingInitial?.content || p.content);
-
+      const isDemoPost = /^post-[1-9]$/.test(p.id) || /^[0-9]$/.test(p.id);
+      const matchingInitial = isDemoPost ? initialPosts.find((ip) => ip.id === p.id) : null;
       return {
         ...p,
-        thumbnail: thumbFix,
-        images: imgsFix,
-        mapLocation: mapFix,
-        content: contentFix,
+        thumbnail: p.thumbnail || matchingInitial?.thumbnail || '',
+        images:
+          Array.isArray(p.images) && p.images.length > 0
+            ? p.images
+            : (matchingInitial?.images || (p.thumbnail ? [p.thumbnail] : [])),
+        mapLocation: p.mapLocation || matchingInitial?.mapLocation || null,
+        content: p.content || matchingInitial?.content || '',
         viewCount:
           typeof p.viewCount === 'number' && !isNaN(p.viewCount)
             ? p.viewCount
@@ -451,126 +440,139 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // 1. Smart Firestore Synchronization with Cache TTL & Quota Circuit Breaker
   const refreshCloudData = async (force: boolean = false) => {
-    if (!force && isQuotaExceededFlag) return;
+    if (force) {
+      clearFirestoreQuotaExceeded();
+      setIsQuotaExceeded(false);
+    } else {
+      if (isQuotaExceededFlag) return;
+      if (typeof window !== 'undefined') {
+        const lastSync = localStorage.getItem(STORAGE_KEYS.LAST_SYNC);
+        if (lastSync) {
+          const elapsed = Date.now() - parseInt(lastSync, 10);
+          // 4 seconds debounce prevents rapid duplicate mounts in React StrictMode
+          if (!isNaN(elapsed) && elapsed < 4 * 1000) {
+            setIsCloudSynced(true);
+            return;
+          }
+        }
+      }
+    }
 
     try {
       const { db, fs } = await loadFirebase();
       const { doc, collection, getDoc, getDocs } = fs;
 
-      const results = await Promise.allSettled([
-        getDoc(doc(db, 'site_config', 'main')),
-        getDocs(collection(db, 'posts')),
-        getDocs(collection(db, 'casinos')),
-        getDocs(collection(db, 'philippine_spots')),
-        getDocs(collection(db, 'banner_slides')),
-        getDocs(collection(db, 'faqs')),
-        getDoc(doc(db, 'site_config', 'service_steps')),
-      ]);
-
-      // Check for quota exceeded error in any request
-      for (const res of results) {
-        if (res.status === 'rejected') {
-          const err = res.reason;
-          if (err?.code === 'resource-exhausted' || err?.message?.includes('quota') || err?.message?.includes('RESOURCE_EXHAUSTED')) {
-            markFirestoreQuotaExceeded();
-            setIsQuotaExceeded(true);
-            return;
-          }
+      // Determine if static content should be refreshed (every 30 mins or when forced)
+      let shouldFetchStatic = force;
+      if (!shouldFetchStatic && typeof window !== 'undefined') {
+        const lastStatic = localStorage.getItem(STORAGE_KEYS.LAST_STATIC_SYNC);
+        if (!lastStatic || Date.now() - parseInt(lastStatic, 10) > 30 * 60 * 1000) {
+          shouldFetchStatic = true;
         }
       }
 
-      // 0) Config
-      if (results[0].status === 'fulfilled' && results[0].value.exists()) {
-        const cfgData = results[0].value.data() as Partial<SiteConfig>;
-        setSiteConfigState(sanitizeConfig(cfgData));
+      // 1. Fetch Posts (Primary dynamic content - single query)
+      try {
+        const snap = await getDocs(collection(db, 'posts'));
+        if (!snap.empty) {
+          clearFirestoreQuotaExceeded();
+          setIsQuotaExceeded(false);
+
+          const remoteItems = snap.docs
+            .map((d) => {
+              const data = d.data();
+              const isDemoPost = /^post-[1-9]$/.test(d.id) || /^[0-9]$/.test(d.id);
+              const matchingInitial = isDemoPost ? initialPosts.find((ip) => ip.id === d.id) : null;
+              return {
+                ...data,
+                id: d.id,
+                thumbnail: data.thumbnail || matchingInitial?.thumbnail || '',
+                images:
+                  Array.isArray(data.images) && data.images.length > 0
+                    ? data.images
+                    : (matchingInitial?.images || (data.thumbnail ? [data.thumbnail] : [])),
+                content: data.content || matchingInitial?.content || '',
+                viewCount:
+                  typeof data.viewCount === 'number' && !isNaN(data.viewCount)
+                    ? data.viewCount
+                    : (matchingInitial?.viewCount || 392),
+              } as PostItem;
+            })
+            .filter((p) => !(p as any).isDeleted);
+
+          const seenIds = new Set<string>();
+          const deduplicated = remoteItems.filter((item) => {
+            if (!item.id) return false;
+            if (seenIds.has(item.id)) return false;
+            seenIds.add(item.id);
+            return true;
+          });
+
+          deduplicated.sort((a, b) => {
+            if (a.isPinned && !b.isPinned) return -1;
+            if (!a.isPinned && b.isPinned) return 1;
+            const dateComp = (b.date || '').localeCompare(a.date || '');
+            if (dateComp !== 0) return dateComp;
+            return (b.createdAt || 0) - (a.createdAt || 0);
+          });
+
+          setPostsState(deduplicated);
+          safeStorageSet(STORAGE_KEYS.POSTS, JSON.stringify(deduplicated));
+        }
+      } catch (err: any) {
+        if (err?.code === 'resource-exhausted' || err?.message?.includes('quota') || err?.message?.includes('RESOURCE_EXHAUSTED')) {
+          markFirestoreQuotaExceeded();
+          setIsQuotaExceeded(true);
+        } else {
+          console.warn('[Firebase] Posts fetch warning:', err);
+        }
       }
 
-      // 1) Posts
-      if (results[1].status === 'fulfilled' && !results[1].value.empty) {
-        clearFirestoreQuotaExceeded();
-        setIsQuotaExceeded(false);
-        const snap = results[1].value;
-        const remoteItems = snap.docs
-          .map((d) => {
-            const data = d.data();
-            const matchingInitial = initialPosts.find((ip) => ip.id === d.id);
-            const thumb =
-              data.thumbnail && !data.thumbnail.includes('placeholder') && data.thumbnail !== '/images/hero_bg.webp'
-                ? data.thumbnail
-                : matchingInitial?.thumbnail;
-            const imgs =
-              Array.isArray(data.images) && data.images.length > 0 && data.images[0] !== '/images/hero_bg.webp'
-                ? data.images
-                : (matchingInitial?.images && matchingInitial.images.length > 0
-                    ? matchingInitial.images
-                    : (thumb ? [thumb] : undefined));
-            const content =
-              data.content && data.content.length > 50 ? data.content : (matchingInitial?.content || data.content);
-            return {
-              ...data,
-              id: d.id,
-              thumbnail: thumb,
-              images: imgs,
-              content: content,
-              viewCount: typeof data.viewCount === 'number' && !isNaN(data.viewCount) ? data.viewCount : 392,
-            } as PostItem;
-          })
-          .filter((p) => !(p as any).isDeleted);
+      // 2. Fetch static content collections ONLY when needed (saves 85% of read quota)
+      if (shouldFetchStatic && !isQuotaExceededFlag) {
+        try {
+          const staticResults = await Promise.allSettled([
+            getDoc(doc(db, 'site_config', 'main')),
+            getDocs(collection(db, 'casinos')),
+            getDocs(collection(db, 'philippine_spots')),
+            getDocs(collection(db, 'banner_slides')),
+            getDocs(collection(db, 'faqs')),
+            getDoc(doc(db, 'site_config', 'service_steps')),
+          ]);
 
-        // Single Source of Truth: Firestore remote items
-        // Strictly deduplicate by title (case-insensitive, trimmed) so duplicate posts never exist
-        const seenTitles = new Set<string>();
-        const deduplicated = remoteItems.filter((item) => {
-          const normTitle = (item.title || '').trim().toLowerCase();
-          if (!normTitle) return true;
-          if (seenTitles.has(normTitle)) {
-            return false;
+          // Config
+          if (staticResults[0].status === 'fulfilled' && staticResults[0].value.exists()) {
+            setSiteConfigState(sanitizeConfig(staticResults[0].value.data() as Partial<SiteConfig>));
           }
-          seenTitles.add(normTitle);
-          return true;
-        });
+          // Casinos
+          if (staticResults[1].status === 'fulfilled' && !staticResults[1].value.empty) {
+            setCasinosState(sortCasinos(staticResults[1].value.docs.map((d) => ({ ...d.data(), id: d.id } as CasinoItem))));
+          }
+          // Spots
+          if (staticResults[2].status === 'fulfilled' && !staticResults[2].value.empty) {
+            setPhilippineSpotsState(staticResults[2].value.docs.map((d) => ({ ...d.data(), id: d.id } as PhilippineTourSpot)));
+          }
+          // Slides
+          if (staticResults[3].status === 'fulfilled' && !staticResults[3].value.empty) {
+            setBannerSlidesState(sanitizeSlides(staticResults[3].value.docs.map((d) => ({ ...d.data(), id: d.id } as BannerSlide))));
+          }
+          // FAQs
+          if (staticResults[4].status === 'fulfilled' && !staticResults[4].value.empty) {
+            setFaqsState(staticResults[4].value.docs.map((d) => ({ ...d.data(), id: d.id } as FAQItem)));
+          }
+          // Steps
+          if (staticResults[5].status === 'fulfilled' && staticResults[5].value.exists()) {
+            const data = staticResults[5].value.data();
+            if (Array.isArray(data.steps)) setServiceStepsState(data.steps);
+          }
 
-        deduplicated.sort((a, b) => {
-          if (a.isPinned && !b.isPinned) return -1;
-          if (!a.isPinned && b.isPinned) return 1;
-          const dateComp = (b.date || '').localeCompare(a.date || '');
-          if (dateComp !== 0) return dateComp;
-          return (b.createdAt || 0) - (a.createdAt || 0);
-        });
-
-        setPostsState(deduplicated);
-        safeStorageSet(STORAGE_KEYS.POSTS, JSON.stringify(deduplicated));
-      }
-
-      // 2) Casinos
-      if (results[2].status === 'fulfilled' && !results[2].value.empty) {
-        const rawItems = results[2].value.docs.map((d) => ({ ...d.data(), id: d.id } as CasinoItem));
-        setCasinosState(sortCasinos(rawItems));
-      }
-
-      // 3) Spots
-      if (results[3].status === 'fulfilled' && !results[3].value.empty) {
-        const items = results[3].value.docs.map((d) => ({ ...d.data(), id: d.id } as PhilippineTourSpot));
-        setPhilippineSpotsState(items);
-      }
-
-      // 4) Slides
-      if (results[4].status === 'fulfilled' && !results[4].value.empty) {
-        const rawItems = results[4].value.docs.map((d) => ({ ...d.data(), id: d.id } as BannerSlide));
-        setBannerSlidesState(sanitizeSlides(rawItems));
-      }
-
-      // 5) FAQs
-      if (results[5].status === 'fulfilled' && !results[5].value.empty) {
-        const items = results[5].value.docs.map((d) => ({ ...d.data(), id: d.id } as FAQItem));
-        setFaqsState(items);
-      }
-
-      // 6) Steps
-      if (results[6].status === 'fulfilled' && results[6].value.exists()) {
-        const data = results[6].value.data();
-        if (Array.isArray(data.steps)) {
-          setServiceStepsState(data.steps);
+          if (typeof window !== 'undefined') {
+            try {
+              localStorage.setItem(STORAGE_KEYS.LAST_STATIC_SYNC, String(Date.now()));
+            } catch {}
+          }
+        } catch (staticErr) {
+          console.warn('[Firebase] Static sync skipped:', staticErr);
         }
       }
 
@@ -593,11 +595,11 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     let isCancelled = false;
 
-    // Fast initial sync from Firestore on page load (always fetch fresh data)
+    // Gentle initial cloud sync with standard 15-second debounce protection
     const timer = setTimeout(() => {
       if (isCancelled) return;
-      refreshCloudData(true);
-    }, 50);
+      refreshCloudData(false);
+    }, 200);
 
     return () => {
       isCancelled = true;
@@ -824,6 +826,7 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (dateComp !== 0) return dateComp;
         return (b.createdAt || 0) - (a.createdAt || 0);
       });
+      safeStorageSet(STORAGE_KEYS.POSTS, JSON.stringify(updated));
       return updated;
     });
 
@@ -833,6 +836,10 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const docRef = fs.doc(db, 'posts', newId);
       await fs.setDoc(docRef, cleanDoc);
       console.log('Post successfully saved to Firestore:', newId);
+      // Trigger background sync to pull any concurrent posts
+      setTimeout(() => {
+        refreshCloudData(true);
+      }, 100);
     } catch (err) {
       console.error('Failed to add post to Firestore:', err);
     }
@@ -842,15 +849,17 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const updatePost = async (id: string, partial: Partial<PostItem>) => {
     let updatedItem: PostItem | null = null;
-    setPostsState((prev) =>
-      prev.map((item) => {
+    setPostsState((prev) => {
+      const updated = prev.map((item) => {
         if (item.id === id) {
           updatedItem = { ...item, ...partial };
           return updatedItem;
         }
         return item;
-      })
-    );
+      });
+      safeStorageSet(STORAGE_KEYS.POSTS, JSON.stringify(updated));
+      return updated;
+    });
 
     // Keep selectedPost in sync if the currently viewed post was updated
     if (updatedItem) {

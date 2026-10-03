@@ -438,12 +438,14 @@ export const FormattedPostContent: React.FC<{
 };
 
 /**
- * Creates clean viewer HTML for an inline photo in published posts
+ * Creates clean viewer HTML for an inline photo in published posts with rich semantic ALT attributes
  */
-export function createViewerPhotoHtml(photoIndex: number, imageUrl: string): string {
+export function createViewerPhotoHtml(photoIndex: number, imageUrl: string, caption?: string): string {
   const photoNum = photoIndex + 1;
-  return `<figure class="my-4 rounded-2xl overflow-hidden border border-slate-200/80 bg-slate-50/50 flex items-center justify-center p-1 sm:p-2">
-    <img src="${imageUrl}" alt="사진 ${photoNum}" class="w-full h-auto max-h-[640px] object-contain mx-auto rounded-xl pointer-events-none" loading="lazy" decoding="async" />
+  const cleanAlt = caption ? caption.trim() : `마닐라 오아시스 공식 VIP 매거진 상세 사진 ${photoNum}`;
+  return `<figure class="my-4 rounded-2xl overflow-hidden border border-slate-200/80 bg-slate-50/50 flex flex-col items-center justify-center p-1 sm:p-2">
+    <img src="${imageUrl}" alt="${cleanAlt}" class="w-full h-auto max-h-[640px] object-contain mx-auto rounded-xl pointer-events-none" loading="lazy" decoding="async" />
+    ${caption ? `<figcaption class="text-xs text-slate-500 mt-1.5 text-center font-medium">${caption}</figcaption>` : ''}
   </figure>`;
 }
 

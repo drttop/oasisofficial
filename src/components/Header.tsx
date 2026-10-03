@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSite } from '../context/SiteContext';
 import { Menu, X, ChevronRight } from 'lucide-react';
+import { navigateToSection } from '../utils/navigation';
 
 export const Header: React.FC = () => {
   const {
@@ -88,78 +89,8 @@ export const Header: React.FC = () => {
       closePostEditor();
     }
 
-    if (href === '#home') {
-      if (typeof window !== 'undefined') {
-        window.history.replaceState({ section: 'home', originSection: 'home' }, '', window.location.pathname);
-      }
-      window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
-      return;
-    }
-
     const targetId = href.replace(/^#/, '');
-
-    if (typeof window !== 'undefined' && href.startsWith('#')) {
-      try {
-        if (targetId === 'community' || targetId === 'promotion') {
-          sessionStorage.setItem('oasis_current_board', targetId);
-        }
-        window.history.replaceState(
-          { section: targetId, originSection: targetId },
-          '',
-          `${window.location.pathname}${href}`
-        );
-      } catch {}
-    }
-
-    const scrollToTarget = () => {
-      const element = document.getElementById(targetId) || document.querySelector(href);
-      if (element) {
-        const headerOffset = 80;
-        const elementPosition = element.getBoundingClientRect().top;
-        const offsetPosition = Math.max(0, elementPosition + window.pageYOffset - headerOffset);
-        window.scrollTo({
-          top: offsetPosition,
-          behavior: 'instant' as ScrollBehavior,
-        });
-        return true;
-      }
-      return false;
-    };
-
-    if (wasSubPageOpen) {
-      // Main landing page sections are mounting as subpage/modal closes.
-      // Poll until the element exists and settle alignment to prevent layout shifts.
-      let attempts = 0;
-      let settledCount = 0;
-      const tryScroll = () => {
-        const found = scrollToTarget();
-        if (found) {
-          settledCount++;
-          if (settledCount < 3 && attempts < 25) {
-            attempts++;
-            setTimeout(tryScroll, 30);
-            return;
-          }
-        } else if (attempts < 30) {
-          attempts++;
-          setTimeout(tryScroll, attempts < 5 ? 16 : 40);
-        }
-      };
-      requestAnimationFrame(() => {
-        tryScroll();
-      });
-    } else {
-      if (!scrollToTarget()) {
-        let attempts = 0;
-        const tryScroll = () => {
-          if (!scrollToTarget() && attempts < 20) {
-            attempts++;
-            setTimeout(tryScroll, 25);
-          }
-        };
-        requestAnimationFrame(tryScroll);
-      }
-    }
+    navigateToSection(targetId);
   };
 
   return (

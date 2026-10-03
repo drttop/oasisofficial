@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useSite } from '../../context/SiteContext';
 import { PostItem } from '../../types';
 import {
@@ -7,6 +7,8 @@ import {
   X,
   Trash2,
   AlertCircle,
+  AlertTriangle,
+  CheckCircle2,
   Eye,
   Edit3,
   Loader2,
@@ -65,7 +67,7 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
   onClose,
   onSaved,
 }) => {
-  const { addPost, updatePost, setIsAdminOpen } = useSite();
+  const { addPost, updatePost, setIsAdminOpen, posts } = useSite();
 
   const [title, setTitle] = useState(postToEdit?.title || '');
   const [category, setCategory] = useState<'커뮤니티' | '프로모션' | 'VIP매거진' | '공지사항'>(
@@ -74,6 +76,7 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
   const [author, setAuthor] = useState(postToEdit?.author || '오아시스 VIP');
   const [summary, setSummary] = useState(postToEdit?.summary || '');
   const [content, setContent] = useState(postToEdit?.content || '');
+
   const [images, setImages] = useState<string[]>(
     postToEdit?.images && postToEdit.images.length > 0
       ? postToEdit.images
@@ -81,6 +84,32 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
       ? [postToEdit.thumbnail]
       : []
   );
+
+  // Real-time SEO metrics & optimizations
+  const cleanBodyText = useMemo(() => stripFormattingTags(content), [content]);
+  const textLength = cleanBodyText.length;
+
+  const isDuplicateTitle = useMemo(() => {
+    const norm = title.trim().toLowerCase();
+    if (!norm || norm.length < 3) return false;
+    return (posts || []).some(
+      (p) => String(p.id) !== String(postToEdit?.id) && (p.title || '').trim().toLowerCase() === norm
+    );
+  }, [title, posts, postToEdit]);
+
+  const isTitleTooShort = title.trim().length > 0 && title.trim().length < 15;
+  const isTitleOptimal = title.trim().length >= 15 && title.trim().length <= 60;
+  const isTitleTooLong = title.trim().length > 60;
+
+  const isSummaryOptimal = summary.trim().length >= 40 && summary.trim().length <= 160;
+  const isImageOnly = images.length > 0 && textLength < 80;
+
+  // 1-Click Auto Extract optimal Meta Description from content
+  const handleAutoExtractSummary = () => {
+    if (!cleanBodyText) return;
+    const extracted = cleanBodyText.slice(0, 140).trim() + (cleanBodyText.length > 140 ? '...' : '');
+    setSummary(extracted);
+  };
   const [isPinned, setIsPinned] = useState(postToEdit?.isPinned || false);
   const [viewCount, setViewCount] = useState<number>(
     postToEdit?.viewCount !== undefined ? postToEdit.viewCount : 392
@@ -351,7 +380,7 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
         if (!file.type.startsWith('image/')) {
           throw new Error('이미지 파일만 업로드할 수 있습니다 (JPG, PNG, WEBP 등).');
         }
-        return await compressImageFile(file, 1440, 1440, 0.80);
+        return await compressImageFile(file, 1600, 1600, 0.86, 350000);
       });
 
       const newBase64Images = await Promise.all(uploadPromises);
@@ -1000,6 +1029,14 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
       return;
     }
 
+    const cleanText = stripFormattingTags(finalContent);
+    if (images.length > 0 && cleanText.length < 50) {
+      setUploadError(
+        '검색엔진(SEO) 품질 가이드: 본문이 이미지로만 구성되면 구글/네이버 검색 노출에서 제외됩니다. 본문에 최소 50자 이상의 설명을 작성해주세요.'
+      );
+      return;
+    }
+
     const tags = tagsInput
       .split(',')
       .map((t) => t.trim())
@@ -1027,7 +1064,12 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
             }
           : undefined;
 
-      const cleanSummary = summary.trim() || stripFormattingTags(finalContent).slice(0, 100) + '...';
+      const cleanSummary =
+        summary.trim() ||
+        (() => {
+          const stripped = stripFormattingTags(finalContent);
+          return stripped.slice(0, 140).trim() + (stripped.length > 140 ? '...' : '');
+        })();
 
       const payload: any = {
         title: title.trim(),
@@ -1044,6 +1086,18 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
       payload.images = optimizedImages;
       payload.thumbnail = primaryThumbnail || (optimizedImages.length > 0 ? optimizedImages[0] : '');
       payload.mapLocation = mapLocationPayload || null;
+
+      // Strict Firestore 1MB document boundary guard (keeps entire payload under 900KB)
+      const payloadSize = JSON.stringify(payload).length;
+      if (payloadSize > 920000 && optimizedImages.length > 0) {
+        const recoded = await Promise.all(
+          optimizedImages.map((img) => optimizeDataUrl(img, 1200, 1200, 0.76, 120000))
+        );
+        payload.images = recoded;
+        if (recoded.length > 0) {
+          payload.thumbnail = await createMiniThumbnail(recoded[0]);
+        }
+      }
 
       if (postToEdit) {
         await updatePost(postToEdit.id, payload);
@@ -1210,10 +1264,26 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
             {/* Title Section (Fixed at top of left canvas, does not scroll away) */}
             <div className="p-4 sm:p-6 pb-3 border-b border-slate-100 shrink-0 space-y-1.5 bg-white">
               <div className="flex items-center justify-between">
-                <label className="block text-xs font-extrabold text-slate-500 uppercase tracking-wider">
-                  제목 <span className="text-red-500">*</span>
+                <label className="block text-xs font-extrabold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+                  <span>제목 (H1 자동 지정)</span>
+                  <span className="text-red-500">*</span>
+                  <span className="text-[11px] font-normal text-slate-400 hidden sm:inline">구글·네이버 검색창 노출 제목</span>
                 </label>
-                <span className="text-xs text-slate-400 font-mono">{title.length}/100자</span>
+                <div className="flex items-center gap-2">
+                  <span
+                    className={`text-xs font-mono font-bold ${
+                      isTitleOptimal
+                        ? 'text-emerald-600'
+                        : isTitleTooShort
+                        ? 'text-amber-500'
+                        : isTitleTooLong
+                        ? 'text-amber-600'
+                        : 'text-slate-400'
+                    }`}
+                  >
+                    {title.length}/60자 {isTitleOptimal ? '(✓ 최적)' : isTitleTooShort ? '(다소 짧음)' : isTitleTooLong ? '(60자 초과)' : ''}
+                  </span>
+                </div>
               </div>
               <input
                 type="text"
@@ -1224,6 +1294,12 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
                 onChange={(e) => setTitle(e.target.value)}
                 className="w-full text-lg sm:text-2xl font-extrabold text-slate-900 border-0 border-b-2 border-slate-200 focus:border-[#30308A] focus:ring-0 px-0 py-1.5 placeholder:text-slate-300 transition-colors bg-transparent leading-snug"
               />
+              {isDuplicateTitle && (
+                <div className="flex items-center gap-1.5 text-xs font-bold text-amber-700 bg-amber-50 px-3 py-1.5 rounded-xl border border-amber-200 mt-1">
+                  <AlertTriangle className="w-4 h-4 shrink-0 text-amber-600" />
+                  <span>기존 게시글과 동일한 제목입니다. 검색엔진(구글/네이버) 노출 패널티를 방지하기 위해 고유한 제목을 권장합니다.</span>
+                </div>
+              )}
             </div>
 
             {/* Real-time WYSIWYG Visual Formatting Toolbar (Fixed at top of left canvas, does NOT scroll!) */}
@@ -1787,18 +1863,45 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
                 />
               </div>
 
-              {/* Summary */}
-              <div>
-                <label className="block text-xs font-bold text-slate-600 mb-1">
-                  카드 요약문 (선택 - 비워두면 자동 생성)
-                </label>
+              {/* Meta Description / Summary with SEO Counter & Auto-Extract Button */}
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <label className="block text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                    <span>검색 요약문 (Meta Description)</span>
+                    <span className="text-[10px] text-indigo-600 bg-indigo-50 px-1.5 py-0.2 rounded font-semibold">SEO 핵심</span>
+                  </label>
+                  <button
+                    type="button"
+                    onClick={handleAutoExtractSummary}
+                    disabled={!cleanBodyText}
+                    className="text-[11px] text-[#30308A] hover:underline font-bold disabled:opacity-40 cursor-pointer flex items-center gap-1"
+                    title="본문 앞부분에서 검색 최적화 요약문을 자동으로 추출합니다"
+                  >
+                    <Sparkles className="w-3 h-3 text-[#E5B54F]" />
+                    <span>본문 자동추출</span>
+                  </button>
+                </div>
                 <textarea
-                  rows={2}
+                  rows={3}
                   value={summary}
                   onChange={(e) => setSummary(e.target.value)}
-                  placeholder="목록 카드 및 검색엔진 메타태그에 노출될 요약글..."
-                  className="w-full text-xs p-2 rounded-xl border border-slate-200 focus:border-[#30308A] outline-none"
+                  placeholder="구글, 네이버 검색결과 제목 아래에 스니펫으로 표시될 1~2줄 핵심 요약글 (50~160자 권장)..."
+                  className="w-full text-xs p-2.5 rounded-xl border border-slate-200 focus:border-[#30308A] outline-none leading-relaxed"
                 />
+                <div className="flex items-center justify-between text-[11px]">
+                  <span
+                    className={
+                      isSummaryOptimal
+                        ? 'text-emerald-600 font-bold'
+                        : summary.length === 0
+                        ? 'text-slate-400'
+                        : 'text-amber-600 font-bold'
+                    }
+                  >
+                    {summary.length}/160자 {isSummaryOptimal ? '(✓ 최적 분량)' : summary.length === 0 ? '(비워두면 자동 생성)' : '(50~160자 권장)'}
+                  </span>
+                  <span className="text-slate-400 text-[10px]">구글 검색 스니펫</span>
+                </div>
               </div>
 
               {/* Tags */}
@@ -1811,6 +1914,101 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
                   placeholder="마닐라카지노, 오카다, 롤링, VIP의전"
                   className="w-full text-xs p-2 rounded-xl border border-slate-200 focus:border-[#30308A] outline-none"
                 />
+              </div>
+            </div>
+
+            {/* SEO Live Optimization Analyzer Card */}
+            <div className="bg-gradient-to-br from-slate-900 to-indigo-950 text-white rounded-3xl p-4 sm:p-5 space-y-3 shadow-md border border-indigo-900/50">
+              <div className="flex items-center justify-between border-b border-indigo-800/60 pb-2">
+                <div className="flex items-center gap-1.5">
+                  <Sparkles className="w-4 h-4 text-[#E5B54F]" />
+                  <h3 className="text-xs sm:text-sm font-bold text-white">검색엔진(SEO) 실시간 진단</h3>
+                </div>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-500/30 text-indigo-200 border border-indigo-400/30">
+                  구글 · 네이버 점검
+                </span>
+              </div>
+
+              <div className="space-y-2 text-xs">
+                {/* 1. Title Check */}
+                <div className="flex items-start gap-2">
+                  {isDuplicateTitle ? (
+                    <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                  ) : isTitleOptimal ? (
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                  ) : (
+                    <AlertCircle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <div className="font-semibold text-slate-200 flex items-center justify-between">
+                      <span>제목 길이 & 고유성</span>
+                      <span className="font-mono text-[11px] text-slate-400">{title.length}/60자</span>
+                    </div>
+                    {isDuplicateTitle ? (
+                      <p className="text-[11px] text-amber-300 mt-0.5">⚠️ 기존 글과 중복된 제목입니다. 고유한 제목을 권장합니다.</p>
+                    ) : isTitleTooShort ? (
+                      <p className="text-[11px] text-amber-300 mt-0.5">제목이 다소 짧습니다 (검색엔진 권장: 20~60자).</p>
+                    ) : isTitleOptimal ? (
+                      <p className="text-[11px] text-emerald-300 mt-0.5">✓ 검색결과 노출에 가장 이상적인 길이입니다.</p>
+                    ) : isTitleTooLong ? (
+                      <p className="text-[11px] text-amber-300 mt-0.5">60자 초과 시 검색창에서 잘릴 수 있습니다.</p>
+                    ) : (
+                      <p className="text-[11px] text-slate-400 mt-0.5">핵심 키워드를 포함한 20~60자 제목을 권장합니다.</p>
+                    )}
+                  </div>
+                </div>
+
+                {/* 2. Meta Description Check */}
+                <div className="flex items-start gap-2">
+                  {isSummaryOptimal ? (
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                  ) : summary.length === 0 ? (
+                    <CheckCircle2 className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
+                  ) : (
+                    <AlertCircle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <div className="font-semibold text-slate-200 flex items-center justify-between">
+                      <span>Meta Description (검색 요약문)</span>
+                      <span className="font-mono text-[11px] text-slate-400">{summary.length}/160자</span>
+                    </div>
+                    {summary.length === 0 ? (
+                      <p className="text-[11px] text-slate-400 mt-0.5">비워두면 본문 앞부분에서 자동 추출됩니다 (50~160자 권장).</p>
+                    ) : isSummaryOptimal ? (
+                      <p className="text-[11px] text-emerald-300 mt-0.5">✓ 검색결과 스니펫에 가장 적합한 분량입니다.</p>
+                    ) : (
+                      <p className="text-[11px] text-amber-300 mt-0.5">권장 분량: 50~160자 (현재 {summary.length}자)</p>
+                    )}
+                  </div>
+                </div>
+
+                {/* 3. Text Depth Check (Image-only prevention) */}
+                <div className="flex items-start gap-2">
+                  {isImageOnly ? (
+                    <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                  ) : (
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <div className="font-semibold text-slate-200 flex items-center justify-between">
+                      <span>본문 텍스트 분량 (이미지 전용 글 방지)</span>
+                      <span className="font-mono text-[11px] text-slate-400">{textLength}자</span>
+                    </div>
+                    {isImageOnly ? (
+                      <p className="text-[11px] text-amber-300 mt-0.5">⚠️ 본문 텍스트가 부족합니다. 이미지만 올리면 검색엔진이 '빈 글'로 분류합니다 (최소 100자 권장).</p>
+                    ) : (
+                      <p className="text-[11px] text-emerald-300 mt-0.5">✓ 검색엔진이 색인하기에 충분한 텍스트입니다.</p>
+                    )}
+                  </div>
+                </div>
+
+                {/* 4. Headings & Semantic Info */}
+                <div className="flex items-start gap-2 pt-1 border-t border-indigo-900/60">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                  <div className="text-[11px] text-slate-300 leading-relaxed">
+                    <span className="font-bold text-white">시맨틱 구조 준수:</span> 글 제목은 <strong className="text-emerald-300">H1</strong>으로 단 1개만 자동 부여되며, 본문 소제목은 상단 툴바의 <strong className="text-indigo-200">[대(H2)]</strong>, <strong className="text-indigo-200">[중(H3)]</strong>을 사용하시면 100점 SEO가 유지됩니다.
+                  </div>
+                </div>
               </div>
             </div>
 

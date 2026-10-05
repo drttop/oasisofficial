@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useSite } from '../../context/SiteContext';
 import { PostItem } from '../../types';
-import { initialPosts } from '../../data/initialData';
 import {
   FileText,
   Search,
@@ -158,8 +157,7 @@ export const CommunitySection: React.FC = () => {
           <>
             <div className="grid grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-6">
             {paginatedPosts.map((post) => {
-              const fallbackThumb = initialPosts.find((ip) => ip.id === post.id)?.thumbnail;
-              const cardImage = post.thumbnail || (post.images && post.images.length > 0 ? post.images[0] : fallbackThumb);
+              const cardImage = post.thumbnail || (post.images && post.images.length > 0 ? post.images[0] : '');
               const hasMultiplePhotos = (post.images && post.images.length > 1);
               const hasMap = Boolean(post.mapLocation || isMapInContent(post.content));
 

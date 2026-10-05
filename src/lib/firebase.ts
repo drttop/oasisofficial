@@ -27,9 +27,17 @@ export const loadFirebase = async (): Promise<FirebaseBundle> => {
 
     const firebaseConfig = configModule;
     const app = initializeApp(firebaseConfig);
-    const db = firebaseConfig.firestoreDatabaseId
-      ? fsModule.getFirestore(app, firebaseConfig.firestoreDatabaseId)
-      : fsModule.getFirestore(app);
+    const db = fsModule.initializeFirestore
+      ? fsModule.initializeFirestore(
+          app,
+          {
+            experimentalAutoDetectLongPolling: true,
+          },
+          firebaseConfig.firestoreDatabaseId || undefined
+        )
+      : (firebaseConfig.firestoreDatabaseId
+          ? fsModule.getFirestore(app, firebaseConfig.firestoreDatabaseId)
+          : fsModule.getFirestore(app));
 
     cachedDb = db;
     return { app, db, fs: fsModule };

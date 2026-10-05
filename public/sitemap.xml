@@ -6,7 +6,7 @@
   <!-- Main Home Page -->
   <url>
     <loc>https://oasis46.com/</loc>
-    <lastmod>2026-10-03</lastmod>
+    <lastmod>2026-10-04</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
     <image:image>
@@ -15,7 +15,7 @@
     </image:image>
   </url>
 
-  <!-- Community Individual Posts (15 entries) -->
+  <!-- Community Individual Posts (18 entries) -->
 
   <url>
     <loc>https://oasis46.com/?post=post-1</loc>
@@ -25,6 +25,39 @@
     <image:image>
       <image:loc>https://images.unsplash.com/photo-1511193311914-0346f16efe90?auto=format&amp;fit=crop&amp;w=800&amp;q=80</image:loc>
       <image:title>[필독] 오아시스 공식 에이전트 2026년 VIP 멤버십 혜택 &amp; 안전 이용 수칙 안내</image:title>
+    </image:image>
+  </url>
+
+  <url>
+    <loc>https://oasis46.com/?post=post-1791044586368-915x</loc>
+    <lastmod>2026-10-04</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://oasis46.com/logo.jpg</image:loc>
+      <image:title>검증된 마사지샵 구별법 및 안전 예약 전략</image:title>
+    </image:image>
+  </url>
+
+  <url>
+    <loc>https://oasis46.com/?post=post-1791016734781-bbt9</loc>
+    <lastmod>2026-10-03</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://oasis46.com/logo.jpg</image:loc>
+      <image:title>10월~11월 기존 이용회원 스위트룸 2박 프로모션</image:title>
+    </image:image>
+  </url>
+
+  <url>
+    <loc>https://oasis46.com/?post=post-1791016351516-bgbw</loc>
+    <lastmod>2026-10-03</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://oasis46.com/logo.jpg</image:loc>
+      <image:title>[10월] COD 신규회원 추가 3박 프리룸 프로모션</image:title>
     </image:image>
   </url>
 
@@ -56,7 +89,7 @@
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <image:image>
-      <image:loc>https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&amp;fit=crop&amp;w=800&amp;q=80</image:loc>
+      <image:loc>https://oasis46.com/logo.jpg</image:loc>
       <image:title>필리핀 여행주의! 금연법 강력처벌! 대처 가이드</image:title>
     </image:image>
   </url>

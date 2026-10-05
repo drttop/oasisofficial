@@ -307,34 +307,22 @@ export const SEOManager: React.FC = () => {
     return () => window.removeEventListener('popstate', handlePopState);
   }, [posts, setSelectedPost, isPostEditorOpen, closePostEditor, setActiveInfoModal]);
 
-  // 4. Lightweight scroll spy: track current visible section for refresh preservation
+  // 4. Zero-Reflow IntersectionObserver scroll spy: track current visible section
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    let ticking = false;
     const sections = ['philippines', 'casino', 'promotion', 'community'];
-
-    const onScroll = () => {
-      if (ticking) return;
-      ticking = true;
-      requestAnimationFrame(() => {
-        ticking = false;
+    const observer = new IntersectionObserver(
+      (entries) => {
         if (selectedPost || isPostEditorOpen || activeInfoModal) return;
-
-        const scrollY = window.pageYOffset + 120;
-        let activeSec = 'home';
-        for (const secId of sections) {
-          const el = document.getElementById(secId);
-          if (el) {
-            const top = el.offsetTop;
-            const height = el.offsetHeight;
-            if (scrollY >= top && scrollY < top + height) {
-              activeSec = secId;
-              break;
-            }
+        let bestEntry: IntersectionObserverEntry | null = null;
+        for (const entry of entries) {
+          if (entry.isIntersecting && (!bestEntry || entry.intersectionRatio > bestEntry.intersectionRatio)) {
+            bestEntry = entry;
           }
         }
-        if (activeSec !== 'home') {
+        if (bestEntry && bestEntry.target.id) {
+          const activeSec = bestEntry.target.id;
           try {
             sessionStorage.setItem('oasis_active_section', activeSec);
             if (window.location.hash !== `#${activeSec}`) {
@@ -345,19 +333,22 @@ export const SEOManager: React.FC = () => {
               );
             }
           } catch {}
-        } else if (window.pageYOffset < 150) {
-          try {
-            sessionStorage.removeItem('oasis_active_section');
-            if (window.location.hash) {
-              window.history.replaceState({ section: 'home' }, '', window.location.pathname);
-            }
-          } catch {}
         }
-      });
-    };
+      },
+      {
+        rootMargin: '-80px 0px -40% 0px',
+        threshold: [0.15, 0.4],
+      }
+    );
 
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+    sections.forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+
+    return () => {
+      observer.disconnect();
+    };
   }, [selectedPost, isPostEditorOpen, activeInfoModal]);
 
   return null;

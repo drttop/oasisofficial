@@ -16,15 +16,10 @@ export const HeroSection: React.FC = () => {
   }, [slide?.bgImage]);
 
   const rawBg = slide?.bgImage;
-  const currentBg = imgSrc || (rawBg ? (
-    rawBg.includes('/assets/') || rawBg.includes('oasis_gold_hero') || rawBg.includes('casino_table_panoramic')
-      ? '/images/hero_bg.webp' 
-      : rawBg
-  ) : '/images/hero_bg.webp');
+  const isDefaultHero = !rawBg || rawBg === '/images/hero_bg.webp' || rawBg === '/images/hero_bg.jpg' || rawBg === '/images/hero_bg_mobile.webp';
+  const currentBg = imgSrc || rawBg || '/images/hero_bg.webp';
 
   if (!slide) return null;
-
-  const isLocalHero = currentBg === '/images/hero_bg.webp' || currentBg === '/images/hero_bg.jpg';
 
   return (
     <section
@@ -33,22 +28,31 @@ export const HeroSection: React.FC = () => {
     >
       {/* Background Image - LCP Element */}
       <div className="absolute inset-0">
-        <picture className="w-full h-full">
-          {isLocalHero && (
-            <>
-              <source media="(max-width: 640px)" srcSet="/images/hero_bg_mobile.webp" type="image/webp" width="640" height="357" />
-              <source media="(min-width: 641px)" srcSet="/images/hero_bg.webp" type="image/webp" width="1376" height="768" />
-            </>
-          )}
+        {isDefaultHero ? (
+          <picture className="w-full h-full">
+            <source media="(max-width: 640px)" srcSet="/images/hero_bg_mobile.webp" type="image/webp" width="640" height="357" />
+            <source media="(min-width: 641px)" srcSet="/images/hero_bg.webp" type="image/webp" width="1376" height="768" />
+            <img
+              src="/images/hero_bg.webp"
+              sizes="100vw"
+              alt={slide.title}
+              loading="eager"
+              fetchPriority="high"
+              decoding="async"
+              width={1376}
+              height={768}
+              className="w-full h-full object-cover object-center transform scale-105 transition-opacity duration-700"
+              referrerPolicy="no-referrer"
+            />
+          </picture>
+        ) : (
           <img
-            src={isLocalHero ? '/images/hero_bg_mobile.webp' : currentBg}
+            src={currentBg}
             sizes="100vw"
             alt={slide.title}
             loading="eager"
             fetchPriority="high"
             decoding="async"
-            width={isLocalHero ? 640 : 1376}
-            height={isLocalHero ? 357 : 768}
             onError={() => {
               if (currentBg !== '/images/hero_bg.webp') {
                 setImgSrc('/images/hero_bg.webp');
@@ -59,7 +63,7 @@ export const HeroSection: React.FC = () => {
             className="w-full h-full object-cover object-center transform scale-105 transition-opacity duration-700"
             referrerPolicy="no-referrer"
           />
-        </picture>
+        )}
         {/* Subtle contrast dark gradient for luxury table atmosphere and crisp legibility */}
         <div className="absolute inset-0 bg-slate-950/65 via-slate-950/50 to-slate-950/75" />
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-black/40" />

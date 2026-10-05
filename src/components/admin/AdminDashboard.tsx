@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useSite } from '../../context/SiteContext';
 import { PostItem, CasinoItem, BannerSlide, PhilippineTourSpot } from '../../types';
-import { initialSiteConfig } from '../../data/initialData';
+import { initialSiteConfig, initialBannerSlides } from '../../data/initialData';
 import { OasisLogoHorizontal } from '../OasisLogoHorizontal';
 import { CasinoEditorModal } from './CasinoEditorModal';
 import { PhilippineSpotEditorModal } from './PhilippineSpotEditorModal';
@@ -384,7 +384,7 @@ export const AdminDashboard: React.FC = () => {
             }`}
           >
             <Sliders className="w-4 h-4" />
-            메인 배너 슬라이더
+            메인화면(히어로) 관리
           </button>
           <button
             onClick={() => setActiveTab('casinos')}
@@ -1375,137 +1375,166 @@ Sitemap: https://oasis46.com/sitemap.xml`}
             </div>
           )}
 
-          {/* TAB 3: Banner Slider Manager */}
-          {activeTab === 'banners' && (
-            <div className="max-w-4xl mx-auto space-y-6">
-              <div className="flex justify-between items-center">
-                <h3 className="text-base font-bold text-slate-900">
-                  메인 히어로 배너 슬라이드 관리
-                </h3>
-              </div>
+          {/* TAB 3: Main Hero Banner Manager */}
+          {activeTab === 'banners' && (() => {
+            const mainSlide = bannerSlides[0] || initialBannerSlides[0];
+            const isCustomUpload = mainSlide.bgImage?.startsWith('data:');
+            const isCustomUrl = Boolean(mainSlide.bgImage && !mainSlide.bgImage.startsWith('data:') && !mainSlide.bgImage.includes('hero_bg'));
 
-              <div className="space-y-4">
-                {bannerSlides.map((slide, sIdx) => (
-                  <div
-                    key={slide.id}
-                    className="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-3"
-                  >
-                    <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-                      <span className="text-xs font-bold text-[#30308A]">
-                        슬라이드 #{sIdx + 1} ({slide.badge})
+            return (
+              <div className="max-w-4xl mx-auto space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 pb-4">
+                  <div>
+                    <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                      <Sliders className="w-5 h-5 text-[#30308A]" />
+                      메인 화면(히어로 배너) 설정
+                    </h3>
+                    <p className="text-xs text-slate-500 mt-1">
+                      메인 첫 화면에 표시되는 상단 뱃지 문구, 헤드라인 제목, 서브 설명문 및 메인 배경 이미지를 설정합니다.
+                    </p>
+                  </div>
+                </div>
+
+                {/* 1. Background Image Configuration Card */}
+                <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-4">
+                  <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                    <div>
+                      <h4 className="text-sm font-bold text-slate-900">메인 화면 배경 이미지</h4>
+                      <p className="text-xs text-slate-500 mt-0.5">내 PC/모바일에서 사진을 직접 업로드하거나 이미지 URL을 입력할 수 있습니다.</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        updateBannerSlide(mainSlide.id, { bgImage: '/images/hero_bg.webp' });
+                        showToast('기본 고화질 카지노 배경으로 복원되었습니다.');
+                      }}
+                      className="text-xs text-[#30308A] hover:underline font-bold cursor-pointer flex items-center gap-1"
+                    >
+                      <RotateCcw className="w-3 h-3" />
+                      <span>기본 카지노 배경으로 복원</span>
+                    </button>
+                  </div>
+
+                  {/* Real-time Large Visual Preview */}
+                  <div className="relative w-full aspect-video sm:aspect-[21/9] rounded-xl overflow-hidden border border-slate-300 bg-slate-950 shadow-inner group">
+                    <img
+                      src={mainSlide.bgImage || '/images/hero_bg.webp'}
+                      alt="메인 배경 미리보기"
+                      className="w-full h-full object-cover"
+                      referrerPolicy="no-referrer"
+                    />
+                    {/* Atmospheric overlay mimicking the real hero section */}
+                    <div className="absolute inset-0 bg-slate-950/60 flex flex-col items-center justify-center p-4 text-center pointer-events-none">
+                      <span className="px-3 py-1 rounded-full bg-white/15 backdrop-blur-md border border-white/20 text-[#E5B54F] text-[10px] sm:text-xs font-bold uppercase mb-2">
+                        {mainSlide.badge || 'PAGCOR OFFICIAL CERTIFIED VIP AGENCY'}
                       </span>
+                      <h2 className="text-white text-base sm:text-2xl font-extrabold max-w-xl line-clamp-2 drop-shadow">
+                        {mainSlide.title || '필리핀 공식 오아시스 VIP 에이전시'}
+                      </h2>
                     </div>
+                    <span className="absolute bottom-2.5 right-3 text-[10px] bg-slate-900/80 backdrop-blur-md text-white font-semibold px-2 py-1 rounded-md border border-white/20 shadow">
+                      {isCustomUpload ? '직접 업로드된 사진' : isCustomUrl ? '웹 이미지 URL' : '기본 고화질 배경'}
+                    </span>
+                  </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <div>
-                        <label className="block text-xs font-bold text-slate-700 mb-1">상단 뱃지 텍스트</label>
+                  {/* Upload Controls */}
+                  <div className="space-y-2 pt-2">
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+                      <label className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#30308A] hover:bg-[#25256e] text-white rounded-xl text-xs font-bold cursor-pointer transition-all shadow-sm shrink-0">
+                        <Upload className="w-4 h-4 text-[#E5B54F]" />
+                        <span>사진 파일 직접 업로드</span>
                         <input
-                          type="text"
-                          value={slide.badge}
-                          onChange={(e) => updateBannerSlide(slide.id, { badge: e.target.value })}
-                          className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded-lg"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-bold text-slate-700 mb-1">버튼 문구</label>
-                        <input
-                          type="text"
-                          value={slide.ctaText}
-                          onChange={(e) => updateBannerSlide(slide.id, { ctaText: e.target.value })}
-                          className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded-lg"
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <div className="flex items-center justify-between mb-1">
-                        <label className="block text-xs font-bold text-slate-700">메인 헤드라인 제목 (Enter로 줄바꿈 가능)</label>
-                        <span className="text-[10px] text-amber-600 font-medium">원하는 위치에서 Enter(줄바꿈)를 누르세요</span>
-                      </div>
-                      <textarea
-                        rows={2}
-                        value={slide.title}
-                        onChange={(e) => updateBannerSlide(slide.id, { title: e.target.value })}
-                        placeholder="메인 헤드라인을 입력하세요. 줄바꿈 시 화면에 그대로 반영됩니다."
-                        className="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg font-bold resize-y"
-                      />
-                    </div>
-
-                    <div>
-                      <div className="flex items-center justify-between mb-1">
-                        <label className="block text-xs font-bold text-slate-700">서브 설명문 (Enter로 줄바꿈 가능)</label>
-                        <span className="text-[10px] text-amber-600 font-medium">원하는 위치에서 Enter(줄바꿈)를 누르세요</span>
-                      </div>
-                      <textarea
-                        rows={3}
-                        value={slide.subtitle}
-                        onChange={(e) => updateBannerSlide(slide.id, { subtitle: e.target.value })}
-                        placeholder="서브 설명문을 입력하세요. 줄바꿈 시 화면에 그대로 반영됩니다."
-                        className="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg resize-y"
-                      />
-                    </div>
-
-                    <div>
-                      <div className="flex items-center justify-between mb-1">
-                        <label className="block text-xs font-bold text-slate-700">배경 이미지 (파일 직접 업로드 또는 URL)</label>
-                        <button
-                          type="button"
-                          onClick={() => updateBannerSlide(slide.id, { bgImage: sIdx === 0 ? '/images/hero_bg.jpg' : '/images/casino_table.jpg' })}
-                          className="text-[10px] text-[#30308A] hover:underline font-bold cursor-pointer"
-                        >
-                          기본 고화질 카지노 배경으로 리셋
-                        </button>
-                      </div>
-                      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 mb-2">
-                        <label className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-bold cursor-pointer transition-colors shadow-xs shrink-0">
-                          <Upload className="w-3.5 h-3.5 text-[#E5B54F]" />
-                          <span>사진 파일 업로드</span>
-                          <input
-                            type="file"
-                            accept="image/*"
-                            onChange={async (e) => {
-                              const file = e.target.files?.[0];
-                              if (file) {
-                                try {
-                                  const compressed = await compressImageFile(file, 1920, 1080, 0.86);
-                                  updateBannerSlide(slide.id, { bgImage: compressed });
-                                  showToast('배경 이미지가 업로드되었습니다.');
-                                } catch (err) {
-                                  console.error(err);
-                                  showToast('이미지 업로드에 실패했습니다.');
-                                }
+                          type="file"
+                          accept="image/*"
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              try {
+                                showToast('사진 압축 및 처리 중...');
+                                const compressed = await compressImageFile(file, 1920, 1080, 0.86, 400000);
+                                updateBannerSlide(mainSlide.id, { bgImage: compressed });
+                                showToast('메인 배경 이미지가 성공적으로 변경되었습니다!');
+                              } catch (err) {
+                                console.error(err);
+                                showToast('이미지 업로드에 실패했습니다.');
                               }
-                            }}
-                            className="hidden"
-                          />
-                        </label>
-                        <input
-                          type="text"
-                          value={slide.bgImage?.startsWith('data:') ? '' : (slide.bgImage || '')}
-                          onChange={(e) => updateBannerSlide(slide.id, { bgImage: e.target.value })}
-                          placeholder={slide.bgImage?.startsWith('data:') ? '내 기기에서 사진 직접 업로드됨' : '/images/hero_bg.jpg 또는 이미지 URL'}
-                          className="flex-1 px-3 py-1.5 text-xs border border-slate-300 rounded-lg"
+                            }
+                          }}
+                          className="hidden"
                         />
-                      </div>
-                      {slide.bgImage && (
-                        <div className="h-20 w-full rounded-lg overflow-hidden border border-slate-200 bg-slate-100 relative">
-                          <img
-                            src={slide.bgImage}
-                            alt="배경 미리보기"
-                            className="w-full h-full object-cover"
-                            referrerPolicy="no-referrer"
-                          />
-                          <span className="absolute bottom-1 right-2 text-[9px] bg-black/70 text-white px-1.5 py-0.5 rounded">
-                            {slide.bgImage.startsWith('data:') ? '직접 업로드된 이미지' : '웹 이미지'}
-                          </span>
-                        </div>
-                      )}
+                      </label>
+                      <input
+                        type="text"
+                        value={isCustomUpload ? '' : (mainSlide.bgImage || '')}
+                        onChange={(e) => updateBannerSlide(mainSlide.id, { bgImage: e.target.value })}
+                        placeholder={isCustomUpload ? '기기에서 직접 사진이 업로드되었습니다.' : '이미지 URL 직접 입력 (https://...)'}
+                        className="flex-1 px-3.5 py-2.5 text-xs border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#30308A]"
+                      />
+                    </div>
+                    <p className="text-[11px] text-slate-500">
+                      * 사진을 업로드하시면 메인 첫 화면 배경으로 즉시 교체되며 영구 보존됩니다. (권장: 1920×1080 해상도의 가로형 이미지)
+                    </p>
+                  </div>
+                </div>
+
+                {/* 2. Text & Headline Configuration Card */}
+                <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-4">
+                  <h4 className="text-sm font-bold text-slate-900 border-b border-slate-100 pb-3">메인 화면 문구 설정</h4>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-1">상단 골드 뱃지 문구</label>
+                      <input
+                        type="text"
+                        value={mainSlide.badge}
+                        onChange={(e) => updateBannerSlide(mainSlide.id, { badge: e.target.value })}
+                        placeholder="예: PAGCOR OFFICIAL CERTIFIED VIP AGENCY"
+                        className="w-full px-3.5 py-2 text-xs border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#30308A]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-1">버튼 안내 문구</label>
+                      <input
+                        type="text"
+                        value={mainSlide.ctaText}
+                        onChange={(e) => updateBannerSlide(mainSlide.id, { ctaText: e.target.value })}
+                        placeholder="예: 24시간 VIP 상담 예약"
+                        className="w-full px-3.5 py-2 text-xs border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#30308A]"
+                      />
                     </div>
                   </div>
-                ))}
+
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="block text-xs font-bold text-slate-700">메인 헤드라인 제목 (Enter로 줄바꿈 가능)</label>
+                      <span className="text-[10px] text-amber-600 font-medium">원하는 위치에서 Enter(줄바꿈)를 누르세요</span>
+                    </div>
+                    <textarea
+                      rows={2}
+                      value={mainSlide.title}
+                      onChange={(e) => updateBannerSlide(mainSlide.id, { title: e.target.value })}
+                      placeholder="메인 헤드라인을 입력하세요. 줄바꿈 시 화면에 그대로 반영됩니다."
+                      className="w-full px-3.5 py-2.5 text-xs border border-slate-300 rounded-xl font-bold resize-y focus:ring-2 focus:ring-[#30308A]"
+                    />
+                  </div>
+
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="block text-xs font-bold text-slate-700">서브 설명문 (Enter로 줄바꿈 가능)</label>
+                      <span className="text-[10px] text-amber-600 font-medium">원하는 위치에서 Enter(줄바꿈)를 누르세요</span>
+                    </div>
+                    <textarea
+                      rows={3}
+                      value={mainSlide.subtitle}
+                      onChange={(e) => updateBannerSlide(mainSlide.id, { subtitle: e.target.value })}
+                      placeholder="서브 설명문을 입력하세요. 줄바꿈 시 화면에 그대로 반영됩니다."
+                      className="w-full px-3.5 py-2.5 text-xs border border-slate-300 rounded-xl resize-y focus:ring-2 focus:ring-[#30308A]"
+                    />
+                  </div>
+                </div>
               </div>
-            </div>
-          )}
+            );
+          })()}
 
           {/* TAB 4: Casino List Manager */}
           {activeTab === 'casinos' && (

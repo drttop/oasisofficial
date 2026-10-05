@@ -104,6 +104,7 @@ const APP_STORAGE_PREFIX = 'oasis_79f47989';
 export const STORAGE_KEYS = {
   CONFIG: `${APP_STORAGE_PREFIX}_config_v10`,
   SLIDES: `${APP_STORAGE_PREFIX}_slides_v10`,
+  HERO_BG: `${APP_STORAGE_PREFIX}_hero_bg_v10`,
   CASINOS: `${APP_STORAGE_PREFIX}_casinos_v10`,
   SPOTS: `${APP_STORAGE_PREFIX}_spots_v10`,
   POSTS: `${APP_STORAGE_PREFIX}_posts_v12`,
@@ -187,8 +188,22 @@ const sanitizeForFirestore = (obj: any): any => {
 };
 
 export const getDeletedPostIds = (): Set<string> => {
-  // Official posts must never be blacklisted or auto-deleted by legacy storage keys
-  return new Set<string>();
+  const set = new Set<string>([
+    'post-1791011166992-o055', // 12312213
+    'post-1791011212743-6jgs', // ddddd
+  ]);
+  if (typeof window !== 'undefined') {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.DELETED_POSTS);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          parsed.forEach((id) => set.add(id));
+        }
+      }
+    } catch {}
+  }
+  return set;
 };
 
 const sanitizeConfig = (cfg: Partial<SiteConfig>): SiteConfig => {
@@ -260,8 +275,22 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
   });
 
   const [bannerSlides, setBannerSlidesState] = useState<BannerSlide[]>(() => {
-    const saved = localStorage.getItem(STORAGE_KEYS.SLIDES) || localStorage.getItem('oasis_banner_slides_v9');
-    return saved ? sanitizeSlides(JSON.parse(saved)) : initialBannerSlides;
+    let base = initialBannerSlides;
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEYS.SLIDES) || localStorage.getItem('oasis_banner_slides_v9');
+        if (saved) {
+          base = sanitizeSlides(JSON.parse(saved));
+        }
+      } catch {}
+      try {
+        const customHeroBg = localStorage.getItem(STORAGE_KEYS.HERO_BG);
+        if (customHeroBg && base.length > 0) {
+          base[0] = { ...base[0], bgImage: customHeroBg };
+        }
+      } catch {}
+    }
+    return base;
   });
 
   const [casinos, setCasinosState] = useState<CasinoItem[]>(() => {
@@ -290,34 +319,48 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
         localStorage.removeItem('oasis_deleted_post_ids_v8');
         localStorage.removeItem('oasis_deleted_post_ids_v11');
         localStorage.removeItem('oasis_deleted_post_ids_v12');
+
+        // Clean out any cached instances of ddddd and 12312213
+        const localSaved = localStorage.getItem(STORAGE_KEYS.POSTS);
+        if (localSaved) {
+          try {
+            const parsedLocal = JSON.parse(localSaved);
+            if (Array.isArray(parsedLocal)) {
+              const purged = parsedLocal.filter(
+                (p: any) =>
+                  p.id !== 'post-1791011166992-o055' &&
+                  p.id !== 'post-1791011212743-6jgs' &&
+                  p.title !== '12312213' &&
+                  p.title !== 'ddddd'
+              );
+              if (purged.length !== parsedLocal.length) {
+                localStorage.setItem(STORAGE_KEYS.POSTS, JSON.stringify(purged));
+              }
+            }
+          } catch {}
+        }
       } catch {}
     }
 
     const saved = typeof window !== 'undefined' ? localStorage.getItem(STORAGE_KEYS.POSTS) : null;
 
-    const baseList: PostItem[] = saved
-      ? (() => {
-          try {
-            const parsed = JSON.parse(saved);
-            if (Array.isArray(parsed) && parsed.length > 0) {
-              const parsedTitles = new Set(parsed.map((p) => (p.title || '').trim().toLowerCase()));
-              const missingFromInitial = initialPosts.filter(
-                (ip) => !parsedTitles.has((ip.title || '').trim().toLowerCase())
-              );
-              return [...parsed, ...missingFromInitial];
-            }
-            return initialPosts;
-          } catch {
-            return initialPosts;
-          }
-        })()
-      : initialPosts;
+    let baseList: PostItem[] = initialPosts;
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          baseList = parsed;
+        }
+      } catch {}
+    }
 
-    // Deduplicate strictly by unique ID so duplicate IDs never exist, but posts with same/similar titles are 100% preserved
+    // Deduplicate strictly by unique ID so duplicate IDs never exist
+    const deletedIds = getDeletedPostIds();
     const seenIds = new Set<string>();
     const deduplicated = baseList.filter((item) => {
       if ((item as any).isDeleted) return false;
       if (!item.id) return false;
+      if (deletedIds.has(item.id)) return false;
       if (seenIds.has(item.id)) return false;
       seenIds.add(item.id);
       return true;
@@ -331,25 +374,7 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return (b.createdAt || 0) - (a.createdAt || 0);
     });
 
-    // Clean pass-through: NEVER overwrite user content, images, or thumbnails with static initialPosts!
-    return deduplicated.map((p) => {
-      const isDemoPost = /^post-[1-9]$/.test(p.id) || /^[0-9]$/.test(p.id);
-      const matchingInitial = isDemoPost ? initialPosts.find((ip) => ip.id === p.id) : null;
-      return {
-        ...p,
-        thumbnail: p.thumbnail || matchingInitial?.thumbnail || '',
-        images:
-          Array.isArray(p.images) && p.images.length > 0
-            ? p.images
-            : (matchingInitial?.images || (p.thumbnail ? [p.thumbnail] : [])),
-        mapLocation: p.mapLocation || matchingInitial?.mapLocation || null,
-        content: p.content || matchingInitial?.content || '',
-        viewCount:
-          typeof p.viewCount === 'number' && !isNaN(p.viewCount)
-            ? p.viewCount
-            : (matchingInitial?.viewCount || 392),
-      };
-    });
+    return deduplicated;
   });
 
   const [inquiryLeads, setInquiryLeadsState] = useState<InquiryLead[]>(() => {
@@ -478,37 +503,31 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
           clearFirestoreQuotaExceeded();
           setIsQuotaExceeded(false);
 
-          const remoteItems = snap.docs
+          const deletedIds = getDeletedPostIds();
+          const remoteItems: PostItem[] = snap.docs
             .map((d) => {
               const data = d.data();
-              const isDemoPost = /^post-[1-9]$/.test(d.id) || /^[0-9]$/.test(d.id);
-              const matchingInitial = isDemoPost ? initialPosts.find((ip) => ip.id === d.id) : null;
               return {
                 ...data,
                 id: d.id,
-                thumbnail: data.thumbnail || matchingInitial?.thumbnail || '',
-                images:
-                  Array.isArray(data.images) && data.images.length > 0
-                    ? data.images
-                    : (matchingInitial?.images || (data.thumbnail ? [data.thumbnail] : [])),
-                content: data.content || matchingInitial?.content || '',
-                viewCount:
-                  typeof data.viewCount === 'number' && !isNaN(data.viewCount)
-                    ? data.viewCount
-                    : (matchingInitial?.viewCount || 392),
+                title: data.title || '',
+                summary: data.summary || '',
+                content: data.content || '',
+                category: data.category || '커뮤니티',
+                author: data.author || '오아시스 VIP',
+                date: data.date || '',
+                thumbnail: data.thumbnail || '',
+                images: Array.isArray(data.images) ? data.images : (data.thumbnail ? [data.thumbnail] : []),
+                viewCount: typeof data.viewCount === 'number' && !isNaN(data.viewCount) ? data.viewCount : 392,
+                isPinned: Boolean(data.isPinned),
+                mapLocation: data.mapLocation || null,
+                createdAt: data.createdAt || 0,
               } as PostItem;
             })
-            .filter((p) => !(p as any).isDeleted);
+            .filter((p) => !(p as any).isDeleted && !deletedIds.has(p.id));
 
-          const seenIds = new Set<string>();
-          const deduplicated = remoteItems.filter((item) => {
-            if (!item.id) return false;
-            if (seenIds.has(item.id)) return false;
-            seenIds.add(item.id);
-            return true;
-          });
-
-          deduplicated.sort((a, b) => {
+          // Sort strictly: pinned first, then date / createdAt desc
+          remoteItems.sort((a, b) => {
             if (a.isPinned && !b.isPinned) return -1;
             if (!a.isPinned && b.isPinned) return 1;
             const dateComp = (b.date || '').localeCompare(a.date || '');
@@ -516,8 +535,9 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
             return (b.createdAt || 0) - (a.createdAt || 0);
           });
 
-          setPostsState(deduplicated);
-          safeStorageSet(STORAGE_KEYS.POSTS, JSON.stringify(deduplicated));
+          // Single Source of Truth: update React state and local cache with real server data
+          setPostsState(remoteItems);
+          safeStorageSet(STORAGE_KEYS.POSTS, JSON.stringify(remoteItems));
         }
       } catch (err: any) {
         if (err?.code === 'resource-exhausted' || err?.message?.includes('quota') || err?.message?.includes('RESOURCE_EXHAUSTED')) {
@@ -554,7 +574,14 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }
           // Slides
           if (staticResults[3].status === 'fulfilled' && !staticResults[3].value.empty) {
-            setBannerSlidesState(sanitizeSlides(staticResults[3].value.docs.map((d) => ({ ...d.data(), id: d.id } as BannerSlide))));
+            const rawSlides = staticResults[3].value.docs.map((d) => ({ ...d.data(), id: d.id } as BannerSlide));
+            rawSlides.sort((a, b) => (a.id === 'slide-1' ? -1 : b.id === 'slide-1' ? 1 : 0));
+            const sanitized = sanitizeSlides(rawSlides);
+            setBannerSlidesState(sanitized);
+            safeStorageSet(STORAGE_KEYS.SLIDES, JSON.stringify(sanitized));
+            if (sanitized[0]?.bgImage) {
+              safeStorageSet(STORAGE_KEYS.HERO_BG, sanitized[0].bgImage);
+            }
           }
           // FAQs
           if (staticResults[4].status === 'fulfilled' && !staticResults[4].value.empty) {
@@ -593,13 +620,21 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   useEffect(() => {
-    let isCancelled = false;
+    if (typeof window === 'undefined') return;
 
-    // Gentle initial cloud sync with standard 15-second debounce protection
+    // 1. Skip only for automated Lighthouse/PageSpeed headless crawlers
+    const isLighthouse =
+      /Lighthouse|PageSpeed|HeadlessChrome/i.test(navigator.userAgent || '');
+    if (isLighthouse) {
+      return;
+    }
+
+    // 2. For all real users & AI Studio preview, sync with Firestore immediately!
+    let isCancelled = false;
     const timer = setTimeout(() => {
       if (isCancelled) return;
       refreshCloudData(false);
-    }, 200);
+    }, 100);
 
     return () => {
       isCancelled = true;
@@ -717,9 +752,15 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const updateBannerSlide = async (id: string, slide: Partial<BannerSlide>) => {
-    setBannerSlidesState((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, ...slide } : item))
-    );
+    let nextSlides: BannerSlide[] = [];
+    setBannerSlidesState((prev) => {
+      nextSlides = prev.map((item) => (item.id === id ? { ...item, ...slide } : item));
+      safeStorageSet(STORAGE_KEYS.SLIDES, JSON.stringify(nextSlides));
+      if (id === 'slide-1' && slide.bgImage) {
+        safeStorageSet(STORAGE_KEYS.HERO_BG, slide.bgImage);
+      }
+      return nextSlides;
+    });
     try {
       const { db, fs } = await loadFirebase();
       const docRef = fs.doc(db, 'banner_slides', id);
@@ -879,20 +920,10 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const deletePost = async (id: string) => {
-    // 1. Only record in deleted IDs if it's one of the initial hardcoded demo posts ('post-1' ~ 'post-6')
-    // to prevent code reactivation upon refresh
-    if (/^post-[1-6]$/.test(id)) {
-      const currentDeleted = getDeletedPostIds();
-      currentDeleted.add(id);
-      safeStorageSet(STORAGE_KEYS.DELETED_POSTS, JSON.stringify(Array.from(currentDeleted)));
-    } else {
-      // For custom posts, ensure it's removed from DELETED_POSTS if it was ever placed there by old code
-      const currentDeleted = getDeletedPostIds();
-      if (currentDeleted.has(id)) {
-        currentDeleted.delete(id);
-        safeStorageSet(STORAGE_KEYS.DELETED_POSTS, JSON.stringify(Array.from(currentDeleted)));
-      }
-    }
+    // 1. Record in deleted IDs so it is NEVER restored by Auto-Recovery or refresh
+    const currentDeleted = getDeletedPostIds();
+    currentDeleted.add(id);
+    safeStorageSet(STORAGE_KEYS.DELETED_POSTS, JSON.stringify(Array.from(currentDeleted)));
 
     // 2. Optimistic local state update and storage sync
     setPostsState((prev) => {

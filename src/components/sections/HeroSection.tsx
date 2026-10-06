@@ -16,8 +16,15 @@ export const HeroSection: React.FC = () => {
   }, [slide?.bgImage]);
 
   const rawBg = slide?.bgImage;
-  const isDefaultHero = !rawBg || rawBg === '/images/hero_bg.webp' || rawBg === '/images/hero_bg.jpg' || rawBg === '/images/hero_bg_mobile.webp';
-  const currentBg = imgSrc || rawBg || '/images/hero_bg.webp';
+  const isDefaultHero =
+    !rawBg ||
+    rawBg === '/images/hero_bg.webp' ||
+    rawBg === '/images/hero_bg.jpg' ||
+    rawBg === '/images/hero_bg_mobile.webp' ||
+    rawBg.includes('hero_bg') ||
+    rawBg.includes('oasis_gold') ||
+    rawBg.includes('casino_table');
+  const currentBg = imgSrc || (isDefaultHero ? '/images/hero_bg.webp' : rawBg);
 
   if (!slide) return null;
 

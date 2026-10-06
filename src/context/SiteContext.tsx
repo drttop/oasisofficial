@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { loadFirebase } from '../lib/firebase';
 import {
   SiteConfig,
@@ -100,22 +100,62 @@ interface SiteContextType {
 
 const SiteContext = createContext<SiteContextType | undefined>(undefined);
 
-const APP_STORAGE_PREFIX = 'oasis_79f47989';
+export const APP_DATA_VERSION = 'oasis_unified_2026_v1';
+const APP_STORAGE_PREFIX = 'oasis_v2026';
+
 export const STORAGE_KEYS = {
-  CONFIG: `${APP_STORAGE_PREFIX}_config_v10`,
-  SLIDES: `${APP_STORAGE_PREFIX}_slides_v10`,
-  HERO_BG: `${APP_STORAGE_PREFIX}_hero_bg_v10`,
-  CASINOS: `${APP_STORAGE_PREFIX}_casinos_v10`,
-  SPOTS: `${APP_STORAGE_PREFIX}_spots_v10`,
-  POSTS: `${APP_STORAGE_PREFIX}_posts_v12`,
-  DELETED_POSTS: `${APP_STORAGE_PREFIX}_deleted_post_ids_v12`,
-  LEADS: `${APP_STORAGE_PREFIX}_leads_v10`,
-  STEPS: `${APP_STORAGE_PREFIX}_steps_v10`,
-  FAQS: `${APP_STORAGE_PREFIX}_faqs_v10`,
-  LAST_SYNC: `${APP_STORAGE_PREFIX}_last_sync_v10`,
-  LAST_STATIC_SYNC: `${APP_STORAGE_PREFIX}_last_static_sync_v10`,
-  QUOTA_EXCEEDED: `${APP_STORAGE_PREFIX}_quota_exceeded_v10`,
+  VERSION: `${APP_STORAGE_PREFIX}_version`,
+  CONFIG: `${APP_STORAGE_PREFIX}_config`,
+  SLIDES: `${APP_STORAGE_PREFIX}_slides`,
+  HERO_BG: `${APP_STORAGE_PREFIX}_hero_bg`,
+  CASINOS: `${APP_STORAGE_PREFIX}_casinos`,
+  SPOTS: `${APP_STORAGE_PREFIX}_spots`,
+  POSTS: `${APP_STORAGE_PREFIX}_posts`,
+  DELETED_POSTS: `${APP_STORAGE_PREFIX}_deleted_ids`,
+  LEADS: `${APP_STORAGE_PREFIX}_leads`,
+  STEPS: `${APP_STORAGE_PREFIX}_steps`,
+  FAQS: `${APP_STORAGE_PREFIX}_faqs`,
+  LAST_SYNC: `${APP_STORAGE_PREFIX}_last_sync`,
+  LAST_STATIC_SYNC: `${APP_STORAGE_PREFIX}_last_static_sync`,
+  QUOTA_EXCEEDED: `${APP_STORAGE_PREFIX}_quota_exceeded`,
 };
+
+// ==============================================================================
+// UNIVERSAL AUTO-PURGE: Runs immediately on module load in EVERY browser.
+// If the browser holds stale, legacy, or fragmented cache from earlier builds,
+// it instantly purges all legacy keys and aligns with the clean initialData.
+// ==============================================================================
+if (typeof window !== 'undefined') {
+  try {
+    const currentVersion = localStorage.getItem(STORAGE_KEYS.VERSION);
+    if (currentVersion !== APP_DATA_VERSION) {
+      console.log('[Oasis Cache] Migrating to unified data version:', APP_DATA_VERSION);
+      const staleKeys: string[] = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (
+          k &&
+          (k.startsWith('oasis_') ||
+            k.includes('posts') ||
+            k.includes('slides') ||
+            k.includes('casinos') ||
+            k.includes('spots') ||
+            k.includes('config'))
+        ) {
+          staleKeys.push(k);
+        }
+      }
+      staleKeys.forEach((k) => {
+        try {
+          localStorage.removeItem(k);
+        } catch {}
+      });
+      localStorage.setItem(STORAGE_KEYS.VERSION, APP_DATA_VERSION);
+    }
+  } catch (purgeErr) {
+    console.warn('[Oasis Cache] Auto-purge notice:', purgeErr);
+  }
+}
 
 let isQuotaExceededFlag = false;
 
@@ -127,8 +167,8 @@ export const isFirestoreQuotaExceeded = (): boolean => {
       if (stored) {
         const storedTime = parseInt(stored, 10);
         if (!isNaN(storedTime)) {
-          // Auto-reset after 1 minute so temporary quota spikes retest connection promptly
-          if (Date.now() - storedTime > 60 * 1000) {
+          // Circuit-breaker: auto-reset after 5 minutes to prevent spamming exhausted quota
+          if (Date.now() - storedTime > 5 * 60 * 1000) {
             sessionStorage.removeItem(STORAGE_KEYS.QUOTA_EXCEEDED);
             isQuotaExceededFlag = false;
             return false;
@@ -153,7 +193,7 @@ export const markFirestoreQuotaExceeded = () => {
       sessionStorage.setItem(STORAGE_KEYS.QUOTA_EXCEEDED, String(Date.now()));
     } catch {}
   }
-  console.warn('[Firebase Quota] 일일 무료 할당량(Free Tier)이 초과되어 로컬 캐시 모드로 안전하게 자동 전환되었습니다.');
+  console.warn('[Firebase Quota] 일일 무료 할당량이 소진되어 로컬 캐시 모드로 안전하게 자동 전환되었습니다.');
 };
 
 export const clearFirestoreQuotaExceeded = () => {
@@ -265,7 +305,8 @@ export const sortCasinos = (items: CasinoItem[]): CasinoItem[] => {
 
 export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [siteConfig, setSiteConfigState] = useState<SiteConfig>(() => {
-    const saved = localStorage.getItem(STORAGE_KEYS.CONFIG) || localStorage.getItem('oasis_site_config_v9');
+    if (typeof window === 'undefined') return initialSiteConfig;
+    const saved = localStorage.getItem(STORAGE_KEYS.CONFIG);
     if (!saved) return initialSiteConfig;
     try {
       return sanitizeConfig(JSON.parse(saved));
@@ -275,75 +316,41 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
   });
 
   const [bannerSlides, setBannerSlidesState] = useState<BannerSlide[]>(() => {
-    let base = initialBannerSlides;
-    if (typeof window !== 'undefined') {
-      try {
-        const saved = localStorage.getItem(STORAGE_KEYS.SLIDES) || localStorage.getItem('oasis_banner_slides_v9');
-        if (saved) {
-          base = sanitizeSlides(JSON.parse(saved));
-        }
-      } catch {}
-      try {
-        const customHeroBg = localStorage.getItem(STORAGE_KEYS.HERO_BG);
-        if (customHeroBg && base.length > 0) {
-          base[0] = { ...base[0], bgImage: customHeroBg };
-        }
-      } catch {}
-    }
-    return base;
+    if (typeof window === 'undefined') return initialBannerSlides;
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.SLIDES);
+      if (saved) {
+        return sanitizeSlides(JSON.parse(saved));
+      }
+    } catch {}
+    return initialBannerSlides;
   });
 
   const [casinos, setCasinosState] = useState<CasinoItem[]>(() => {
-    const saved = localStorage.getItem(STORAGE_KEYS.CASINOS) || localStorage.getItem('oasis_casinos_v9') || localStorage.getItem('oasis_casinos_v8');
-    if (!saved) return sortCasinos(initialCasinos);
+    if (typeof window === 'undefined') return sortCasinos(initialCasinos);
     try {
-      return sortCasinos(JSON.parse(saved));
-    } catch {
-      return sortCasinos(initialCasinos);
-    }
+      const saved = localStorage.getItem(STORAGE_KEYS.CASINOS);
+      if (saved) {
+        return sortCasinos(JSON.parse(saved));
+      }
+    } catch {}
+    return sortCasinos(initialCasinos);
   });
 
   const [philippineSpots, setPhilippineSpotsState] = useState<PhilippineTourSpot[]>(() => {
-    const saved = localStorage.getItem(STORAGE_KEYS.SPOTS) || localStorage.getItem('oasis_philippine_spots_v9') || localStorage.getItem('oasis_philippine_spots_v8');
-    return saved ? JSON.parse(saved) : initialPhilippineSpots;
+    if (typeof window === 'undefined') return initialPhilippineSpots;
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.SPOTS);
+      if (saved) {
+        return JSON.parse(saved);
+      }
+    } catch {}
+    return initialPhilippineSpots;
   });
 
   const [posts, setPostsState] = useState<PostItem[]>(() => {
-    // Clean up all legacy contaminated keys from old builds
-    if (typeof window !== 'undefined') {
-      try {
-        localStorage.removeItem('oasis_posts_v11');
-        localStorage.removeItem('oasis_posts_v10');
-        localStorage.removeItem('oasis_posts_v9');
-        localStorage.removeItem('oasis_posts_v8');
-        localStorage.removeItem('oasis_deleted_post_ids_v8');
-        localStorage.removeItem('oasis_deleted_post_ids_v11');
-        localStorage.removeItem('oasis_deleted_post_ids_v12');
-
-        // Clean out any cached instances of ddddd and 12312213
-        const localSaved = localStorage.getItem(STORAGE_KEYS.POSTS);
-        if (localSaved) {
-          try {
-            const parsedLocal = JSON.parse(localSaved);
-            if (Array.isArray(parsedLocal)) {
-              const purged = parsedLocal.filter(
-                (p: any) =>
-                  p.id !== 'post-1791011166992-o055' &&
-                  p.id !== 'post-1791011212743-6jgs' &&
-                  p.title !== '12312213' &&
-                  p.title !== 'ddddd'
-              );
-              if (purged.length !== parsedLocal.length) {
-                localStorage.setItem(STORAGE_KEYS.POSTS, JSON.stringify(purged));
-              }
-            }
-          } catch {}
-        }
-      } catch {}
-    }
-
-    const saved = typeof window !== 'undefined' ? localStorage.getItem(STORAGE_KEYS.POSTS) : null;
-
+    if (typeof window === 'undefined') return initialPosts;
+    const saved = localStorage.getItem(STORAGE_KEYS.POSTS);
     let baseList: PostItem[] = initialPosts;
     if (saved) {
       try {
@@ -378,18 +385,30 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
   });
 
   const [inquiryLeads, setInquiryLeadsState] = useState<InquiryLead[]>(() => {
-    const saved = localStorage.getItem(STORAGE_KEYS.LEADS) || localStorage.getItem('oasis_inquiry_leads_v9') || localStorage.getItem('oasis_inquiry_leads_v8');
-    return saved ? JSON.parse(saved) : initialInquiryLeads;
+    if (typeof window === 'undefined') return initialInquiryLeads;
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.LEADS);
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return initialInquiryLeads;
   });
 
   const [serviceSteps, setServiceStepsState] = useState<ServiceStep[]>(() => {
-    const saved = localStorage.getItem(STORAGE_KEYS.STEPS) || localStorage.getItem('oasis_service_steps_v9') || localStorage.getItem('oasis_service_steps_v8');
-    return saved ? JSON.parse(saved) : initialServiceSteps;
+    if (typeof window === 'undefined') return initialServiceSteps;
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.STEPS);
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return initialServiceSteps;
   });
 
   const [faqs, setFaqsState] = useState<FAQItem[]>(() => {
-    const saved = localStorage.getItem(STORAGE_KEYS.FAQS) || localStorage.getItem('oasis_faqs_v9') || localStorage.getItem('oasis_faqs_v8');
-    return saved ? JSON.parse(saved) : initialFAQs;
+    if (typeof window === 'undefined') return initialFAQs;
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.FAQS);
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return initialFAQs;
   });
 
   const [isAdminOpen, setIsAdminOpen] = useState(false);
@@ -462,41 +481,25 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const [isQuotaExceeded, setIsQuotaExceeded] = useState<boolean>(() => isFirestoreQuotaExceeded());
+  const isSyncInProgressRef = useRef(false);
 
-  // 1. Smart Firestore Synchronization with Cache TTL & Quota Circuit Breaker
+  // 1. Strict Refresh-Only Firestore Synchronization (Zero Real-Time Overhead)
   const refreshCloudData = async (force: boolean = false) => {
+    if (isSyncInProgressRef.current) return;
+    if (!force && isQuotaExceededFlag) return;
+
     if (force) {
       clearFirestoreQuotaExceeded();
       setIsQuotaExceeded(false);
-    } else {
-      if (isQuotaExceededFlag) return;
-      if (typeof window !== 'undefined') {
-        const lastSync = localStorage.getItem(STORAGE_KEYS.LAST_SYNC);
-        if (lastSync) {
-          const elapsed = Date.now() - parseInt(lastSync, 10);
-          // 4 seconds debounce prevents rapid duplicate mounts in React StrictMode
-          if (!isNaN(elapsed) && elapsed < 4 * 1000) {
-            setIsCloudSynced(true);
-            return;
-          }
-        }
-      }
     }
+
+    isSyncInProgressRef.current = true;
 
     try {
       const { db, fs } = await loadFirebase();
       const { doc, collection, getDoc, getDocs } = fs;
 
-      // Determine if static content should be refreshed (every 30 mins or when forced)
-      let shouldFetchStatic = force;
-      if (!shouldFetchStatic && typeof window !== 'undefined') {
-        const lastStatic = localStorage.getItem(STORAGE_KEYS.LAST_STATIC_SYNC);
-        if (!lastStatic || Date.now() - parseInt(lastStatic, 10) > 30 * 60 * 1000) {
-          shouldFetchStatic = true;
-        }
-      }
-
-      // 1. Fetch Posts (Primary dynamic content - single query)
+      // 1. Fetch Posts (The only dynamic content that needs refresh on page load)
       try {
         const snap = await getDocs(collection(db, 'posts'));
         if (!snap.empty) {
@@ -526,8 +529,29 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
             })
             .filter((p) => !(p as any).isDeleted && !deletedIds.has(p.id));
 
-          // Sort strictly: pinned first, then date / createdAt desc
+          // Deduplicate by title to ensure clean 17 unique articles without legacy duplicate IDs
+          const seenTitles = new Set<string>();
+          const uniqueItems: PostItem[] = [];
+
+          // Prioritize canonical IDs (notice-*, promo-*, post-*) over legacy raw numeric IDs ('2', '3', etc.)
           remoteItems.sort((a, b) => {
+            const aIsClean = /^(post-|notice-|promo-)/.test(a.id);
+            const bIsClean = /^(post-|notice-|promo-)/.test(b.id);
+            if (aIsClean && !bIsClean) return -1;
+            if (!aIsClean && bIsClean) return 1;
+            return 0;
+          });
+
+          for (const item of remoteItems) {
+            const normTitle = (item.title || '').trim();
+            if (!seenTitles.has(normTitle)) {
+              seenTitles.add(normTitle);
+              uniqueItems.push(item);
+            }
+          }
+
+          // Sort strictly: pinned first, then date / createdAt desc
+          uniqueItems.sort((a, b) => {
             if (a.isPinned && !b.isPinned) return -1;
             if (!a.isPinned && b.isPinned) return 1;
             const dateComp = (b.date || '').localeCompare(a.date || '');
@@ -535,9 +559,9 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
             return (b.createdAt || 0) - (a.createdAt || 0);
           });
 
-          // Single Source of Truth: update React state and local cache with real server data
-          setPostsState(remoteItems);
-          safeStorageSet(STORAGE_KEYS.POSTS, JSON.stringify(remoteItems));
+          // Single Source of Truth: update React state and local cache
+          setPostsState(uniqueItems);
+          safeStorageSet(STORAGE_KEYS.POSTS, JSON.stringify(uniqueItems));
         }
       } catch (err: any) {
         if (err?.code === 'resource-exhausted' || err?.message?.includes('quota') || err?.message?.includes('RESOURCE_EXHAUSTED')) {
@@ -548,8 +572,9 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       }
 
-      // 2. Fetch static content collections ONLY when needed (saves 85% of read quota)
-      if (shouldFetchStatic && !isQuotaExceededFlag) {
+      // 2. Static content (casinos, spots, slides, faqs, config) is ONLY fetched when explicitly requested by Admin (force = true)
+      // This saves 70%+ of Firestore read quota on every visitor page refresh
+      if (force && !isQuotaExceededFlag) {
         try {
           const staticResults = await Promise.allSettled([
             getDoc(doc(db, 'site_config', 'main')),
@@ -560,19 +585,15 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
             getDoc(doc(db, 'site_config', 'service_steps')),
           ]);
 
-          // Config
           if (staticResults[0].status === 'fulfilled' && staticResults[0].value.exists()) {
             setSiteConfigState(sanitizeConfig(staticResults[0].value.data() as Partial<SiteConfig>));
           }
-          // Casinos
           if (staticResults[1].status === 'fulfilled' && !staticResults[1].value.empty) {
             setCasinosState(sortCasinos(staticResults[1].value.docs.map((d) => ({ ...d.data(), id: d.id } as CasinoItem))));
           }
-          // Spots
           if (staticResults[2].status === 'fulfilled' && !staticResults[2].value.empty) {
             setPhilippineSpotsState(staticResults[2].value.docs.map((d) => ({ ...d.data(), id: d.id } as PhilippineTourSpot)));
           }
-          // Slides
           if (staticResults[3].status === 'fulfilled' && !staticResults[3].value.empty) {
             const rawSlides = staticResults[3].value.docs.map((d) => ({ ...d.data(), id: d.id } as BannerSlide));
             rawSlides.sort((a, b) => (a.id === 'slide-1' ? -1 : b.id === 'slide-1' ? 1 : 0));
@@ -583,31 +604,18 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
               safeStorageSet(STORAGE_KEYS.HERO_BG, sanitized[0].bgImage);
             }
           }
-          // FAQs
           if (staticResults[4].status === 'fulfilled' && !staticResults[4].value.empty) {
             setFaqsState(staticResults[4].value.docs.map((d) => ({ ...d.data(), id: d.id } as FAQItem)));
           }
-          // Steps
           if (staticResults[5].status === 'fulfilled' && staticResults[5].value.exists()) {
             const data = staticResults[5].value.data();
             if (Array.isArray(data.steps)) setServiceStepsState(data.steps);
           }
-
-          if (typeof window !== 'undefined') {
-            try {
-              localStorage.setItem(STORAGE_KEYS.LAST_STATIC_SYNC, String(Date.now()));
-            } catch {}
-          }
         } catch (staticErr) {
-          console.warn('[Firebase] Static sync skipped:', staticErr);
+          console.warn('[Firebase] Admin static sync skipped:', staticErr);
         }
       }
 
-      if (typeof window !== 'undefined') {
-        try {
-          localStorage.setItem(STORAGE_KEYS.LAST_SYNC, String(Date.now()));
-        } catch {}
-      }
       setIsCloudSynced(true);
     } catch (err: any) {
       if (err?.code === 'resource-exhausted' || err?.message?.includes('quota') || err?.message?.includes('RESOURCE_EXHAUSTED')) {
@@ -616,30 +624,23 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } else {
         console.warn('[Firebase] Background sync skipped or unavailable:', err);
       }
+    } finally {
+      isSyncInProgressRef.current = false;
     }
   };
 
+  // Run synchronization ONCE on page load (refresh) only — no real-time listeners, no polling intervals
+  const initialSyncDoneRef = useRef(false);
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === 'undefined' || initialSyncDoneRef.current) return;
+    initialSyncDoneRef.current = true;
 
-    // 1. Skip only for automated Lighthouse/PageSpeed headless crawlers
+    // Skip only for automated Lighthouse/PageSpeed crawlers
     const isLighthouse =
       /Lighthouse|PageSpeed|HeadlessChrome/i.test(navigator.userAgent || '');
-    if (isLighthouse) {
-      return;
-    }
+    if (isLighthouse) return;
 
-    // 2. For all real users & AI Studio preview, sync with Firestore immediately!
-    let isCancelled = false;
-    const timer = setTimeout(() => {
-      if (isCancelled) return;
-      refreshCloudData(false);
-    }, 100);
-
-    return () => {
-      isCancelled = true;
-      clearTimeout(timer);
-    };
+    refreshCloudData(false);
   }, []);
 
   // 1-B. Inquiries fetch: ONLY active when Admin panel is opened (one-time fetch)
@@ -877,10 +878,6 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const docRef = fs.doc(db, 'posts', newId);
       await fs.setDoc(docRef, cleanDoc);
       console.log('Post successfully saved to Firestore:', newId);
-      // Trigger background sync to pull any concurrent posts
-      setTimeout(() => {
-        refreshCloudData(true);
-      }, 100);
     } catch (err) {
       console.error('Failed to add post to Firestore:', err);
     }
@@ -951,18 +948,13 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const incrementPostView = async (id: string) => {
-    // 1. Optimistic UI update
-    setPostsState((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, viewCount: (item.viewCount || 0) + 1 } : item))
-    );
-
-    // 2. Prevent spamming Firestore writes: only write once per session per post
+  // Purely client-side post view count tracking — zero Firestore write operations
+  const incrementPostView = (id: string) => {
     if (typeof window !== 'undefined') {
       try {
         const sessionKey = `viewed_post_${id}`;
         if (sessionStorage.getItem(sessionKey)) {
-          return; // Already counted in this session, save Firestore write quota
+          return; // Count once per browser session
         }
         sessionStorage.setItem(sessionKey, '1');
       } catch {
@@ -970,25 +962,13 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     }
 
-    if (isFirestoreQuotaExceeded()) {
-      return; // Save write quota, don't spam Firestore
-    }
-
-    try {
-      const { db, fs } = await loadFirebase();
-      const docRef = fs.doc(db, 'posts', id);
-      const target = posts.find((p) => p.id === id);
-      if (target) {
-        await fs.updateDoc(docRef, { viewCount: (target.viewCount || 0) + 1 });
-      }
-    } catch (err: any) {
-      if (err?.code === 'resource-exhausted' || err?.message?.includes('quota')) {
-        markFirestoreQuotaExceeded();
-        setIsQuotaExceeded(true);
-      } else {
-        console.warn('Failed to increment view count in Firestore:', err);
-      }
-    }
+    setPostsState((prev) => {
+      const updated = prev.map((item) =>
+        item.id === id ? { ...item, viewCount: (item.viewCount || 0) + 1 } : item
+      );
+      safeStorageSet(STORAGE_KEYS.POSTS, JSON.stringify(updated));
+      return updated;
+    });
   };
 
   const addInquiryLead = async (lead: Omit<InquiryLead, 'id' | 'createdAt' | 'status'>) => {
@@ -1173,17 +1153,17 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (typeof window !== 'undefined') {
       try {
         localStorage.removeItem(STORAGE_KEYS.DELETED_POSTS);
-        localStorage.removeItem('oasis_deleted_post_ids_v8');
-        localStorage.removeItem('oasis_deleted_post_ids_v9');
-        localStorage.removeItem('oasis_deleted_post_ids_v10');
-        localStorage.removeItem('oasis_deleted_post_ids_v11');
       } catch {}
     }
 
     // 2. Set posts state directly to pristine initialPosts
     setPostsState(initialPosts);
     safeStorageSet(STORAGE_KEYS.POSTS, JSON.stringify(initialPosts));
-    safeStorageSet('oasis_posts_v8', JSON.stringify(initialPosts));
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem(STORAGE_KEYS.VERSION, APP_DATA_VERSION);
+      } catch {}
+    }
 
     // 3. Gracefully sync with Firestore
     try {
@@ -1215,6 +1195,11 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
         localStorage.removeItem(k);
       } catch {}
     });
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem(STORAGE_KEYS.VERSION, APP_DATA_VERSION);
+      } catch {}
+    }
 
     // Sync reset to Firestore gracefully
     try {

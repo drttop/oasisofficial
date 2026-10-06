@@ -97,8 +97,9 @@ async function syncSEO() {
       .trim();
   };
 
-  // 1. Generate postMap dictionary for index.html inline script
-  const postMapEntries = posts.map((post) => {
+  // 1. Generate postMap dictionary for index.html inline script with aliases
+  const postMapObj = {};
+  for (const post of posts) {
     const title = `${(post.title || '').replace(/'/g, "\\'")} | 오아시스`;
     let rawSummary = cleanSnippet(post.summary);
     if (rawSummary.length < 50 && post.content) {
@@ -106,7 +107,43 @@ async function syncSEO() {
       rawSummary = (rawSummary ? `${rawSummary} - ` : '') + cleanContent;
     }
     const cleanDesc = rawSummary.slice(0, 160).replace(/'/g, "\\'");
-    return `              '${post.id}': {\n                title: '${title}',\n                desc: '${cleanDesc}'\n              }`;
+    
+    // Primary ID
+    postMapObj[post.id] = { title, desc: cleanDesc };
+
+    // Numeric alias (e.g. 'post-2' -> '2')
+    if (post.id.startsWith('post-')) {
+      const numPart = post.id.replace('post-', '');
+      if (numPart && !postMapObj[numPart]) {
+        postMapObj[numPart] = { title, desc: cleanDesc };
+      }
+    }
+  }
+
+  // Legacy URL aliases crawled by Google in past sitemaps
+  if (postMapObj['notice-1']) {
+    postMapObj['post-1'] = postMapObj['notice-1'];
+    postMapObj['1'] = postMapObj['notice-1'];
+  }
+  if (postMapObj['promo-1']) {
+    postMapObj['post-1791016351516-bgbw'] = postMapObj['promo-1'];
+  }
+  if (postMapObj['promo-2']) {
+    postMapObj['post-1791016734781-bbt9'] = postMapObj['promo-2'];
+  }
+  if (postMapObj['promo-3']) {
+    postMapObj['0'] = postMapObj['promo-3'];
+  }
+  if (postMapObj['post-8']) {
+    postMapObj['4'] = postMapObj['post-8'];
+    postMapObj['post-4'] = postMapObj['post-8'];
+  }
+  if (postMapObj['notice-2']) {
+    postMapObj['notice-2'] = postMapObj['notice-2'];
+  }
+
+  const postMapEntries = Object.entries(postMapObj).map(([id, data]) => {
+    return `              '${id}': {\n                title: '${data.title}',\n                desc: '${data.desc}'\n              }`;
   }).join(',\n');
 
   // 2. Generate noscript HTML articles

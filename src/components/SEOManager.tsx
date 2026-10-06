@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { useSite } from '../context/SiteContext';
-import { applySEO, getPostUrl } from '../utils/seo';
+import { applySEO, getPostUrl, findPostByIdOrAlias } from '../utils/seo';
 import { navigateToSection, KNOWN_SECTIONS } from '../utils/navigation';
 
 export const SEOManager: React.FC = () => {
@@ -44,7 +44,7 @@ export const SEOManager: React.FC = () => {
     if ((editParam || actionParam === 'edit') && posts.length > 0) {
       const editTargetId = editParam || targetPostId;
       if (editTargetId) {
-        const found = posts.find((p) => String(p.id) === String(editTargetId));
+        const found = findPostByIdOrAlias(posts, editTargetId);
         if (found) {
           initialCheckedRef.current = true;
           handledPostIdRef.current = found.id;
@@ -71,7 +71,7 @@ export const SEOManager: React.FC = () => {
 
     // Check if initial URL is for viewing a specific post
     if (targetPostId && posts.length > 0 && targetPostId !== handledPostIdRef.current) {
-      const found = posts.find((p) => String(p.id) === String(targetPostId));
+      const found = findPostByIdOrAlias(posts, targetPostId);
       if (found) {
         initialCheckedRef.current = true;
         handledPostIdRef.current = found.id;
@@ -225,7 +225,7 @@ export const SEOManager: React.FC = () => {
       }
 
       if (postId) {
-        const target = posts.find((p) => String(p.id) === String(postId));
+        const target = findPostByIdOrAlias(posts, postId);
         if (target) {
           handledPostIdRef.current = target.id;
           lastActivePostRef.current = target;

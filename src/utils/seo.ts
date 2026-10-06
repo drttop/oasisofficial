@@ -60,6 +60,36 @@ export function getPostUrl(postId: string): string {
 }
 
 /**
+ * Robust post matching supporting direct IDs, numeric IDs, and legacy sitemap URLs
+ */
+export function findPostByIdOrAlias(posts: PostItem[], idOrAlias: string | null): PostItem | undefined {
+  if (!idOrAlias || !posts || posts.length === 0) return undefined;
+  const targetStr = String(idOrAlias).toLowerCase().trim();
+
+  return posts.find((p) => {
+    const pId = String(p.id).toLowerCase();
+    if (pId === targetStr) return true;
+
+    // Check stripped numbers: 'post-2' matches '2'
+    const strippedPId = pId.replace(/^(post-|promo-|notice-)/, '');
+    const strippedTarget = targetStr.replace(/^(post-|promo-|notice-)/, '');
+    if (strippedPId && strippedPId === strippedTarget) return true;
+
+    // Check prefixed variants
+    if (`post-${targetStr}` === pId || `promo-${targetStr}` === pId || `notice-${targetStr}` === pId) return true;
+
+    // Legacy sitemap aliases crawled by Google in past indexing
+    if (targetStr === 'post-1' || targetStr === '1') return pId === 'notice-1';
+    if (targetStr === 'post-4' || targetStr === '4') return pId === 'post-8' || pId === 'notice-2';
+    if (targetStr === '0') return pId === 'promo-3';
+    if (targetStr === 'post-1791016734781-bbt9') return pId === 'promo-2';
+    if (targetStr === 'post-1791016351516-bgbw') return pId === 'promo-1';
+
+    return false;
+  });
+}
+
+/**
  * Updates full SEO attributes for a single community post or site home
  */
 export function applySEO(post: PostItem | null, siteConfig: SiteConfig) {

@@ -110,7 +110,7 @@ export function applySEO(post: PostItem | null, siteConfig: SiteConfig) {
       const postTitle = `${post.title || '게시글'} | ${siteConfig?.siteName || '마닐라 오아시스에이전시'}`;
       const cleanContent = post.content ? stripFormattingTags(post.content).slice(0, 160).replace(/\n/g, ' ') : '';
       const postDesc = post.summary ? stripFormattingTags(post.summary) : (cleanContent || defaultDesc);
-      const postKeywords = [...(post.tags || []), post.category || '공지사항', siteConfig?.siteName || '마닐라 오아시스에이전시'].join(', ');
+      const postKeywords = [...(post.tags || []), post.category || '매거진', siteConfig?.siteName || '마닐라 오아시스에이전시'].join(', ');
       const postUrl = getPostUrl(post.id);
       const postImage = post.thumbnail || defaultImage;
 
@@ -134,7 +134,7 @@ export function applySEO(post: PostItem | null, siteConfig: SiteConfig) {
       setMetaTag('og:site_name', siteConfig?.siteName || '마닐라 오아시스에이전시', true);
       setMetaTag('article:published_time', post.date ? `${post.date}T00:00:00+09:00` : new Date().toISOString(), true);
       setMetaTag('article:author', post.author || '마닐라 오아시스에이전시', true);
-      setMetaTag('article:section', post.category || '커뮤니티', true);
+      setMetaTag('article:section', post.category || '매거진', true);
 
       // Twitter Card
       setMetaTag('twitter:card', 'summary_large_image');

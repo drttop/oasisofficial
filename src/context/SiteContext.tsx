@@ -100,7 +100,7 @@ interface SiteContextType {
 
 const SiteContext = createContext<SiteContextType | undefined>(undefined);
 
-export const APP_DATA_VERSION = 'oasis_v2026_v3_clean';
+export const APP_DATA_VERSION = 'oasis_v2026_v4_community_categories';
 const APP_STORAGE_PREFIX = 'oasis_v2026';
 
 export const STORAGE_KEYS = {
@@ -129,23 +129,10 @@ if (typeof window !== 'undefined') {
   try {
     const currentVersion = localStorage.getItem(STORAGE_KEYS.VERSION);
     if (currentVersion !== APP_DATA_VERSION) {
-      console.log('[Oasis Cache] Migrating to unified data version:', APP_DATA_VERSION);
-      const staleKeys: string[] = [];
-      for (let i = 0; i < localStorage.length; i++) {
-        const k = localStorage.key(i);
-        if (
-          k &&
-          (k.startsWith('oasis_') ||
-            k.includes('posts') ||
-            k.includes('slides') ||
-            k.includes('casinos') ||
-            k.includes('spots') ||
-            k.includes('config'))
-        ) {
-          staleKeys.push(k);
-        }
-      }
-      staleKeys.forEach((k) => {
+      console.log('[Oasis Cache] Updating cache version:', APP_DATA_VERSION);
+      // Clean only obsolete raw legacy non-prefixed keys if any exist (do NOT delete user custom data)
+      const legacyRawKeys = ['posts', 'casinos', 'slides', 'spots', 'config', 'leads'];
+      legacyRawKeys.forEach((k) => {
         try {
           localStorage.removeItem(k);
         } catch {}
@@ -153,7 +140,7 @@ if (typeof window !== 'undefined') {
       localStorage.setItem(STORAGE_KEYS.VERSION, APP_DATA_VERSION);
     }
   } catch (purgeErr) {
-    console.warn('[Oasis Cache] Auto-purge notice:', purgeErr);
+    console.warn('[Oasis Cache] Cache version notice:', purgeErr);
   }
 }
 
@@ -318,6 +305,21 @@ export const sanitizeSpots = (items: PhilippineTourSpot[]): PhilippineTourSpot[]
   }));
 };
 
+export const sanitizePosts = (items: PostItem[]): PostItem[] => {
+  return items
+    .filter((p) => p && p.category !== '공지사항' && !String(p.id).startsWith('notice-'))
+    .map((p) => {
+      let category = p.category;
+      if (category === 'VIP매거진' || category === '커뮤니티') {
+        category = '매거진';
+      }
+      return {
+        ...p,
+        category,
+      };
+    });
+};
+
 export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [siteConfig, setSiteConfigState] = useState<SiteConfig>(() => {
     if (typeof window === 'undefined') return initialSiteConfig;
@@ -364,14 +366,17 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
   });
 
   const [posts, setPostsState] = useState<PostItem[]>(() => {
-    if (typeof window === 'undefined') return initialPosts;
+    if (typeof window === 'undefined') return sanitizePosts(initialPosts);
     const saved = localStorage.getItem(STORAGE_KEYS.POSTS);
-    let baseList: PostItem[] = initialPosts;
+    let baseList: PostItem[] = sanitizePosts(initialPosts);
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          baseList = parsed;
+          const sanitizedParsed = sanitizePosts(parsed);
+          const existingIds = new Set(sanitizedParsed.map((p) => p.id));
+          const missingInitials = sanitizePosts(initialPosts).filter((p) => !existingIds.has(p.id));
+          baseList = [...sanitizedParsed, ...missingInitials];
         }
       } catch {}
     }
@@ -379,7 +384,7 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Deduplicate strictly by unique ID so duplicate IDs never exist
     const deletedIds = getDeletedPostIds();
     const seenIds = new Set<string>();
-    const deduplicated = baseList.filter((item) => {
+    const deduplicated = sanitizePosts(baseList).filter((item) => {
       if ((item as any).isDeleted) return false;
       if (!item.id) return false;
       if (deletedIds.has(item.id)) return false;
@@ -521,7 +526,16 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
           clearFirestoreQuotaExceeded();
           setIsQuotaExceeded(false);
 
-          const deletedIds = getDeletedPostIds();
+          // Also sync remote deleted tombstones so deleted posts are never resurrected
+          let allDeletedIds = getDeletedPostIds();
+          try {
+            const remoteDeletedSnap = await getDocs(collection(db, 'deleted_posts'));
+            if (remoteDeletedSnap && !remoteDeletedSnap.empty) {
+              remoteDeletedSnap.docs.forEach((d) => allDeletedIds.add(d.id));
+              safeStorageSet(STORAGE_KEYS.DELETED_POSTS, JSON.stringify(Array.from(allDeletedIds)));
+            }
+          } catch {}
+
           const remoteItems: PostItem[] = snap.docs
             .map((d) => {
               const data = d.data();
@@ -542,16 +556,16 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 createdAt: data.createdAt || 0,
               } as PostItem;
             })
-            .filter((p) => !(p as any).isDeleted && !deletedIds.has(p.id));
+            .filter((p) => !(p as any).isDeleted && !allDeletedIds.has(p.id) && !p.id.startsWith('notice-'));
 
-          // Deduplicate by title to ensure clean 17 unique articles without legacy duplicate IDs
+          // Deduplicate by title to ensure clean unique articles without legacy duplicate IDs
           const seenTitles = new Set<string>();
           const uniqueItems: PostItem[] = [];
 
-          // Prioritize canonical IDs (notice-*, promo-*, post-*) over legacy raw numeric IDs ('2', '3', etc.)
+          // Prioritize canonical IDs (post-*, promo-*) over legacy raw numeric IDs ('2', '3', etc.)
           remoteItems.sort((a, b) => {
-            const aIsClean = /^(post-|notice-|promo-)/.test(a.id);
-            const bIsClean = /^(post-|notice-|promo-)/.test(b.id);
+            const aIsClean = /^(post-|promo-)/.test(a.id);
+            const bIsClean = /^(post-|promo-)/.test(b.id);
             if (aIsClean && !bIsClean) return -1;
             if (!aIsClean && bIsClean) return 1;
             return 0;
@@ -575,8 +589,23 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
           });
 
           // Single Source of Truth: update React state and local cache
-          setPostsState(uniqueItems);
-          safeStorageSet(STORAGE_KEYS.POSTS, JSON.stringify(uniqueItems));
+          const sanitizedItems = sanitizePosts(uniqueItems);
+          const remoteIds = new Set(sanitizedItems.map((p) => p.id));
+          const missingFromRemote = sanitizePosts(initialPosts).filter(
+            (p) => !remoteIds.has(p.id) && !allDeletedIds.has(p.id)
+          );
+          const mergedRemote = [...sanitizedItems, ...missingFromRemote];
+
+          mergedRemote.sort((a, b) => {
+            if (a.isPinned && !b.isPinned) return -1;
+            if (!a.isPinned && b.isPinned) return 1;
+            const dateComp = (b.date || '').localeCompare(a.date || '');
+            if (dateComp !== 0) return dateComp;
+            return (b.createdAt || 0) - (a.createdAt || 0);
+          });
+
+          setPostsState(mergedRemote);
+          safeStorageSet(STORAGE_KEYS.POSTS, JSON.stringify(mergedRemote));
         }
       } catch (err: any) {
         if (err?.code === 'resource-exhausted' || err?.message?.includes('quota') || err?.message?.includes('RESOURCE_EXHAUSTED')) {
@@ -587,12 +616,8 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       }
 
-      // 2. Static content (casinos, spots, slides, faqs, config) is fetched on initial session load or explicit admin sync
-      // Using sessionStorage marker prevents repeated reads on subsequent page refreshes within the same session
-      const hasSyncedStaticSession = typeof window !== 'undefined' ? sessionStorage.getItem(STORAGE_KEYS.LAST_STATIC_SYNC) : null;
-      const shouldSyncStatic = force || !hasSyncedStaticSession;
-
-      if (shouldSyncStatic && !isQuotaExceededFlag) {
+      // 2. Static & CMS content (casinos, spots, slides, faqs, config) reliably synchronized from Firestore
+      if (!isQuotaExceededFlag) {
         try {
           const staticResults = await Promise.allSettled([
             getDoc(doc(db, 'site_config', 'main')),
@@ -822,7 +847,11 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const addCasino = async (casino: Omit<CasinoItem, 'id'>) => {
     const newId = `casino-${Date.now()}`;
     const newCasino: CasinoItem = { ...casino, id: newId };
-    setCasinosState((prev) => [newCasino, ...prev]);
+    setCasinosState((prev) => {
+      const updated = [newCasino, ...prev];
+      safeStorageSet(STORAGE_KEYS.CASINOS, JSON.stringify(updated));
+      return updated;
+    });
     try {
       const { db, fs } = await loadFirebase();
       const docRef = fs.doc(db, 'casinos', newId);
@@ -833,9 +862,11 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const updateCasino = async (id: string, partial: Partial<CasinoItem>) => {
-    setCasinosState((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, ...partial } : item))
-    );
+    setCasinosState((prev) => {
+      const updated = prev.map((item) => (item.id === id ? { ...item, ...partial } : item));
+      safeStorageSet(STORAGE_KEYS.CASINOS, JSON.stringify(updated));
+      return updated;
+    });
     try {
       const { db, fs } = await loadFirebase();
       const docRef = fs.doc(db, 'casinos', id);
@@ -846,7 +877,11 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const deleteCasino = async (id: string) => {
-    setCasinosState((prev) => prev.filter((item) => item.id !== id));
+    setCasinosState((prev) => {
+      const updated = prev.filter((item) => item.id !== id);
+      safeStorageSet(STORAGE_KEYS.CASINOS, JSON.stringify(updated));
+      return updated;
+    });
     try {
       const { db, fs } = await loadFirebase();
       const docRef = fs.doc(db, 'casinos', id);
@@ -966,12 +1001,13 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
       closePostEditor();
     }
 
-    // 5. Delete in Firestore
+    // 5. Delete in Firestore & write permanent tombstone
     try {
       const { db, fs } = await loadFirebase();
       const docRef = fs.doc(db, 'posts', id);
       await fs.deleteDoc(docRef);
-      console.log('Post deleted successfully from Firestore:', id);
+      await fs.setDoc(fs.doc(db, 'deleted_posts', id), { id, deletedAt: Date.now() }, { merge: true });
+      console.log('Post deleted successfully from Firestore and tombstone recorded:', id);
     } catch (err) {
       console.error('Failed to delete post from Firestore:', err);
     }

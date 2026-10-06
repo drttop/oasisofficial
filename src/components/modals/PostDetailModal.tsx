@@ -48,12 +48,13 @@ export const PostDetailModal: React.FC = () => {
   };
 
   const categoryColorMap: Record<string, string> = {
-    공지사항: 'bg-red-50 text-red-600 border-red-200',
+    매거진: 'bg-purple-50 text-purple-600 border-purple-200',
+    유흥: 'bg-rose-50 text-rose-600 border-rose-200',
+    맛집: 'bg-amber-50 text-amber-600 border-amber-200',
+    핫플: 'bg-emerald-50 text-emerald-600 border-emerald-200',
     프로모션: 'bg-amber-50 text-amber-600 border-amber-200',
     VIP매거진: 'bg-purple-50 text-purple-600 border-purple-200',
-    커뮤니티: 'bg-blue-50 text-blue-600 border-blue-200',
-    카지노소식: 'bg-indigo-50 text-indigo-600 border-indigo-200',
-    여행정보: 'bg-emerald-50 text-emerald-600 border-emerald-200',
+    커뮤니티: 'bg-purple-50 text-purple-600 border-purple-200',
   };
 
   // Determine images to show strictly from the post

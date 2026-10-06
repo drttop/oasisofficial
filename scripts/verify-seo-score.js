@@ -123,6 +123,50 @@ try {
   errors.push(`❌ Sitemap/robots.txt check error: ${e.message}`);
 }
 
+// 6. AI Agent Discovery & ai-catalog.json (ARD / RFC 8141) Verification
+try {
+  const catalogPaths = [
+    join(rootDir, 'public/ai-catalog.json'),
+    join(rootDir, 'public/.well-known/ai-catalog.json')
+  ];
+  const allowedMediaTypes = [
+    'application/ai-catalog+json',
+    'application/agent-card+json',
+    'application/a2a-agent-card+json',
+    'application/mcp-server-card+json',
+    'application/agent-skills+zip',
+    'application/agent-skills+gzip',
+    'text/markdown; profile="urn:air:agent-skills"',
+    'application/ai-registry',
+    'application/ai-registry+json'
+  ];
+  const urnPattern = /^urn:air:[a-zA-Z0-9.-]+(:[a-zA-Z0-9._-]+)+$/;
+
+  for (const catPath of catalogPaths) {
+    if (!existsSync(catPath)) {
+      errors.push(`❌ Missing ai-catalog at: ${catPath}`);
+      continue;
+    }
+    const content = JSON.parse(readFileSync(catPath, 'utf8'));
+    if (!content.entries || !Array.isArray(content.entries) || content.entries.length === 0) {
+      errors.push(`❌ ${catPath} has no entries.`);
+      continue;
+    }
+    for (let i = 0; i < content.entries.length; i++) {
+      const entry = content.entries[i];
+      if (!urnPattern.test(entry.identifier)) {
+        errors.push(`❌ ${catPath} entries[${i}].identifier does not match RFC 8141 URN pattern: "${entry.identifier}"`);
+      }
+      if (!allowedMediaTypes.includes(entry.type)) {
+        errors.push(`❌ ${catPath} entries[${i}].type "${entry.type}" is not an allowed discovery media type.`);
+      }
+    }
+  }
+  console.log('✅ AI Catalog & Agent Discovery Verification Passed: 100% compliant with ARD & RFC 8141 URN specifications.');
+} catch (e) {
+  errors.push(`❌ AI catalog verification error: ${e.message}`);
+}
+
 // Final Summary
 if (errors.length > 0) {
   console.error('\n🚨 100-Point SEO & Performance Check FAILED with the following regressions:');

@@ -87,12 +87,13 @@ export const PostDetailPage: React.FC<PostDetailPageProps> = ({
   };
 
   const categoryColorMap: Record<string, string> = {
-    공지사항: 'bg-red-50 text-red-600 border-red-200',
+    매거진: 'bg-purple-50 text-purple-600 border-purple-200',
+    유흥: 'bg-rose-50 text-rose-600 border-rose-200',
+    맛집: 'bg-amber-50 text-amber-600 border-amber-200',
+    핫플: 'bg-emerald-50 text-emerald-600 border-emerald-200',
     프로모션: 'bg-amber-50 text-amber-600 border-amber-200',
     VIP매거진: 'bg-purple-50 text-purple-600 border-purple-200',
-    커뮤니티: 'bg-blue-50 text-blue-600 border-blue-200',
-    카지노소식: 'bg-indigo-50 text-indigo-600 border-indigo-200',
-    여행정보: 'bg-emerald-50 text-emerald-600 border-emerald-200',
+    커뮤니티: 'bg-purple-50 text-purple-600 border-purple-200',
   };
 
   // Determine images to show strictly from the post
@@ -404,12 +405,16 @@ export const PostDetailPage: React.FC<PostDetailPageProps> = ({
             {/* Prev / Next Post Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               {prevPost ? (
-                <div
-                  onClick={() => {
+                <a
+                  href={getPostUrl(prevPost.id)}
+                  onClick={(e) => {
+                    e.preventDefault();
                     setSelectedPost(prevPost);
                     incrementPostView(prevPost.id);
+                    window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
                   }}
-                  className="p-4 rounded-2xl bg-white border border-slate-200/80 hover:border-[#30308A]/40 hover:shadow-sm cursor-pointer transition-all flex items-center gap-3 group"
+                  className="p-4 rounded-2xl bg-white border border-slate-200/80 hover:border-[#30308A]/40 hover:shadow-sm cursor-pointer transition-all flex items-center gap-3 group text-inherit no-underline"
+                  title={`${prevPost.title} 이전 게시글 보기`}
                 >
                   <ChevronLeft className="w-5 h-5 text-slate-400 group-hover:text-[#30308A] shrink-0 transition-transform group-hover:-translate-x-1" />
                   <div className="min-w-0">
@@ -418,7 +423,7 @@ export const PostDetailPage: React.FC<PostDetailPageProps> = ({
                       {prevPost.title}
                     </p>
                   </div>
-                </div>
+                </a>
               ) : (
                 <div className="p-4 rounded-2xl bg-slate-100/50 border border-slate-200/40 text-slate-400 text-xs flex items-center gap-2">
                   <ChevronLeft className="w-4 h-4 opacity-40" />
@@ -427,12 +432,16 @@ export const PostDetailPage: React.FC<PostDetailPageProps> = ({
               )}
 
               {nextPost ? (
-                <div
-                  onClick={() => {
+                <a
+                  href={getPostUrl(nextPost.id)}
+                  onClick={(e) => {
+                    e.preventDefault();
                     setSelectedPost(nextPost);
                     incrementPostView(nextPost.id);
+                    window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
                   }}
-                  className="p-4 rounded-2xl bg-white border border-slate-200/80 hover:border-[#30308A]/40 hover:shadow-sm cursor-pointer transition-all flex items-center justify-between gap-3 text-right group"
+                  className="p-4 rounded-2xl bg-white border border-slate-200/80 hover:border-[#30308A]/40 hover:shadow-sm cursor-pointer transition-all flex items-center justify-between gap-3 text-right group text-inherit no-underline"
+                  title={`${nextPost.title} 다음 게시글 보기`}
                 >
                   <div className="min-w-0 flex-1">
                     <span className="text-[11px] font-bold text-slate-400 block mb-0.5">다음 게시글</span>
@@ -441,7 +450,7 @@ export const PostDetailPage: React.FC<PostDetailPageProps> = ({
                     </p>
                   </div>
                   <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-[#30308A] shrink-0 transition-transform group-hover:translate-x-1" />
-                </div>
+                </a>
               ) : (
                 <div className="p-4 rounded-2xl bg-slate-100/50 border border-slate-200/40 text-slate-400 text-xs flex items-center justify-end gap-2 text-right">
                   <span>다음 게시글이 없습니다</span>
@@ -455,7 +464,7 @@ export const PostDetailPage: React.FC<PostDetailPageProps> = ({
               (() => {
                 const relatedPosts = posts
                   .filter((p) => String(p.id) !== String(post.id) && !(p as any).isDeleted)
-                  .filter((p) => p.category === post.category || p.category !== '공지사항')
+                  .filter((p) => (p.category === post.category || p.category !== '프로모션') && p.category !== '공지사항')
                   .slice(0, 3);
                 if (relatedPosts.length === 0) return null;
                 return (
@@ -471,13 +480,15 @@ export const PostDetailPage: React.FC<PostDetailPageProps> = ({
                       {relatedPosts.map((rel) => (
                         <a
                           key={rel.id}
-                          href={`?post=${encodeURIComponent(rel.id)}`}
+                          href={getPostUrl(rel.id)}
                           onClick={(e) => {
                             e.preventDefault();
                             setSelectedPost(rel);
                             incrementPostView(rel.id);
+                            window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
                           }}
-                          className="p-3 rounded-2xl bg-white border border-slate-200 hover:border-[#30308A]/40 hover:shadow-xs transition-all flex flex-col justify-between group cursor-pointer"
+                          className="p-3 rounded-2xl bg-white border border-slate-200 hover:border-[#30308A]/40 hover:shadow-xs transition-all flex flex-col justify-between group cursor-pointer text-inherit no-underline"
+                          title={`${rel.title} 읽어보기`}
                         >
                           <div className="space-y-1.5">
                             <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 inline-block">

@@ -135,7 +135,7 @@ export interface PostMapLocation {
 
 export interface PostItem {
   id: string;
-  category: '공지사항' | '프로모션' | 'VIP매거진' | '커뮤니티' | string;
+  category: '매거진' | '유흥' | '맛집' | '핫플' | '프로모션' | string;
   title: string;
   author: string;
   date: string;

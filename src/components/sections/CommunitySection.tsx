@@ -19,8 +19,17 @@ import { getResponsiveImageProps } from '../../utils/imageOptimizer';
 
 const POSTS_PER_PAGE = 9;
 
+const COMMUNITY_CATEGORIES = [
+  { id: 'all', label: '전체보기' },
+  { id: '매거진', label: '매거진' },
+  { id: '유흥', label: '유흥' },
+  { id: '맛집', label: '맛집' },
+  { id: '핫플', label: '핫플' },
+] as const;
+
 export const CommunitySection: React.FC = () => {
   const { posts, setSelectedPost, incrementPostView, siteConfig, restoreAllPostsAndImages } = useSite();
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [currentPage, setCurrentPage] = useState<number>(1);
 
@@ -38,7 +47,12 @@ export const CommunitySection: React.FC = () => {
     return true;
   });
 
-  const filteredPosts = uniqueCommunityPosts.filter((post) => {
+  const categoryFilteredPosts = uniqueCommunityPosts.filter((post) => {
+    if (selectedCategory === 'all') return true;
+    return post.category === selectedCategory;
+  });
+
+  const filteredPosts = categoryFilteredPosts.filter((post) => {
     if (!searchQuery.trim()) return true;
     const q = searchQuery.toLowerCase();
     return (
@@ -54,6 +68,11 @@ export const CommunitySection: React.FC = () => {
     (validCurrentPage - 1) * POSTS_PER_PAGE,
     validCurrentPage * POSTS_PER_PAGE
   );
+
+  const handleCategoryChange = (catId: string) => {
+    setSelectedCategory(catId);
+    setCurrentPage(1);
+  };
 
   const handleSearchChange = (query: string) => {
     setSearchQuery(query);
@@ -89,10 +108,12 @@ export const CommunitySection: React.FC = () => {
   };
 
   const categoryColorMap: Record<string, string> = {
-    커뮤니티: 'bg-blue-100 text-blue-900 border-blue-300 font-bold',
+    매거진: 'bg-purple-100 text-purple-900 border-purple-300 font-bold',
+    유흥: 'bg-rose-100 text-rose-900 border-rose-300 font-bold',
+    맛집: 'bg-amber-100 text-amber-900 border-amber-300 font-bold',
+    핫플: 'bg-emerald-100 text-emerald-900 border-emerald-300 font-bold',
     VIP매거진: 'bg-purple-100 text-purple-900 border-purple-300 font-bold',
-    카지노소식: 'bg-indigo-100 text-indigo-900 border-indigo-300 font-bold',
-    여행정보: 'bg-emerald-100 text-emerald-900 border-emerald-300 font-bold',
+    커뮤니티: 'bg-purple-100 text-purple-900 border-purple-300 font-bold',
   };
 
   return (
@@ -100,7 +121,7 @@ export const CommunitySection: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto space-y-2 mb-6 sm:mb-10">
+        <div className="text-center max-w-3xl mx-auto space-y-2 mb-6 sm:mb-8">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold tracking-wider text-[#30308A] bg-[#30308A]/10 uppercase font-montserrat">
             <FileText className="w-3.5 h-3.5" />
             <span>OASIS VIP COMMUNITY</span>
@@ -119,16 +140,49 @@ export const CommunitySection: React.FC = () => {
           </p>
         </div>
 
-        {/* Search Bar (Category filter buttons removed per user requirement) */}
-        <div className="flex items-center justify-end mb-4 sm:mb-6">
-          <div className="relative w-full sm:w-72">
+        {/* Category Filter Tabs & Search Bar Controls */}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 sm:gap-4 mb-6 sm:mb-8">
+          {/* Category Filter Buttons */}
+          <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
+            {COMMUNITY_CATEGORIES.map((cat) => {
+              const isActive = selectedCategory === cat.id;
+              const count =
+                cat.id === 'all'
+                  ? uniqueCommunityPosts.length
+                  : uniqueCommunityPosts.filter((p) => p.category === cat.id).length;
+              return (
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => handleCategoryChange(cat.id)}
+                  className={`inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap cursor-pointer ${
+                    isActive
+                      ? 'bg-[#30308A] text-white shadow-md shadow-[#30308A]/25 border border-[#30308A]'
+                      : 'bg-slate-50 hover:bg-slate-100 text-slate-700 hover:text-slate-900 border border-slate-200/90'
+                  }`}
+                >
+                  <span>{cat.label}</span>
+                  <span
+                    className={`text-[10px] sm:text-[11px] px-1.5 py-0.2 rounded-full font-semibold ${
+                      isActive ? 'bg-white/20 text-white' : 'bg-slate-200/70 text-slate-600'
+                    }`}
+                  >
+                    {count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Search Bar */}
+          <div className="relative w-full md:w-64 flex-shrink-0">
             <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
-              placeholder="커뮤니티 검색..."
+              placeholder="게시글 검색..."
               value={searchQuery}
               onChange={(e) => handleSearchChange(e.target.value)}
-              className="w-full pl-9 pr-4 py-1.5 sm:py-2 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#30308A] focus:bg-white transition-all"
+              className="w-full pl-9 pr-4 py-2 text-xs sm:text-sm bg-slate-50 border border-slate-200/90 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#30308A] focus:bg-white transition-all placeholder:text-slate-400"
             />
           </div>
         </div>
@@ -138,10 +192,24 @@ export const CommunitySection: React.FC = () => {
           <div className="py-20 text-center text-slate-500 bg-slate-50 rounded-2xl border border-dashed border-slate-200 space-y-3">
             <FileText className="w-10 h-10 mx-auto text-slate-400" />
             <p className="text-sm font-semibold text-slate-700">
-              {searchQuery ? '검색 조건에 일치하는 게시글이 없습니다.' : '표시할 커뮤니티 게시글이 없습니다.'}
+              {searchQuery
+                ? '검색 조건에 일치하는 게시글이 없습니다.'
+                : selectedCategory !== 'all'
+                ? `'${selectedCategory}' 카테고리에 등록된 게시글이 없습니다.`
+                : '표시할 커뮤니티 게시글이 없습니다.'}
             </p>
-            {searchQuery ? (
-              <p className="text-xs text-slate-500">다른 키워드 또는 카테고리를 선택해 보세요.</p>
+            {searchQuery || selectedCategory !== 'all' ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedCategory('all');
+                  setSearchQuery('');
+                  setCurrentPage(1);
+                }}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-200 text-slate-700 text-xs font-bold hover:bg-slate-300 transition-colors cursor-pointer"
+              >
+                전체보기로 돌아가기
+              </button>
             ) : (
               <button
                 type="button"

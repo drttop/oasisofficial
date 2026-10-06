@@ -428,7 +428,7 @@ export const AdminDashboard: React.FC = () => {
             }`}
           >
             <FileText className="w-4 h-4" />
-            커뮤니티/공지 관리 ({posts.length})
+            커뮤니티 관리 ({posts.length})
           </button>
           <button
             onClick={() => setActiveTab('leads')}
@@ -2099,7 +2099,7 @@ Sitemap: https://oasis46.com/sitemap.xml`}
               <div className="flex justify-between items-center">
                 <div>
                   <h3 className="text-base font-bold text-slate-900">
-                    커뮤니티 및 공지사항 CMS 관리
+                    커뮤니티 매거진 CMS 관리
                   </h3>
                   <p className="text-xs text-slate-500">
                     운영자 전용 게시판 글 작성, 상단 고정 및 수정/삭제
@@ -2323,7 +2323,7 @@ Sitemap: https://oasis46.com/sitemap.xml`}
                   데이터 백업, 가져오기 및 초기화
                 </h3>
                 <p className="text-xs text-slate-600 leading-relaxed">
-                  모든 사이트 설정, 카지노 목록, 공지사항 게시글, 상담 신청 내역을 JSON 파일로 안전하게 백업하거나 다른 기기에서 복원할 수 있습니다.
+                  모든 사이트 설정, 카지노 목록, 커뮤니티 게시글, 상담 신청 내역을 JSON 파일로 안전하게 백업하거나 다른 기기에서 복원할 수 있습니다.
                 </p>
 
                 {/* Permanent Source Code Sync Box */}

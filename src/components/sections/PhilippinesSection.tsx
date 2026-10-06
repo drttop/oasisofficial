@@ -46,8 +46,6 @@ export const PhilippinesSection: React.FC = () => {
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   referrerPolicy="no-referrer"
                 />
-                {/* Desktop: Title & Subtitle overlay on Image */}
-                <div className="hidden sm:block absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent" />
                 
                 <div className="absolute top-2 left-2 sm:top-3.5 sm:left-3.5">
                   <span className="px-1.5 sm:px-3 py-0.5 sm:py-1 rounded-md bg-[#1E1E4F] text-white text-[9px] sm:text-xs font-bold flex items-center gap-0.5 sm:gap-1 shadow-md">
@@ -55,27 +53,17 @@ export const PhilippinesSection: React.FC = () => {
                     {spot.location}
                   </span>
                 </div>
-
-                {/* Desktop Only: Title & Subtitle overlay on Image */}
-                <div className="hidden sm:block absolute bottom-3.5 left-4 right-4 text-white">
-                  <h3 className="text-xl font-bold tracking-tight text-white drop-shadow truncate">
-                    {spot.title}
-                  </h3>
-                  <p className="text-xs text-slate-300 font-medium mt-0.5 truncate">
-                    {spot.subtitle}
-                  </p>
-                </div>
               </div>
 
               <div className="p-2.5 sm:p-6 flex-1 flex flex-col justify-between space-y-2 sm:space-y-4">
-                <div className="space-y-1 sm:space-y-2">
-                  {/* Mobile Only: Main Title & Subtitle moved to description area */}
-                  <div className="block sm:hidden space-y-0.5">
-                    <h3 className="text-xs min-[360px]:text-sm font-bold text-slate-900 tracking-tight leading-snug line-clamp-1">
+                <div className="space-y-1.5 sm:space-y-2.5">
+                  {/* Main Title & Subtitle - moved from image to card body, main title enlarged by 20% */}
+                  <div className="space-y-0.5 sm:space-y-1">
+                    <h3 className="text-base min-[360px]:text-lg sm:text-2xl font-black text-slate-900 tracking-tight leading-snug line-clamp-1">
                       {spot.title}
                     </h3>
                     {spot.subtitle && (
-                      <p className="text-[10px] min-[360px]:text-[11px] text-slate-500 font-medium line-clamp-1">
+                      <p className="text-xs sm:text-sm text-[#30308A] font-bold tracking-tight line-clamp-1">
                         {spot.subtitle}
                       </p>
                     )}
@@ -84,18 +72,6 @@ export const PhilippinesSection: React.FC = () => {
                   <p className="text-[11px] sm:text-xs sm:text-sm text-slate-600 line-clamp-2 leading-relaxed">
                     {spot.description}
                   </p>
-                </div>
-
-                {/* Hashtags: Hidden on Mobile, Visible on Desktop (sm:flex) */}
-                <div className="hidden sm:flex flex-wrap gap-1 sm:gap-1.5 pt-1 sm:pt-2">
-                  {spot.tags.map((tag, tIdx) => (
-                    <span
-                      key={tIdx}
-                      className="px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-md bg-white border border-slate-200 text-slate-700 text-[9px] sm:text-xs font-medium"
-                    >
-                      #{tag}
-                    </span>
-                  ))}
                 </div>
 
                 <div className="pt-2 sm:pt-3 flex items-center gap-1 sm:gap-1.5 border-t border-slate-200 text-[10px] sm:text-xs font-bold text-[#30308A]">

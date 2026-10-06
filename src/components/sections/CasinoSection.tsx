@@ -52,8 +52,6 @@ export const CasinoSection: React.FC = () => {
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     referrerPolicy="no-referrer"
                   />
-                  {/* Desktop Only: subtle gradient overlay for readability of hotel name */}
-                  <div className="hidden sm:block absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent" />
                   
                   {/* Badges */}
                   <div className="absolute top-2 left-2 sm:top-3 sm:left-3 flex gap-1 sm:gap-1.5 flex-wrap items-center">
@@ -68,38 +66,27 @@ export const CasinoSection: React.FC = () => {
                       </span>
                     )}
                   </div>
-
-                  {/* Desktop Only: Hotel Name overlay on Image (English name removed) */}
-                  <div className="hidden sm:block absolute bottom-3 sm:left-4 sm:right-4 text-white">
-                    <h3 className="text-xl font-bold tracking-tight text-white drop-shadow truncate">
-                      {casino.name}
-                    </h3>
-                  </div>
                 </div>
 
                 {/* Card Body */}
                 <div className="p-2.5 sm:p-6 flex-1 flex flex-col justify-between space-y-2 sm:space-y-4">
-                  {/* Mobile Only: Hotel Name placed in description area with larger font size */}
-                  <div className="block sm:hidden">
-                    <h3 className="text-sm min-[360px]:text-[15px] min-[400px]:text-base font-extrabold text-slate-900 tracking-tight leading-snug line-clamp-1">
+                  {/* Hotel Name (Main Title) - moved below image with 20% enlarged font size */}
+                  <div>
+                    <h3 className="text-base min-[360px]:text-lg sm:text-2xl font-black text-slate-900 tracking-tight leading-snug line-clamp-1">
                       {casino.name}
                     </h3>
                   </div>
 
-                  {/* Hotel Description: Deleted on Mobile, Visible on Desktop (hidden sm:block) */}
+                  {/* Hotel Description: Visible on Desktop */}
                   <p className="hidden sm:block text-xs sm:text-sm text-slate-600 line-clamp-2 leading-relaxed">
                     {casino.description}
                   </p>
 
-                  {/* Specs List: Hotel Rating on the line above Gaming, both left-aligned */}
-                  <div className="space-y-1 sm:space-y-2 text-[10px] sm:text-xs border-y border-slate-100 py-1.5 sm:py-3">
+                  {/* Specs List: Hotel Rating only (Gaming removed as requested) */}
+                  <div className="border-y border-slate-100 py-1.5 sm:py-2.5 text-[10px] sm:text-xs">
                     <div className="flex items-center gap-1.5 sm:gap-2 text-slate-700">
                       <span className="text-slate-500 shrink-0 font-medium">호텔 등급</span>
                       <span className="font-bold text-slate-900 truncate text-left">{casino.hotelRating}</span>
-                    </div>
-                    <div className="flex items-center gap-1.5 sm:gap-2 text-slate-700">
-                      <span className="text-slate-500 shrink-0 font-medium">게이밍</span>
-                      <span className="font-bold text-slate-900 truncate text-left">{casino.tableGames}</span>
                     </div>
                   </div>
 

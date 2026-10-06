@@ -67,7 +67,7 @@ export const CasinoDetailModal: React.FC = () => {
             <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
               <span className="text-xs text-slate-500 font-semibold flex items-center gap-1">
                 <Building2 className="w-4 h-4 text-[#30308A]" />
-                테이블 & 게이밍 구성
+                테이블 구성
               </span>
               <p className="text-sm font-bold text-slate-900">{selectedCasino.tableGames}</p>
             </div>

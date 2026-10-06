@@ -216,8 +216,17 @@ const sanitizeForFirestore = (obj: any): any => {
 
 export const getDeletedPostIds = (): Set<string> => {
   const set = new Set<string>([
-    'post-1791011166992-o055', // 12312213
-    'post-1791011212743-6jgs', // ddddd
+    'post-1791011166992-o055',
+    'post-1791011212743-6jgs',
+    'post-3',
+    'post-yh-2',
+    'post-food-2',
+    'post-hp-2',
+    'post-1',
+    'post-4',
+    'notice-1',
+    'notice-2',
+    'notice-3',
   ]);
   if (typeof window !== 'undefined') {
     try {

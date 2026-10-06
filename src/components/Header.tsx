@@ -43,8 +43,8 @@ export const Header: React.FC = () => {
   // Mobile horizontal bar: 홈 삭제, 이용방법 제외(상단 삼선에서만 표시)
   const mobileHorizontalNavItems = [
     { label: siteConfig.navMenu1 || '오아시스', href: '#about', id: 'mob-horiz-about' },
-    { label: siteConfig.navMenu3 || 'VIP서비스', href: '#philippines', id: 'mob-horiz-philippines' },
-    { label: siteConfig.navMenu2 || '카지노서비스', href: '#casino', id: 'mob-horiz-casino' },
+    { label: siteConfig.navMenu3 || 'VIP 서비스', href: '#philippines', id: 'mob-horiz-philippines' },
+    { label: siteConfig.navMenu2 || '카지노 서비스', href: '#casino', id: 'mob-horiz-casino' },
     { label: siteConfig.navMenu4 || '프로모션', href: '#promotion', id: 'mob-horiz-promotion' },
     { label: siteConfig.navMenu5 || '커뮤니티', href: '#community', id: 'mob-horiz-community' },
   ];

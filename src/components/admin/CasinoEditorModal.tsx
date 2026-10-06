@@ -325,7 +325,7 @@ export const CasinoEditorModal: React.FC<CasinoEditorModalProps> = ({ casinoToEd
               />
             </div>
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">게이밍 테이블</label>
+              <label className="block text-xs font-bold text-slate-700 mb-1">테이블 게임 구성</label>
               <input
                 type="text"
                 value={tableGames}

@@ -100,7 +100,7 @@ interface SiteContextType {
 
 const SiteContext = createContext<SiteContextType | undefined>(undefined);
 
-export const APP_DATA_VERSION = 'oasis_unified_2026_v1';
+export const APP_DATA_VERSION = 'oasis_v2026_v3_clean';
 const APP_STORAGE_PREFIX = 'oasis_v2026';
 
 export const STORAGE_KEYS = {
@@ -303,6 +303,21 @@ export const sortCasinos = (items: CasinoItem[]): CasinoItem[] => {
   });
 };
 
+export const sanitizeCasinos = (items: CasinoItem[]): CasinoItem[] => {
+  return items.map((c) => ({
+    ...c,
+    description: (c.description || '').replace(/게이밍/g, '카지노'),
+    features: (c.features || []).map((f) => f.replace(/게이밍/g, '게임')),
+  }));
+};
+
+export const sanitizeSpots = (items: PhilippineTourSpot[]): PhilippineTourSpot[] => {
+  return items.map((s) => ({
+    ...s,
+    tags: [], // hashtags removed as requested
+  }));
+};
+
 export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [siteConfig, setSiteConfigState] = useState<SiteConfig>(() => {
     if (typeof window === 'undefined') return initialSiteConfig;
@@ -327,25 +342,25 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
   });
 
   const [casinos, setCasinosState] = useState<CasinoItem[]>(() => {
-    if (typeof window === 'undefined') return sortCasinos(initialCasinos);
+    if (typeof window === 'undefined') return sanitizeCasinos(sortCasinos(initialCasinos));
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.CASINOS);
       if (saved) {
-        return sortCasinos(JSON.parse(saved));
+        return sanitizeCasinos(sortCasinos(JSON.parse(saved)));
       }
     } catch {}
-    return sortCasinos(initialCasinos);
+    return sanitizeCasinos(sortCasinos(initialCasinos));
   });
 
   const [philippineSpots, setPhilippineSpotsState] = useState<PhilippineTourSpot[]>(() => {
-    if (typeof window === 'undefined') return initialPhilippineSpots;
+    if (typeof window === 'undefined') return sanitizeSpots(initialPhilippineSpots);
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.SPOTS);
       if (saved) {
-        return JSON.parse(saved);
+        return sanitizeSpots(JSON.parse(saved));
       }
     } catch {}
-    return initialPhilippineSpots;
+    return sanitizeSpots(initialPhilippineSpots);
   });
 
   const [posts, setPostsState] = useState<PostItem[]>(() => {
@@ -572,9 +587,12 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       }
 
-      // 2. Static content (casinos, spots, slides, faqs, config) is ONLY fetched when explicitly requested by Admin (force = true)
-      // This saves 70%+ of Firestore read quota on every visitor page refresh
-      if (force && !isQuotaExceededFlag) {
+      // 2. Static content (casinos, spots, slides, faqs, config) is fetched on initial session load or explicit admin sync
+      // Using sessionStorage marker prevents repeated reads on subsequent page refreshes within the same session
+      const hasSyncedStaticSession = typeof window !== 'undefined' ? sessionStorage.getItem(STORAGE_KEYS.LAST_STATIC_SYNC) : null;
+      const shouldSyncStatic = force || !hasSyncedStaticSession;
+
+      if (shouldSyncStatic && !isQuotaExceededFlag) {
         try {
           const staticResults = await Promise.allSettled([
             getDoc(doc(db, 'site_config', 'main')),
@@ -586,13 +604,24 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
           ]);
 
           if (staticResults[0].status === 'fulfilled' && staticResults[0].value.exists()) {
-            setSiteConfigState(sanitizeConfig(staticResults[0].value.data() as Partial<SiteConfig>));
+            const conf = sanitizeConfig(staticResults[0].value.data() as Partial<SiteConfig>);
+            setSiteConfigState(conf);
+            safeStorageSet(STORAGE_KEYS.CONFIG, JSON.stringify(conf));
           }
           if (staticResults[1].status === 'fulfilled' && !staticResults[1].value.empty) {
-            setCasinosState(sortCasinos(staticResults[1].value.docs.map((d) => ({ ...d.data(), id: d.id } as CasinoItem))));
+            const remoteCasinos = sanitizeCasinos(sortCasinos(staticResults[1].value.docs.map((d) => ({ ...d.data(), id: d.id } as CasinoItem))));
+            setCasinosState(remoteCasinos);
+            safeStorageSet(STORAGE_KEYS.CASINOS, JSON.stringify(remoteCasinos));
           }
           if (staticResults[2].status === 'fulfilled' && !staticResults[2].value.empty) {
-            setPhilippineSpotsState(staticResults[2].value.docs.map((d) => ({ ...d.data(), id: d.id } as PhilippineTourSpot)));
+            const remoteSpots = sanitizeSpots(staticResults[2].value.docs.map((d) => ({ ...d.data(), id: d.id } as PhilippineTourSpot)));
+            setPhilippineSpotsState(remoteSpots);
+            safeStorageSet(STORAGE_KEYS.SPOTS, JSON.stringify(remoteSpots));
+          }
+          if (typeof window !== 'undefined') {
+            try {
+              sessionStorage.setItem(STORAGE_KEYS.LAST_STATIC_SYNC, String(Date.now()));
+            } catch {}
           }
           if (staticResults[3].status === 'fulfilled' && !staticResults[3].value.empty) {
             const rawSlides = staticResults[3].value.docs.map((d) => ({ ...d.data(), id: d.id } as BannerSlide));

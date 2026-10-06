@@ -111,7 +111,7 @@ export const initialCasinos: CasinoItem[] = [
     "features": [
       "3대 럭셔리 호텔 브랜드 집약",
       "드림플레이 테마파크 & 고급 라운지",
-      "최첨단 전자 게이밍 및 프리미엄 라이브 테이블",
+      "최첨단 전자 시스템 및 프리미엄 라이브 테이블",
       "황금빛 돔 구조의 상징적 건축미"
     ],
     "tableGames": "VIP 라이브 프리미엄 테이블, 룰렛 등 (300+ 테이블)",
@@ -170,7 +170,7 @@ export const initialCasinos: CasinoItem[] = [
     "region": "clark",
     "regionLabel": "클락 경제자유구역 (Clark Freeport Zone)",
     "image": "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fm=webp&fit=crop&w=600&q=75&ext=.webp",
-    "description": "클락 최고의 최신식 5성급 복합 리조트로, 메리어트 호텔 & 스위소텔과 직결되어 쾌적하고 안전한 최고급 게이밍 환경을 제공합니다.",
+    "description": "클락 최고의 최신식 5성급 복합 리조트로, 메리어트 호텔 & 스위소텔과 직결되어 쾌적하고 안전한 최고급 VIP 카지노 환경을 제공합니다.",
     "features": [
       "클락 최대 규모 최신식 5성급 시설",
       "스위소텔 & 클락 메리어트 호텔 직통 연결",
@@ -191,7 +191,7 @@ export const initialCasinos: CasinoItem[] = [
     "region": "clark",
     "regionLabel": "클락 몬테레이 힐스",
     "image": "https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fm=webp&fit=crop&w=600&q=75&ext=.webp",
-    "description": "클락의 수려한 자연경관 속에 위치한 프리미엄 리조트로, 썬밸리 골프장과 인접하여 여유로운 힐링과 고품격 게이밍을 동시에 만끽할 수 있습니다.",
+    "description": "클락의 수려한 자연경관 속에 위치한 프리미엄 리조트로, 썬밸리 골프장과 인접하여 여유로운 힐링과 고품격 엔터테인먼트를 동시에 만끽할 수 있습니다.",
     "features": [
       "자연 친화적 힐튼 호텔 직결",
       "36홀 클락 썬밸리 CC 바로 인접",
@@ -215,12 +215,7 @@ export const initialPhilippineSpots: PhilippineTourSpot[] = [
     "subtitle": "오카다 / 솔레어 / 그랜드 하얏트 BGC",
     "image": "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fm=webp&fit=crop&w=600&q=75&ext=.webp",
     "description": "오아시스 VIP 고객님께는 최고급 오션뷰 및 스위트 객실 무료 지원 또는 특별 프로모션 요율을 적용해 드립니다.",
-    "tags": [
-      "5성급 호텔",
-      "스위트룸 무료지원",
-      "오션뷰",
-      "24시간 룸서비스"
-    ],
+    "tags": [],
     "location": "Metro Manila"
   },
   {
@@ -230,12 +225,7 @@ export const initialPhilippineSpots: PhilippineTourSpot[] = [
     "subtitle": "미모사 골프클럽 / 클락 썬밸리 CC / FA코리아 CC",
     "image": "https://images.unsplash.com/photo-1535131749006-b7f58c99034b?auto=format&fm=webp&fit=crop&w=600&q=75&ext=.webp",
     "description": "필리핀 최고의 잔디 컨디션을 자랑하는 PGA급 코스에서 1:1 캐디 및 전용 카트, 패스트 부킹 혜택을 제공합니다.",
-    "tags": [
-      "명문 골프장",
-      "PGA 36홀",
-      "VIP 티오프 우선예약",
-      "클럽하우스 의전"
-    ],
+    "tags": [],
     "location": "Clark / Angeles"
   },
   {
@@ -245,12 +235,7 @@ export const initialPhilippineSpots: PhilippineTourSpot[] = [
     "subtitle": "미슐랭 스타 일식, 최고급 한우/와규 스테이크 & 와인 바",
     "image": "https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?auto=format&fm=webp&fit=crop&w=600&q=75&ext=.webp",
     "description": "필리핀 최고의 부촌 BGC(보니파시오)와 호텔 리조트 내 프리미엄 레스토랑 사전 예약 및 VIP 할인 서비스를 지원합니다.",
-    "tags": [
-      "파인다이닝",
-      "미슐랭 셰프",
-      "프라이빗 룸",
-      "VIP 바우처"
-    ],
+    "tags": [],
     "location": "Bonifacio Global City"
   },
   {
@@ -260,12 +245,7 @@ export const initialPhilippineSpots: PhilippineTourSpot[] = [
     "subtitle": "e-Travel 사전 등록 대행, 여권 6개월 이상, 무비자 30일 체류",
     "image": "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fm=webp&fit=crop&w=600&q=75&ext=.webp",
     "description": "복잡한 입국 절차 없이 공항 내 VIP 패스트트랙 통과부터 최고급 의전 세단으로 호텔까지 안전하고 신속하게 모십니다.",
-    "tags": [
-      "공항 패스트트랙",
-      "eTravel 지원",
-      "안전보안",
-      "전용 리무진"
-    ],
+    "tags": [],
     "location": "NAIA Manila & Clark Airport"
   }
 ];

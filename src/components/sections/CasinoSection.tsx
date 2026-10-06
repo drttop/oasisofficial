@@ -70,11 +70,16 @@ export const CasinoSection: React.FC = () => {
 
                 {/* Card Body */}
                 <div className="p-2.5 sm:p-6 flex-1 flex flex-col justify-between space-y-2 sm:space-y-4">
-                  {/* Hotel Name (Main Title) - moved below image with 20% enlarged font size */}
-                  <div>
+                  {/* Hotel Name (Main Title) & English Name (Subtitle) - moved below image with 20% enlarged font size */}
+                  <div className="space-y-0.5 sm:space-y-1">
                     <h3 className="text-base min-[360px]:text-lg sm:text-2xl font-black text-slate-900 tracking-tight leading-snug line-clamp-1">
                       {casino.name}
                     </h3>
+                    {casino.englishName && (
+                      <p className="text-xs sm:text-sm text-[#30308A] font-bold tracking-tight line-clamp-1">
+                        {casino.englishName}
+                      </p>
+                    )}
                   </div>
 
                   {/* Hotel Description: Visible on Desktop */}

@@ -16,6 +16,7 @@ import {
 import { getPostUrl } from '../../utils/seo';
 import { isMapInContent, stripFormattingTags } from '../../utils/postContent';
 import { getResponsiveImageProps } from '../../utils/imageOptimizer';
+import { initialPosts } from '../../data/initialData';
 
 const POSTS_PER_PAGE = 6;
 
@@ -160,6 +161,13 @@ export const PromotionSection: React.FC = () => {
                           height={360}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                           referrerPolicy="no-referrer"
+                          onError={(e) => {
+                            const target = e.currentTarget;
+                            const fallback = initialPosts.find((p) => p.id === post.id);
+                            if (fallback && fallback.thumbnail && target.src !== fallback.thumbnail) {
+                              target.src = fallback.thumbnail;
+                            }
+                          }}
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent opacity-60" />
 

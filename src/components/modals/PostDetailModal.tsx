@@ -19,6 +19,7 @@ import { getPostUrl } from '../../utils/seo';
 import { isPhotoInContent, isMapInContent, FormattedPostContent } from '../../utils/postContent';
 import { GoogleMapEmbed } from '../community/GoogleMapEmbed';
 import { getOptimizedImageUrl } from '../../utils/imageOptimizer';
+import { initialPosts } from '../../data/initialData';
 
 export const PostDetailModal: React.FC = () => {
   const { selectedPost, setSelectedPost, siteConfig } = useSite();
@@ -179,6 +180,15 @@ export const PostDetailModal: React.FC = () => {
                     referrerPolicy="no-referrer"
                     loading="lazy"
                     decoding="async"
+                    onError={(e) => {
+                      const target = e.currentTarget;
+                      const fallback = initialPosts.find((p) => p.id === selectedPost.id);
+                      if (fallback?.images?.[0] && target.src !== fallback.images[0]) {
+                        target.src = fallback.images[0];
+                      } else if (fallback?.thumbnail && target.src !== fallback.thumbnail) {
+                        target.src = fallback.thumbnail;
+                      }
+                    }}
                   />
                 </div>
               ) : (
@@ -198,6 +208,13 @@ export const PostDetailModal: React.FC = () => {
                         referrerPolicy="no-referrer"
                         loading="lazy"
                         decoding="async"
+                        onError={(e) => {
+                          const target = e.currentTarget;
+                          const fallback = initialPosts.find((p) => p.id === selectedPost.id);
+                          if (fallback?.images?.[idx] && target.src !== fallback.images[idx]) {
+                            target.src = fallback.images[idx];
+                          }
+                        }}
                       />
                     </div>
                   ))}
@@ -260,6 +277,13 @@ export const PostDetailModal: React.FC = () => {
                       referrerPolicy="no-referrer"
                       loading="lazy"
                       decoding="async"
+                      onError={(e) => {
+                        const target = e.currentTarget;
+                        const fallback = initialPosts.find((p) => p.id === selectedPost.id);
+                        if (fallback?.images?.[idx] && target.src !== fallback.images[idx]) {
+                          target.src = fallback.images[idx];
+                        }
+                      }}
                     />
                   </div>
                 ))}

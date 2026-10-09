@@ -16,6 +16,7 @@ import {
 import { getPostUrl } from '../../utils/seo';
 import { isMapInContent, stripFormattingTags } from '../../utils/postContent';
 import { getResponsiveImageProps } from '../../utils/imageOptimizer';
+import { initialPosts } from '../../data/initialData';
 
 const POSTS_PER_PAGE = 9;
 
@@ -252,6 +253,13 @@ export const CommunitySection: React.FC = () => {
                         height={360}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         referrerPolicy="no-referrer"
+                        onError={(e) => {
+                          const target = e.currentTarget;
+                          const fallback = initialPosts.find((p) => p.id === post.id);
+                          if (fallback && fallback.thumbnail && target.src !== fallback.thumbnail) {
+                            target.src = fallback.thumbnail;
+                          }
+                        }}
                       />
                       <div className="absolute top-1.5 sm:top-3 left-1.5 sm:left-3 flex items-center gap-1 sm:gap-1.5 flex-wrap">
                         <span

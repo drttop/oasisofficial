@@ -6,7 +6,7 @@
   <!-- Main Home Page -->
   <url>
     <loc>https://oasis46.com/</loc>
-    <lastmod>2026-10-06</lastmod>
+    <lastmod>2026-10-09</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
     <image:image>
@@ -15,7 +15,95 @@
     </image:image>
   </url>
 
-  <!-- Community & Promotion Verified Canonical Posts (13 entries) -->
+  <!-- Community Individual Posts (20 entries) -->
+
+  <url>
+    <loc>https://oasis46.com/?post=post-1791459053249-1ehh</loc>
+    <lastmod>2026-10-08</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://oasis46.com/logo.jpg</image:loc>
+      <image:title>마닐라 오아시스 에이전시, 도대체 뭐가 달라?</image:title>
+    </image:image>
+  </url>
+
+  <url>
+    <loc>https://oasis46.com/?post=post-1791450511355-82g5</loc>
+    <lastmod>2026-10-08</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://oasis46.com/logo.jpg</image:loc>
+      <image:title>한국 수준의 치안 인프라: 마닐라 3대 도시(파사이·BGC·마카티)</image:title>
+    </image:image>
+  </url>
+
+  <url>
+    <loc>https://oasis46.com/?post=post-1791435019444-0wqa</loc>
+    <lastmod>2026-10-08</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://oasis46.com/logo.jpg</image:loc>
+      <image:title>가성비와 퀄리티 만족 무한리필 샤브샤브: 샤브칸(SHABU KHAN)</image:title>
+    </image:image>
+  </url>
+
+  <url>
+    <loc>https://oasis46.com/?post=post-1791357787254-0kjc</loc>
+    <lastmod>2026-10-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://oasis46.com/logo.jpg</image:loc>
+      <image:title>마닐라 최고의 인스타그래머블 스팟:  이색 레트로 다이닝 '필링스테이션'</image:title>
+    </image:image>
+  </url>
+
+  <url>
+    <loc>https://oasis46.com/?post=post-1791305289791-vpqr</loc>
+    <lastmod>2026-10-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://oasis46.com/logo.jpg</image:loc>
+      <image:title>마닐라 시티오브드림 COD 카지노 호텔 수영장 비교: 누와, 노부, 하얏트</image:title>
+    </image:image>
+  </url>
+
+  <url>
+    <loc>https://oasis46.com/?post=post-1791304802946-7dtd</loc>
+    <lastmod>2026-10-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://oasis46.com/logo.jpg</image:loc>
+      <image:title>마닐라 카지노 에이전트 VS 에이전시 뭐가 다를까?</image:title>
+    </image:image>
+  </url>
+
+  <url>
+    <loc>https://oasis46.com/?post=post-1791304435838-26jw</loc>
+    <lastmod>2026-10-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://oasis46.com/logo.jpg</image:loc>
+      <image:title>오아시스 10~11월 기존 이용회원 스위트룸 2박 프로모션</image:title>
+    </image:image>
+  </url>
+
+  <url>
+    <loc>https://oasis46.com/?post=post-1791304217464-nwfw</loc>
+    <lastmod>2026-10-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://oasis46.com/logo.jpg</image:loc>
+      <image:title>오카다 '선미' VIP전용 콘서트: 오아시스 에이전시 한정 수량 배정</image:title>
+    </image:image>
+  </url>
 
   <url>
     <loc>https://oasis46.com/?post=post-1791044586368-915x</loc>
@@ -23,8 +111,19 @@
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <image:image>
-      <image:loc>https://oasis46.com/images/posts/post_post-1791044586368-915x_thumb.webp</image:loc>
+      <image:loc>https://oasis46.com/logo.jpg</image:loc>
       <image:title>검증된 마사지샵 구별법 및 안전 예약 전략</image:title>
+    </image:image>
+  </url>
+
+  <url>
+    <loc>https://oasis46.com/?post=promo-1</loc>
+    <lastmod>2026-10-03</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://oasis46.com/logo.jpg</image:loc>
+      <image:title>[10월] COD 신규회원 추가 3박 프리룸 프로모션</image:title>
     </image:image>
   </url>
 
@@ -34,7 +133,7 @@
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <image:image>
-      <image:loc>https://oasis46.com/images/posts/post_post-2_thumb.webp</image:loc>
+      <image:loc>https://oasis46.com/logo.jpg</image:loc>
       <image:title>필리핀 마닐라 카지노 에이전시 왜 필요해? 실제 비용혜택 정리</image:title>
     </image:image>
   </url>
@@ -45,8 +144,19 @@
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <image:image>
-      <image:loc>https://oasis46.com/images/posts/post_post-2_thumb.webp</image:loc>
+      <image:loc>https://oasis46.com/logo.jpg</image:loc>
       <image:title>유류할증료 두달연속 인상! 필리핀 마닐라 무료항공권 혜택 노려야 하는 이유</image:title>
+    </image:image>
+  </url>
+
+  <url>
+    <loc>https://oasis46.com/?post=promo-3</loc>
+    <lastmod>2026-09-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://oasis46.com/logo.jpg</image:loc>
+      <image:title>9월 신규회원대상 이벤트!! 마닐라 5성급호텔 프리룸 3박</image:title>
     </image:image>
   </url>
 
@@ -56,7 +166,7 @@
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <image:image>
-      <image:loc>https://oasis46.com/images/posts/post_post-6_thumb.webp</image:loc>
+      <image:loc>https://oasis46.com/logo.jpg</image:loc>
       <image:title>마닐라 카지노 4대호텔 오카다,COD,솔레어 완벽 비교 가이드</image:title>
     </image:image>
   </url>
@@ -67,7 +177,7 @@
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <image:image>
-      <image:loc>https://oasis46.com/images/posts/post_post-3_thumb.webp</image:loc>
+      <image:loc>https://oasis46.com/logo.jpg</image:loc>
       <image:title>페소환율 7년만의 최저기록 지금이 여행 최적기!</image:title>
     </image:image>
   </url>
@@ -78,8 +188,19 @@
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <image:image>
-      <image:loc>https://oasis46.com/images/posts/post_4_thumb.webp</image:loc>
+      <image:loc>https://oasis46.com/logo.jpg</image:loc>
       <image:title>필리핀 여행주의! 금연법 강력처벌! 대처 가이드</image:title>
+    </image:image>
+  </url>
+
+  <url>
+    <loc>https://oasis46.com/?post=promo-4</loc>
+    <lastmod>2026-08-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://oasis46.com/logo.jpg</image:loc>
+      <image:title>2026 9월 기존 회원 대상, 스위트룸 3박 무료 특별 프로모션</image:title>
     </image:image>
   </url>
 
@@ -89,7 +210,7 @@
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <image:image>
-      <image:loc>https://oasis46.com/images/posts/post_post-3_thumb.webp</image:loc>
+      <image:loc>https://oasis46.com/logo.jpg</image:loc>
       <image:title>클락 한 카지노 리조트 신규 VIP 프라이빗 살롱 확장 오픈</image:title>
     </image:image>
   </url>
@@ -100,52 +221,8 @@
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <image:image>
-      <image:loc>https://oasis46.com/images/posts/post-5-img-2.webp</image:loc>
+      <image:loc>https://oasis46.com/logo.jpg</image:loc>
       <image:title>마닐라 BGC 하이엔드 다이닝 &amp; 루프탑 라운지 BEST 5</image:title>
-    </image:image>
-  </url>
-
-  <url>
-    <loc>https://oasis46.com/?post=promo-1</loc>
-    <lastmod>2026-10-03</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-    <image:image>
-      <image:loc>https://oasis46.com/images/posts/post_post-1791016351516-bgbw_thumb.webp</image:loc>
-      <image:title>[10월] COD 신규회원 추가 3박 프리룸 프로모션</image:title>
-    </image:image>
-  </url>
-
-  <url>
-    <loc>https://oasis46.com/?post=promo-2</loc>
-    <lastmod>2026-10-03</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-    <image:image>
-      <image:loc>https://oasis46.com/images/posts/post_post-1791016734781-bbt9_thumb.webp</image:loc>
-      <image:title>10월~11월 기존 이용회원 스위트룸 2박 프로모션</image:title>
-    </image:image>
-  </url>
-
-  <url>
-    <loc>https://oasis46.com/?post=promo-3</loc>
-    <lastmod>2026-09-18</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-    <image:image>
-      <image:loc>https://oasis46.com/images/posts/post_0_thumb.webp</image:loc>
-      <image:title>9월 신규회원대상 이벤트!! 마닐라 5성급호텔 프리룸 3박</image:title>
-    </image:image>
-  </url>
-
-  <url>
-    <loc>https://oasis46.com/?post=promo-4</loc>
-    <lastmod>2026-08-20</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-    <image:image>
-      <image:loc>https://oasis46.com/images/posts/post_post-2_thumb.webp</image:loc>
-      <image:title>2026 9월 기존 회원 대상, 스위트룸 3박 무료 특별 프로모션</image:title>
     </image:image>
   </url>
 
@@ -155,7 +232,7 @@
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <image:image>
-      <image:loc>https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fm=webp&fit=crop&w=600&q=75&ext=.webp</image:loc>
+      <image:loc>https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&amp;fm=webp&amp;fit=crop&amp;w=600&amp;q=75&amp;ext=.webp</image:loc>
       <image:title>2026 뉴포트 월드 &amp; 마닐라 COD 카지노 롤링 1.5% 및 항공권 바우처 특별 프로모션</image:title>
     </image:image>
   </url>

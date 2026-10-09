@@ -100,7 +100,7 @@ interface SiteContextType {
 
 const SiteContext = createContext<SiteContextType | undefined>(undefined);
 
-export const APP_DATA_VERSION = 'oasis_v2026_v4_community_categories';
+export const APP_DATA_VERSION = 'oasis_v2026_v6_data_urls_restored';
 const APP_STORAGE_PREFIX = 'oasis_v2026';
 
 export const STORAGE_KEYS = {
@@ -129,10 +129,16 @@ if (typeof window !== 'undefined') {
   try {
     const currentVersion = localStorage.getItem(STORAGE_KEYS.VERSION);
     if (currentVersion !== APP_DATA_VERSION) {
-      console.log('[Oasis Cache] Updating cache version:', APP_DATA_VERSION);
-      // Clean only obsolete raw legacy non-prefixed keys if any exist (do NOT delete user custom data)
-      const legacyRawKeys = ['posts', 'casinos', 'slides', 'spots', 'config', 'leads'];
-      legacyRawKeys.forEach((k) => {
+      console.log('[Oasis Cache] Updating cache version to:', APP_DATA_VERSION);
+      // Clean outdated caches so the new pristine static state (with extracted webp images and latest posts) loads cleanly
+      [
+        STORAGE_KEYS.POSTS,
+        STORAGE_KEYS.CASINOS,
+        STORAGE_KEYS.SLIDES,
+        STORAGE_KEYS.SPOTS,
+        STORAGE_KEYS.CONFIG,
+        'posts', 'casinos', 'slides', 'spots', 'config', 'leads'
+      ].forEach((k) => {
         try {
           localStorage.removeItem(k);
         } catch {}

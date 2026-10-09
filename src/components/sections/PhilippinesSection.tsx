@@ -2,6 +2,7 @@ import React from 'react';
 import { useSite } from '../../context/SiteContext';
 import { Compass, MapPin, Sparkles } from 'lucide-react';
 import { getResponsiveImageProps } from '../../utils/imageOptimizer';
+import { initialPhilippineSpots } from '../../data/initialData';
 
 export const PhilippinesSection: React.FC = () => {
   const { philippineSpots, siteConfig } = useSite();
@@ -45,6 +46,13 @@ export const PhilippinesSection: React.FC = () => {
                   height={400}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   referrerPolicy="no-referrer"
+                  onError={(e) => {
+                    const target = e.currentTarget;
+                    const fallback = initialPhilippineSpots.find((s) => s.id === spot.id);
+                    if (fallback && fallback.image && target.src !== fallback.image) {
+                      target.src = fallback.image;
+                    }
+                  }}
                 />
                 
                 <div className="absolute top-2 left-2 sm:top-3.5 sm:left-3.5">

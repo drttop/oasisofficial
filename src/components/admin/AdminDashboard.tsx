@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useSite } from '../../context/SiteContext';
 import { PostItem, CasinoItem, BannerSlide, PhilippineTourSpot } from '../../types';
-import { initialSiteConfig, initialBannerSlides } from '../../data/initialData';
+import { initialSiteConfig, initialBannerSlides, initialCasinos, initialPhilippineSpots } from '../../data/initialData';
 import { OasisLogoHorizontal } from '../OasisLogoHorizontal';
 import { CasinoEditorModal } from './CasinoEditorModal';
 import { PhilippineSpotEditorModal } from './PhilippineSpotEditorModal';
@@ -1617,6 +1617,13 @@ Sitemap: https://oasis46.com/sitemap.xml`}
                         alt={casino.name}
                         className="w-24 h-24 rounded-xl object-cover shrink-0"
                         referrerPolicy="no-referrer"
+                        onError={(e) => {
+                          const target = e.currentTarget;
+                          const fallback = initialCasinos.find((c) => c.id === casino.id);
+                          if (fallback && fallback.image && target.src !== fallback.image) {
+                            target.src = fallback.image;
+                          }
+                        }}
                       />
                       <span className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded bg-slate-900/80 text-[#E5B54F] font-mono text-[10px] font-black backdrop-blur-sm">
                         {String(idx + 1).padStart(2, '0')}
@@ -1799,6 +1806,13 @@ Sitemap: https://oasis46.com/sitemap.xml`}
                       alt={spot.title}
                       className="w-24 h-24 rounded-xl object-cover shrink-0 bg-slate-100"
                       referrerPolicy="no-referrer"
+                      onError={(e) => {
+                        const target = e.currentTarget;
+                        const fallback = initialPhilippineSpots.find((s) => s.id === spot.id);
+                        if (fallback && fallback.image && target.src !== fallback.image) {
+                          target.src = fallback.image;
+                        }
+                      }}
                     />
                     <div className="flex-1 flex flex-col justify-between">
                       <div>

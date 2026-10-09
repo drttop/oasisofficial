@@ -100,7 +100,7 @@ interface SiteContextType {
 
 const SiteContext = createContext<SiteContextType | undefined>(undefined);
 
-export const APP_DATA_VERSION = 'oasis_v2026_v6_data_urls_restored';
+export const APP_DATA_VERSION = 'oasis_v2026_v7_vip_casino_restored';
 const APP_STORAGE_PREFIX = 'oasis_v2026';
 
 export const STORAGE_KEYS = {

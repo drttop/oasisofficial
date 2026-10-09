@@ -2,6 +2,7 @@ import React from 'react';
 import { useSite, sortCasinos } from '../../context/SiteContext';
 import { Crown, Sparkles, Eye } from 'lucide-react';
 import { getResponsiveImageProps } from '../../utils/imageOptimizer';
+import { initialCasinos } from '../../data/initialData';
 
 export const CasinoSection: React.FC = () => {
   const { casinos, setSelectedCasino, siteConfig } = useSite();
@@ -51,6 +52,13 @@ export const CasinoSection: React.FC = () => {
                     height={320}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     referrerPolicy="no-referrer"
+                    onError={(e) => {
+                      const target = e.currentTarget;
+                      const fallback = initialCasinos.find((c) => c.id === casino.id);
+                      if (fallback && fallback.image && target.src !== fallback.image) {
+                        target.src = fallback.image;
+                      }
+                    }}
                   />
                   
                   {/* Badges */}

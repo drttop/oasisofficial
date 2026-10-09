@@ -2,6 +2,7 @@ import React from 'react';
 import { useSite } from '../../context/SiteContext';
 import { X, MapPin, Sparkles, Check, Building2, Crown, MessageCircle, Send, Star } from 'lucide-react';
 import { getOptimizedImageUrl } from '../../utils/imageOptimizer';
+import { initialCasinos } from '../../data/initialData';
 
 export const CasinoDetailModal: React.FC = () => {
   const { selectedCasino, setSelectedCasino, siteConfig } = useSite();
@@ -21,6 +22,13 @@ export const CasinoDetailModal: React.FC = () => {
             referrerPolicy="no-referrer"
             loading="lazy"
             decoding="async"
+            onError={(e) => {
+              const target = e.currentTarget;
+              const fallback = initialCasinos.find((c) => c.id === selectedCasino.id);
+              if (fallback && fallback.image && target.src !== fallback.image) {
+                target.src = fallback.image;
+              }
+            }}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
           

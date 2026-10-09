@@ -257,6 +257,14 @@ export const SEOManager: React.FC = () => {
         window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
         return;
       }
+      if (hash === '#community') {
+        setActiveInfoModal('community');
+        handledPostIdRef.current = null;
+        lastActivePostRef.current = null;
+        setSelectedPost(null);
+        window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
+        return;
+      }
 
       // Close info modal if returning to main page
       setActiveInfoModal(null);

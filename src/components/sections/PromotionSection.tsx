@@ -12,6 +12,7 @@ import {
   Camera,
   MapPin,
   Percent,
+  FileText,
 } from 'lucide-react';
 import { getPostUrl } from '../../utils/seo';
 import { isMapInContent, stripFormattingTags } from '../../utils/postContent';
@@ -21,7 +22,7 @@ import { initialPosts } from '../../data/initialData';
 const POSTS_PER_PAGE = 6;
 
 export const PromotionSection: React.FC = () => {
-  const { posts, setSelectedPost, incrementPostView, siteConfig } = useSite();
+  const { posts, setSelectedPost, incrementPostView, siteConfig, setActiveInfoModal } = useSite();
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [currentPage, setCurrentPage] = useState<number>(1);
 
@@ -290,6 +291,25 @@ export const PromotionSection: React.FC = () => {
                 </button>
               </div>
             )}
+
+            {/* Direct Link to Community & Magazine */}
+            <div className="mt-12 sm:mt-16 text-center">
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveInfoModal('community');
+                  if (typeof window !== 'undefined') {
+                    window.history.pushState({ section: 'community' }, '', `${window.location.pathname}#community`);
+                    window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
+                  }
+                }}
+                className="inline-flex items-center gap-2.5 px-6 py-3.5 rounded-xl bg-gradient-to-r from-[#30308A] to-[#1E1E4F] hover:from-[#3d3dc2] hover:to-[#28286a] text-white font-bold text-xs sm:text-sm shadow-xl hover:shadow-2xl hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer border border-white/10"
+              >
+                <FileText className="w-4 h-4 text-[#E5B54F]" />
+                <span>오아시스 커뮤니티 & 매거진 전체보기</span>
+                <ChevronRight className="w-4 h-4 text-[#E5B54F]" />
+              </button>
+            </div>
           </>
         )}
       </div>

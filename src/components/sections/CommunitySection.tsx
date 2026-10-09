@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSite } from '../../context/SiteContext';
 import { PostItem } from '../../types';
 import {
@@ -29,10 +29,15 @@ const COMMUNITY_CATEGORIES = [
 ] as const;
 
 export const CommunitySection: React.FC = () => {
-  const { posts, setSelectedPost, incrementPostView, siteConfig, restoreAllPostsAndImages } = useSite();
+  const { posts, setSelectedPost, incrementPostView, siteConfig, restoreAllPostsAndImages, setActiveInfoModal, refreshCloudData } = useSite();
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [currentPage, setCurrentPage] = useState<number>(1);
+
+  // On-demand refresh: fetch latest posts from cloud only when Community view is actively mounted
+  useEffect(() => {
+    refreshCloudData(false);
+  }, []);
 
   // Exclude '공지사항' and '프로모션' (프로모션 is in its own dedicated board)
   const communityPosts = posts.filter(
@@ -121,6 +126,24 @@ export const CommunitySection: React.FC = () => {
     <section id="community" className="py-10 sm:py-20 bg-white text-slate-900 scroll-mt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
+        {/* Back to Home Navigation Button */}
+        <div className="mb-6 flex items-center justify-between">
+          <button
+            type="button"
+            onClick={() => {
+              setActiveInfoModal(null);
+              if (typeof window !== 'undefined') {
+                window.history.pushState({ section: 'home' }, '', window.location.pathname);
+                window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
+              }
+            }}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 font-bold text-xs transition-colors cursor-pointer"
+          >
+            <ChevronLeft className="w-4 h-4" />
+            <span>메인 화면으로 돌아가기</span>
+          </button>
+        </div>
+
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto space-y-2 mb-6 sm:mb-8">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold tracking-wider text-[#30308A] bg-[#30308A]/10 uppercase font-montserrat">

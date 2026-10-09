@@ -75,6 +75,17 @@ export const Header: React.FC = () => {
       return;
     }
 
+    if (href === '#community') {
+      if (selectedPost) setSelectedPost(null);
+      if (isPostEditorOpen) closePostEditor();
+      setActiveInfoModal('community');
+      if (typeof window !== 'undefined') {
+        window.history.pushState({ section: 'community' }, '', `${window.location.pathname}#community`);
+        window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
+      }
+      return;
+    }
+
     const wasSubPageOpen = Boolean(activeInfoModal || selectedPost || isPostEditorOpen);
 
     if (activeInfoModal) {

@@ -65,10 +65,14 @@ const MainAppContent: React.FC = () => {
 
   const handleBackToCommunity = () => {
     const isPromotion = selectedPost?.category === '프로모션';
-    const targetId = isPromotion ? 'promotion' : 'community';
-
     setSelectedPost(null);
-    navigateToSection(targetId, { replace: true });
+    if (isPromotion) {
+      setActiveInfoModal(null);
+      navigateToSection('promotion', { replace: true });
+    } else {
+      setActiveInfoModal('community');
+      navigateToSection('community', { replace: true });
+    }
   };
 
   const handleCloseEditor = () => {
@@ -150,6 +154,19 @@ const MainAppContent: React.FC = () => {
               <ProcessSection />
             </Suspense>
           </div>
+        ) : activeInfoModal === 'community' ? (
+          /* Dedicated View for Community & Magazine (Accessed via Direct Click or Menu) */
+          <div className="w-full bg-white min-h-[85vh] animate-in fade-in duration-200">
+            <Suspense
+              fallback={
+                <div className="min-h-[50vh] flex items-center justify-center">
+                  <div className="w-8 h-8 border-3 border-[#30308A] border-t-transparent rounded-full animate-spin" />
+                </div>
+              }
+            >
+              <CommunitySection />
+            </Suspense>
+          </div>
         ) : (
           /* 3. Main Landing Page Sections: Simplified & Streamlined Flow */
           <>
@@ -166,9 +183,6 @@ const MainAppContent: React.FC = () => {
 
               {/* 4. 프로모션 (Promotion Board) */}
               <PromotionSection />
-
-              {/* 5. 커뮤니티 (Community Board) */}
-              <CommunitySection />
             </Suspense>
           </>
         )}

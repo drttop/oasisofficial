@@ -81,8 +81,8 @@ interface SiteContextType {
   selectedCasino: CasinoItem | null;
   setSelectedCasino: (casino: CasinoItem | null) => void;
   
-  activeInfoModal: 'about' | 'process' | null;
-  setActiveInfoModal: (modal: 'about' | 'process' | null) => void;
+  activeInfoModal: 'about' | 'process' | 'community' | null;
+  setActiveInfoModal: (modal: 'about' | 'process' | 'community' | null) => void;
   
   activeSection: string;
   setActiveSection: (section: string) => void;
@@ -478,11 +478,12 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return null;
   });
   const [selectedCasino, setSelectedCasino] = useState<CasinoItem | null>(null);
-  const [activeInfoModal, setActiveInfoModal] = useState<'about' | 'process' | null>(() => {
+  const [activeInfoModal, setActiveInfoModal] = useState<'about' | 'process' | 'community' | null>(() => {
     if (typeof window === 'undefined') return null;
     const hash = window.location.hash;
     if (hash === '#about') return 'about';
     if (hash === '#process') return 'process';
+    if (hash === '#community') return 'community';
     return null;
   });
   const [activeSection, setActiveSection] = useState('home');
@@ -534,15 +535,24 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { db, fs } = await loadFirebase();
       const { doc, collection, getDoc, getDocs } = fs;
 
-      // 1. Fetch Posts (The only dynamic content that needs refresh on page load)
-      try {
-        const snap = await getDocs(collection(db, 'posts'));
-        if (!snap.empty) {
-          clearFirestoreQuotaExceeded();
-          setIsQuotaExceeded(false);
+      // 1. Fetch Posts: On-demand only (when community view is opened, post is selected, or admin is open)
+      // This saves massive quota by never requesting posts when users only view the main landing page!
+      const isCommunityRequested =
+        force ||
+        isAdminOpen ||
+        activeInfoModal === 'community' ||
+        Boolean(selectedPost) ||
+        (typeof window !== 'undefined' && window.location.hash === '#community');
 
-          // Also sync remote deleted tombstones so deleted posts are never resurrected
-          let allDeletedIds = getDeletedPostIds();
+      if (isCommunityRequested) {
+        try {
+          const snap = await getDocs(collection(db, 'posts'));
+          if (!snap.empty) {
+            clearFirestoreQuotaExceeded();
+            setIsQuotaExceeded(false);
+
+            // Also sync remote deleted tombstones so deleted posts are never resurrected
+            let allDeletedIds = getDeletedPostIds();
           try {
             const remoteDeletedSnap = await getDocs(collection(db, 'deleted_posts'));
             if (remoteDeletedSnap && !remoteDeletedSnap.empty) {
@@ -630,6 +640,7 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
           console.warn('[Firebase] Posts fetch warning:', err);
         }
       }
+    }
 
       // 2. Static & CMS content (casinos, spots, slides, faqs, config) reliably synchronized from Firestore
       if (!isQuotaExceededFlag) {

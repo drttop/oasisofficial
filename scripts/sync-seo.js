@@ -108,14 +108,26 @@ async function syncSEO() {
     }
     const cleanDesc = rawSummary.slice(0, 160).replace(/'/g, "\\'");
     
+    // Resolve full image URL
+    let postImg = post.thumbnail;
+    if (postImg && postImg.startsWith('/')) {
+      postImg = 'https://oasis46.com' + postImg;
+    } else if (!postImg || !postImg.startsWith('http')) {
+      if (post.images && post.images.length > 0 && typeof post.images[0] === 'string') {
+        postImg = post.images[0].startsWith('/') ? 'https://oasis46.com' + post.images[0] : post.images[0];
+      } else {
+        postImg = 'https://oasis46.com/logo.jpg';
+      }
+    }
+
     // Primary ID
-    postMapObj[post.id] = { title, desc: cleanDesc };
+    postMapObj[post.id] = { title, desc: cleanDesc, image: postImg };
 
     // Numeric alias (e.g. 'post-2' -> '2')
     if (post.id.startsWith('post-')) {
       const numPart = post.id.replace('post-', '');
       if (numPart && !postMapObj[numPart]) {
-        postMapObj[numPart] = { title, desc: cleanDesc };
+        postMapObj[numPart] = { title, desc: cleanDesc, image: postImg };
       }
     }
   }
@@ -143,7 +155,7 @@ async function syncSEO() {
   }
 
   const postMapEntries = Object.entries(postMapObj).map(([id, data]) => {
-    return `              '${id}': {\n                title: '${data.title}',\n                desc: '${data.desc}'\n              }`;
+    return `              '${id}': {\n                title: '${data.title}',\n                desc: '${data.desc}',\n                image: '${data.image || 'https://oasis46.com/logo.jpg'}'\n              }`;
   }).join(',\n');
 
   // 2. Generate noscript HTML articles
@@ -212,9 +224,11 @@ async function syncSEO() {
     ...posts.map((post) => {
       const postDate = post.date || todayStr;
       let thumb = post.thumbnail;
-      if (!thumb || !thumb.startsWith('http')) {
-        if (post.images && post.images.length > 0 && typeof post.images[0] === 'string' && post.images[0].startsWith('http')) {
-          thumb = post.images[0];
+      if (thumb && thumb.startsWith('/')) {
+        thumb = 'https://oasis46.com' + thumb;
+      } else if (!thumb || !thumb.startsWith('http')) {
+        if (post.images && post.images.length > 0 && typeof post.images[0] === 'string') {
+          thumb = post.images[0].startsWith('/') ? 'https://oasis46.com' + post.images[0] : post.images[0];
         } else {
           thumb = 'https://oasis46.com/logo.jpg';
         }

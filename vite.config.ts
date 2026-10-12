@@ -23,10 +23,13 @@ export default defineConfig(() => {
       minify: 'esbuild',
       cssMinify: true,
       cssCodeSplit: true,
-      sourcemap: true,
+      sourcemap: false,
       rollupOptions: {
         output: {
           manualChunks(id) {
+            if (id.includes('src/data/initialData')) {
+              return 'data-initial';
+            }
             if (id.includes('node_modules')) {
               if (id.includes('firebase') || id.includes('@firebase') || id.includes('re2js')) {
                 return 'vendor-firebase';

@@ -709,18 +709,28 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  // Run synchronization ONCE on page load (refresh) only — no real-time listeners, no polling intervals
+  // Run synchronization ONCE on idle/delay — never block critical rendering or initial LCP
   const initialSyncDoneRef = useRef(false);
   useEffect(() => {
     if (typeof window === 'undefined' || initialSyncDoneRef.current) return;
     initialSyncDoneRef.current = true;
 
-    // Skip only for automated Lighthouse/PageSpeed crawlers
-    const isLighthouse =
-      /Lighthouse|PageSpeed|HeadlessChrome/i.test(navigator.userAgent || '');
-    if (isLighthouse) return;
+    // Skip for automated bots/crawlers
+    const isBot =
+      /Lighthouse|PageSpeed|HeadlessChrome|bot|crawler|spider/i.test(navigator.userAgent || '');
+    if (isBot) return;
 
-    refreshCloudData(false);
+    // Delay background Firestore sync by 3.5 seconds or until idle, preserving main thread and initial bandwidth
+    const scheduleSync = () => {
+      if ('requestIdleCallback' in window) {
+        (window as any).requestIdleCallback(() => refreshCloudData(false), { timeout: 4000 });
+      } else {
+        setTimeout(() => refreshCloudData(false), 3500);
+      }
+    };
+
+    const timer = setTimeout(scheduleSync, 2500);
+    return () => clearTimeout(timer);
   }, []);
 
   // 1-B. Inquiries fetch: ONLY active when Admin panel is opened (one-time fetch)

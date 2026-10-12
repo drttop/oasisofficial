@@ -81,23 +81,20 @@ export function navigateToSection(
 
     const el = document.getElementById(targetId) || document.querySelector(targetHash);
     if (el) {
-      const elementPosition = el.getBoundingClientRect().top;
-      const offsetPosition = Math.max(0, elementPosition + window.pageYOffset - headerOffset);
-      window.scrollTo({ top: offsetPosition, behavior });
+      window.requestAnimationFrame(() => {
+        if (currentNavigationTarget && currentNavigationTarget !== targetId) return;
+        const elementPosition = el.getBoundingClientRect().top;
+        const offsetPosition = Math.max(0, elementPosition + window.pageYOffset - headerOffset);
+        window.scrollTo({ top: offsetPosition, behavior });
+        currentNavigationTarget = null;
+      });
       return true;
     }
     return false;
   };
 
-  // Immediate attempt: if element exists in DOM, scroll instantly
+  // Immediate attempt: if element exists in DOM, scroll smoothly in next frame
   if (performScroll()) {
-    // Perform one microtask settle check in case fonts/images adjust
-    requestAnimationFrame(() => {
-      if (currentNavigationTarget === targetId) {
-        performScroll();
-        currentNavigationTarget = null;
-      }
-    });
     return;
   }
 

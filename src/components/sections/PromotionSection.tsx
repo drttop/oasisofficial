@@ -53,13 +53,15 @@ export const PromotionSection: React.FC = () => {
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
-    const element = document.getElementById('promotion');
-    if (element) {
-      const headerOffset = 80;
-      const elementPosition = element.getBoundingClientRect().top;
-      const offsetPosition = Math.max(0, elementPosition + window.pageYOffset - headerOffset);
-      window.scrollTo({ top: offsetPosition, behavior: 'instant' as ScrollBehavior });
-    }
+    window.requestAnimationFrame(() => {
+      const element = document.getElementById('promotion');
+      if (element) {
+        const headerOffset = 80;
+        const elementPosition = element.getBoundingClientRect().top;
+        const offsetPosition = Math.max(0, elementPosition + window.pageYOffset - headerOffset);
+        window.scrollTo({ top: offsetPosition, behavior: 'instant' as ScrollBehavior });
+      }
+    });
   };
 
   const handleOpenPost = (post: PostItem) => {

@@ -112,7 +112,10 @@ export function applySEO(post: PostItem | null, siteConfig: SiteConfig) {
       const postDesc = post.summary ? stripFormattingTags(post.summary) : (cleanContent || defaultDesc);
       const postKeywords = [...(post.tags || []), post.category || '매거진', siteConfig?.siteName || '마닐라 오아시스에이전시'].join(', ');
       const postUrl = getPostUrl(post.id);
-      const postImage = post.thumbnail || defaultImage;
+      let postImage = post.thumbnail || defaultImage;
+      if (postImage && postImage.startsWith('/')) {
+        postImage = `${origin}${postImage}`;
+      }
 
       // Document Title
       document.title = postTitle;

@@ -100,14 +100,14 @@ const compressCanvasToTargetBudget = (
       continue;
     }
 
-    // Phase 2: If quality has reached 0.72, scale down canvas resolution gently (min 720px)
+    // Phase 2: If quality has reached 0.72, scale down canvas resolution gently
     const nextW = Math.round(activeCanvas.width * 0.90);
     const nextH = Math.round(activeCanvas.height * 0.90);
-    if (nextW < 720 || nextH < 720) {
-      // Don't shrink below 720px; apply final crisp quality
-      activeQuality = Math.max(0.68, activeQuality - 0.03);
+    if (nextW < 360 || nextH < 360) {
+      activeQuality = Math.max(0.60, activeQuality - 0.05);
       result = activeCanvas.toDataURL(preferredMime, activeQuality);
-      break;
+      if (activeQuality <= 0.60) break;
+      continue;
     }
 
     const scaledCanvas = document.createElement('canvas');

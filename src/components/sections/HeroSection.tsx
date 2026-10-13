@@ -15,15 +15,14 @@ export const HeroSection: React.FC = () => {
     setImgSrc('');
   }, [slide?.bgImage]);
 
-  const rawBg = slide?.bgImage;
-  const isDefaultHero =
-    !rawBg ||
-    rawBg === '/images/hero_bg.webp' ||
-    rawBg === '/images/hero_bg.jpg' ||
-    rawBg === '/images/hero_bg_mobile.webp' ||
-    rawBg.includes('hero_bg') ||
-    rawBg.includes('oasis_gold');
-  const currentBg = imgSrc || (isDefaultHero ? '/images/hero_bg.webp' : rawBg);
+  const rawBg = slide?.bgImage || '/images/hero_bg.webp';
+  const isCasinoTable = rawBg.includes('casino_table');
+  const isHeroBg = rawBg.includes('hero_bg') || !rawBg;
+  const isKnownHero = isCasinoTable || isHeroBg;
+  
+  const desktopBg = isCasinoTable ? '/images/casino_table.webp' : '/images/hero_bg.webp';
+  const mobileBg = isCasinoTable ? '/images/casino_table_mobile.webp' : '/images/hero_bg_mobile.webp';
+  const currentBg = imgSrc || (isKnownHero ? desktopBg : rawBg);
 
   if (!slide) return null;
 
@@ -34,12 +33,12 @@ export const HeroSection: React.FC = () => {
     >
       {/* Background Image - LCP Element */}
       <div className="absolute inset-0">
-        {isDefaultHero ? (
+        {isKnownHero ? (
           <picture className="w-full h-full">
-            <source media="(max-width: 640px)" srcSet="/images/hero_bg_mobile.webp" type="image/webp" width="640" height="357" />
-            <source media="(min-width: 641px)" srcSet="/images/hero_bg.webp" type="image/webp" width="1376" height="768" />
+            <source media="(max-width: 640px)" srcSet={mobileBg} type="image/webp" width="640" height="357" />
+            <source media="(min-width: 641px)" srcSet={desktopBg} type="image/webp" width="1376" height="768" />
             <img
-              src="/images/hero_bg.webp"
+              src={desktopBg}
               sizes="100vw"
               alt={slide.title}
               loading="eager"
@@ -60,8 +59,8 @@ export const HeroSection: React.FC = () => {
             fetchPriority="high"
             decoding="async"
             onError={() => {
-              if (currentBg !== '/images/hero_bg.webp') {
-                setImgSrc('/images/hero_bg.webp');
+              if (currentBg !== '/images/casino_table.webp') {
+                setImgSrc('/images/casino_table.webp');
               } else {
                 setImgSrc(FALLBACK_HERO_IMAGE);
               }
@@ -86,7 +85,7 @@ export const HeroSection: React.FC = () => {
 
         {/* Main Hero Title */}
         <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-[1.25] drop-shadow-xl max-w-4xl mx-auto mb-6 break-keep whitespace-pre-line">
-          {slide.title.replace('필리핀 카지노 공식 VIP 에이전트', '필리핀 카지노 공식\nVIP 에이전트').split('\n').map((line, lIdx, arr) => (
+          {slide.title.replace(/\\n/g, '\n').replace('필리핀 카지노 공식 VIP 에이전트', '필리핀 카지노 공식\nVIP 에이전트').split('\n').map((line, lIdx, arr) => (
             <React.Fragment key={lIdx}>
               {line}
               {lIdx < arr.length - 1 && <br />}
@@ -96,7 +95,7 @@ export const HeroSection: React.FC = () => {
 
         {/* Subtitle */}
         <p className="text-base sm:text-lg lg:text-xl text-slate-200 font-normal leading-relaxed max-w-3xl mx-auto mb-10 drop-shadow break-keep whitespace-pre-line">
-          {slide.subtitle.split('\n').map((line, lIdx, arr) => (
+          {slide.subtitle.replace(/\\n/g, '\n').split('\n').map((line, lIdx, arr) => (
             <React.Fragment key={lIdx}>
               {line}
               {lIdx < arr.length - 1 && <br />}

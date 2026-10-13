@@ -176,9 +176,20 @@ export const SEOManager: React.FC = () => {
       return;
     }
 
-    // Neither editor nor post is active: return cleanly to home URL or previous section hash
-    if (currentPostParam || currentActionParam || currentEditParam) {
-      userClosedRef.current = true;
+    // If URL has a post param and selectedPost is null, try finding it before anything else
+    if (currentPostParam && !selectedPost && posts.length > 0) {
+      const found = findPostByIdOrAlias(posts, currentPostParam);
+      if (found) {
+        userClosedRef.current = false;
+        handledPostIdRef.current = found.id;
+        setSelectedPost(found);
+        incrementPostView(found.id);
+        return;
+      }
+    }
+
+    // Only clean URL if the user EXPLICITLY closed the modal or editor
+    if (userClosedRef.current && (currentPostParam || currentActionParam || currentEditParam)) {
       currentParams.delete('post');
       currentParams.delete('postId');
       currentParams.delete('p');
@@ -210,7 +221,7 @@ export const SEOManager: React.FC = () => {
 
     // Reapply default Site Home SEO
     applySEO(null, siteConfig);
-  }, [selectedPost, isPostEditorOpen, editingPost, siteConfig]);
+  }, [selectedPost, isPostEditorOpen, editingPost, siteConfig, posts, setSelectedPost, incrementPostView]);
 
   // 3. Handle Browser Back & Forward buttons (popstate)
   useEffect(() => {

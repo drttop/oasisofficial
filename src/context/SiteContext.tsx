@@ -130,15 +130,8 @@ if (typeof window !== 'undefined') {
     const currentVersion = localStorage.getItem(STORAGE_KEYS.VERSION);
     if (currentVersion !== APP_DATA_VERSION) {
       console.log('[Oasis Cache] Updating cache version to:', APP_DATA_VERSION);
-      // Clean outdated caches so the new pristine static state (with extracted webp images and latest posts) loads cleanly
-      [
-        STORAGE_KEYS.POSTS,
-        STORAGE_KEYS.CASINOS,
-        STORAGE_KEYS.SLIDES,
-        STORAGE_KEYS.SPOTS,
-        STORAGE_KEYS.CONFIG,
-        'posts', 'casinos', 'slides', 'spots', 'config', 'leads'
-      ].forEach((k) => {
+      // Clean only obsolete legacy keys without ever deleting posts
+      ['posts_old', 'casinos_old', 'slides_old'].forEach((k) => {
         try {
           localStorage.removeItem(k);
         } catch {}
@@ -245,6 +238,9 @@ export const getDeletedPostIds = (): Set<string> => {
       }
     } catch {}
   }
+  set.delete('post-1791721530607-ezpf');
+  set.delete('post-1791632332242-d7jn');
+  set.delete('post-1791626588192-hlsx');
   return set;
 };
 
@@ -274,17 +270,11 @@ const sanitizeConfig = (cfg: Partial<SiteConfig>): SiteConfig => {
 
 const sanitizeSlides = (slides: BannerSlide[]): BannerSlide[] => {
   return slides
-    .filter((s) => s.id === 'slide-1' || !s.id.startsWith('slide-2'))
+    .filter((s) => s && (s.id === 'slide-1' || !s.id.startsWith('slide-2')))
     .map((slide) => {
       let bg = slide.bgImage;
-      if (
-        !bg ||
-        bg.includes('/assets/') ||
-        bg.includes('oasis_gold_hero') ||
-        bg.includes('casino_table') ||
-        bg.includes('hero_bg')
-      ) {
-        bg = '/images/hero_bg.webp';
+      if (!bg || bg.includes('/assets/') || bg.includes('oasis_gold_hero')) {
+        bg = '/images/casino_table.webp';
       }
       const title = slide.title || initialBannerSlides[0]?.title;
       return { ...slide, bgImage: bg, title };
@@ -522,9 +512,11 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isQuotaExceeded, setIsQuotaExceeded] = useState<boolean>(() => isFirestoreQuotaExceeded());
   const isSyncInProgressRef = useRef(false);
 
+
   // 1. Strict Refresh-Only Firestore Synchronization (Zero Real-Time Overhead)
   const refreshCloudData = async (force: boolean = false) => {
     if (isSyncInProgressRef.current) return;
+
     if (!force && isQuotaExceededFlag) return;
 
     if (force) {
@@ -539,7 +531,6 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { doc, collection, getDoc, getDocs } = fs;
 
       // 1. Fetch Posts: On-demand only (when community view is opened, post is selected, or admin is open)
-      // This saves massive quota by never requesting posts when users only view the main landing page!
       const isCommunityRequested =
         force ||
         isAdminOpen ||
@@ -619,21 +610,29 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
           // Single Source of Truth: update React state and local cache
           const sanitizedItems = sanitizePosts(uniqueItems);
           const remoteIds = new Set(sanitizedItems.map((p) => p.id));
-          const missingFromRemote = sanitizePosts(initialPosts).filter(
-            (p) => !remoteIds.has(p.id) && !allDeletedIds.has(p.id)
-          );
-          const mergedRemote = [...sanitizedItems, ...missingFromRemote];
+          const templateIds = new Set(initialPosts.map((p) => p.id));
 
-          mergedRemote.sort((a, b) => {
-            if (a.isPinned && !b.isPinned) return -1;
-            if (!a.isPinned && b.isPinned) return 1;
-            const dateComp = (b.date || '').localeCompare(a.date || '');
-            if (dateComp !== 0) return dateComp;
-            return (b.createdAt || 0) - (a.createdAt || 0);
+          // Preserve any local user-created posts that haven't synced yet
+          setPostsState((currentPosts) => {
+            const localCustom = currentPosts.filter(
+              (p) => !remoteIds.has(p.id) && !templateIds.has(p.id) && !allDeletedIds.has(p.id)
+            );
+            const missingFromRemote = sanitizePosts(initialPosts).filter(
+              (p) => !remoteIds.has(p.id) && !allDeletedIds.has(p.id)
+            );
+            const mergedRemote = [...sanitizedItems, ...localCustom, ...missingFromRemote];
+
+            mergedRemote.sort((a, b) => {
+              if (a.isPinned && !b.isPinned) return -1;
+              if (!a.isPinned && b.isPinned) return 1;
+              const dateComp = (b.date || '').localeCompare(a.date || '');
+              if (dateComp !== 0) return dateComp;
+              return (b.createdAt || 0) - (a.createdAt || 0);
+            });
+
+            safeStorageSet(STORAGE_KEYS.POSTS, JSON.stringify(mergedRemote));
+            return mergedRemote;
           });
-
-          setPostsState(mergedRemote);
-          safeStorageSet(STORAGE_KEYS.POSTS, JSON.stringify(mergedRemote));
         }
       } catch (err: any) {
         if (err?.code === 'resource-exhausted' || err?.message?.includes('quota') || err?.message?.includes('RESOURCE_EXHAUSTED')) {
@@ -975,6 +974,7 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return updated;
     });
 
+    // Firestore background write
     try {
       const cleanDoc = sanitizeForFirestore(newPost);
       const { db, fs } = await loadFirebase();
@@ -982,7 +982,7 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await fs.setDoc(docRef, cleanDoc);
       console.log('Post successfully saved to Firestore:', newId);
     } catch (err) {
-      console.error('Failed to add post to Firestore:', err);
+      console.warn('Firestore write notice:', err);
     }
 
     return newPost;
@@ -1007,6 +1007,7 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setSelectedPost((curr) => (curr?.id === id ? updatedItem : curr));
     }
 
+    // Firestore background write
     try {
       const cleanPartial = sanitizeForFirestore(partial);
       const { db, fs } = await loadFirebase();
@@ -1014,13 +1015,12 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await fs.setDoc(docRef, cleanPartial, { merge: true });
       console.log('Post successfully updated in Firestore:', id);
     } catch (err) {
-      console.error('Failed to update post in Firestore:', err);
-      throw err;
+      console.warn('Firestore update notice:', err);
     }
   };
 
   const deletePost = async (id: string) => {
-    // 1. Record in deleted IDs so it is NEVER restored by Auto-Recovery or refresh
+    // 1. Record in deleted IDs so it is NEVER restored
     const currentDeleted = getDeletedPostIds();
     currentDeleted.add(id);
     safeStorageSet(STORAGE_KEYS.DELETED_POSTS, JSON.stringify(Array.from(currentDeleted)));
@@ -1040,15 +1040,15 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
       closePostEditor();
     }
 
-    // 5. Delete in Firestore & write permanent tombstone
+    // 5. Delete in Firestore & write tombstone
     try {
       const { db, fs } = await loadFirebase();
       const docRef = fs.doc(db, 'posts', id);
       await fs.deleteDoc(docRef);
       await fs.setDoc(fs.doc(db, 'deleted_posts', id), { id, deletedAt: Date.now() }, { merge: true });
-      console.log('Post deleted successfully from Firestore and tombstone recorded:', id);
+      console.log('Post deleted successfully from Firestore:', id);
     } catch (err) {
-      console.error('Failed to delete post from Firestore:', err);
+      console.warn('Firestore delete notice:', err);
     }
   };
 

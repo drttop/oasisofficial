@@ -385,18 +385,23 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
         if (!file.type.startsWith('image/')) {
           throw new Error('이미지 파일만 업로드할 수 있습니다 (JPG, PNG, WEBP 등).');
         }
-        return await compressImageFile(file, 1600, 1600, 0.86, 350000);
+        const compressed = await compressImageFile(file, 1600, 1600, 0.84, 250000);
+        return compressed;
       });
 
-      const newBase64Images = await Promise.all(uploadPromises);
+      const newUploadedImages = await Promise.all(uploadPromises);
       const startIdx = images.length;
-      const updatedImages = [...images, ...newBase64Images].slice(0, 6);
+      const updatedImages = [...images, ...newUploadedImages].slice(0, 6);
       setImages(updatedImages);
 
       // Auto-insert newly uploaded images into visual editor directly at cursor!
-      if (newBase64Images.length > 0 && editorMode === 'visual') {
-        newBase64Images.forEach((img, i) => {
-          insertPhotoIntoEditor(startIdx + i, img);
+      if (newUploadedImages.length > 0 && editorMode === 'visual') {
+        newUploadedImages.forEach((img, i) => {
+          try {
+            insertPhotoIntoEditor(startIdx + i, img);
+          } catch (insertErr) {
+            console.warn('Auto-insert photo notice:', insertErr);
+          }
         });
       }
     } catch (err: any) {
@@ -2044,7 +2049,13 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
                   type="file"
                   accept="image/*"
                   multiple
-                  onChange={(e) => e.target.files && handleFiles(e.target.files)}
+                  onClick={(e) => e.stopPropagation()}
+                  onChange={(e) => {
+                    e.stopPropagation();
+                    if (e.target.files && e.target.files.length > 0) {
+                      handleFiles(e.target.files);
+                    }
+                  }}
                   className="hidden"
                 />
                 <div className="flex flex-col items-center gap-1.5">

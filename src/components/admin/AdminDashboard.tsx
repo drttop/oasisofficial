@@ -81,6 +81,7 @@ export const AdminDashboard: React.FC = () => {
     importDataJSON,
     isQuotaExceeded,
     refreshCloudData,
+    connectedDatabaseId,
   } = useSite();
 
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
@@ -300,7 +301,7 @@ export const AdminDashboard: React.FC = () => {
                 ) : (
                   <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                    Firebase 클라우드 연동 완료
+                    Firebase 클라우드 연동 완료 ({connectedDatabaseId})
                   </span>
                 )}
               </div>
@@ -2423,7 +2424,7 @@ Sitemap: https://oasis46.com/sitemap.xml`}
                     <span>프로젝트 복제 시 파이어베이스 DB 공유 및 분리 주의사항</span>
                   </div>
                   <p className="text-[11px] text-amber-800 leading-relaxed">
-                    구글 AI 스튜디오에서 이 사이트를 복사(Clone)하여 다른 프로젝트를 생성할 경우, 복사된 사이트의 <code className="font-mono bg-white px-1 py-0.5 rounded border border-amber-300">firebase-applet-config.json</code> 설정 파일이 원본의 데이터베이스 ID(<code className="font-mono bg-white px-1 py-0.5 rounded border border-amber-300">ai-studio-79f47989-...</code>)를 그대로 가리켜 원본과 복사본이 동일한 DB를 공유하게 됩니다.
+                    구글 AI 스튜디오에서 이 사이트를 복사(Clone)하여 다른 프로젝트를 생성할 경우, 복사된 사이트의 <code className="font-mono bg-white px-1 py-0.5 rounded border border-amber-300">firebase-applet-config.json</code> 설정 파일이 현재의 데이터베이스 ID(<code className="font-mono bg-white px-1 py-0.5 rounded border border-amber-300">{connectedDatabaseId}</code>)를 그대로 가리켜 원본과 복사본이 동일한 DB를 공유하게 됩니다.
                   </p>
                   <p className="text-[11px] text-amber-800 leading-relaxed font-semibold">
                     💡 복사본 사이트와 데이터를 완전히 분리하려면: 복사본 사이트의 채팅창에 <span className="bg-amber-100 text-amber-950 px-1 py-0.5 rounded">"파이어베이스를 이 새 프로젝트 전용으로 새로 연동해줘"</span>라고 요청하여 고유한 새 데이터베이스를 생성하시기 바랍니다.

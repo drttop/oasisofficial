@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { loadFirebase } from '../lib/firebase';
+import firebaseConfig from '../../firebase-applet-config.json';
 import {
   SiteConfig,
   BannerSlide,
@@ -22,6 +23,7 @@ import {
 } from '../data/initialData';
 
 interface SiteContextType {
+  connectedDatabaseId: string;
   siteConfig: SiteConfig;
   setSiteConfig: (config: SiteConfig) => void;
   updateSiteConfig: (partial: Partial<SiteConfig>) => Promise<void> | void;
@@ -141,6 +143,17 @@ if (typeof window !== 'undefined') {
   } catch (purgeErr) {
     console.warn('[Oasis Cache] Cache version notice:', purgeErr);
   }
+
+  // Auto-detect Database ID change and reset any stale Quota Exceeded locks from previous database
+  try {
+    const activeDbId = (firebaseConfig as any).firestoreDatabaseId || '(default)';
+    const storedDbId = localStorage.getItem(`${APP_STORAGE_PREFIX}_connected_db_id`);
+    if (storedDbId !== activeDbId) {
+      localStorage.setItem(`${APP_STORAGE_PREFIX}_connected_db_id`, activeDbId);
+      sessionStorage.removeItem(STORAGE_KEYS.QUOTA_EXCEEDED);
+      console.log('[Firebase DB] Connected to active database:', activeDbId, '- cleared quota exceeded lock');
+    }
+  } catch {}
 }
 
 let isQuotaExceededFlag = false;
@@ -541,10 +554,10 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (isCommunityRequested) {
         try {
           const snap = await getDocs(collection(db, 'posts'));
-          if (!snap.empty) {
-            clearFirestoreQuotaExceeded();
-            setIsQuotaExceeded(false);
+          clearFirestoreQuotaExceeded();
+          setIsQuotaExceeded(false);
 
+          if (!snap.empty) {
             // Also sync remote deleted tombstones so deleted posts are never resurrected
             let allDeletedIds = getDeletedPostIds();
           try {
@@ -1457,6 +1470,7 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setActiveInfoModal,
         activeSection,
         setActiveSection,
+        connectedDatabaseId: (firebaseConfig as any).firestoreDatabaseId || 'app-database',
         isCloudSynced,
         isQuotaExceeded,
         refreshCloudData,

@@ -22,8 +22,7 @@ export const HeroSection: React.FC = () => {
     rawBg === '/images/hero_bg.jpg' ||
     rawBg === '/images/hero_bg_mobile.webp' ||
     rawBg.includes('hero_bg') ||
-    rawBg.includes('oasis_gold') ||
-    rawBg.includes('casino_table');
+    rawBg.includes('oasis_gold');
   const currentBg = imgSrc || (isDefaultHero ? '/images/hero_bg.webp' : rawBg);
 
   if (!slide) return null;

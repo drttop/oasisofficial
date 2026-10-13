@@ -250,10 +250,11 @@ export const CommunitySection: React.FC = () => {
         ) : (
           <>
             <div className="grid grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-6">
-            {paginatedPosts.map((post) => {
+            {paginatedPosts.map((post, postIdx) => {
               const cardImage = post.thumbnail || (post.images && post.images.length > 0 ? post.images[0] : '');
               const hasMultiplePhotos = (post.images && post.images.length > 1);
               const hasMap = Boolean(post.mapLocation || isMapInContent(post.content));
+              const isTopCard = currentPage === 1 && postIdx < 4;
 
               return (
                 <a
@@ -272,7 +273,8 @@ export const CommunitySection: React.FC = () => {
                       <img
                         {...getResponsiveImageProps(cardImage, 600, '(max-width: 640px) 380px, (max-width: 1024px) 50vw, 380px')}
                         alt={post.title}
-                        loading="lazy"
+                        loading={isTopCard ? 'eager' : 'lazy'}
+                        fetchPriority={isTopCard ? 'high' : 'auto'}
                         decoding="async"
                         width={600}
                         height={360}
@@ -283,6 +285,8 @@ export const CommunitySection: React.FC = () => {
                           const fallback = initialPosts.find((p) => p.id === post.id);
                           if (fallback && fallback.thumbnail && target.src !== fallback.thumbnail) {
                             target.src = fallback.thumbnail;
+                          } else if (!target.src.includes('post_0_thumb.webp')) {
+                            target.src = '/images/posts/post_0_thumb.webp';
                           }
                         }}
                       />

@@ -100,7 +100,7 @@ interface SiteContextType {
 
 const SiteContext = createContext<SiteContextType | undefined>(undefined);
 
-export const APP_DATA_VERSION = 'oasis_v2026_v7_vip_casino_restored';
+export const APP_DATA_VERSION = 'oasis_v2026_v9_hero_thumb_final';
 const APP_STORAGE_PREFIX = 'oasis_v2026';
 
 export const STORAGE_KEYS = {
@@ -273,19 +273,22 @@ const sanitizeConfig = (cfg: Partial<SiteConfig>): SiteConfig => {
 };
 
 const sanitizeSlides = (slides: BannerSlide[]): BannerSlide[] => {
-  return slides.map((slide, idx) => {
-    let bg = slide.bgImage;
-    if (
-      !bg ||
-      bg.includes('/assets/') ||
-      bg.includes('oasis_gold_hero') ||
-      bg.includes('casino_table_panoramic')
-    ) {
-      bg = idx === 0 ? '/images/hero_bg.webp' : '/images/casino_table.webp';
-    }
-    const title = slide.title || (initialBannerSlides[idx]?.title ?? initialBannerSlides[0].title);
-    return { ...slide, bgImage: bg, title };
-  });
+  return slides
+    .filter((s) => s.id === 'slide-1' || !s.id.startsWith('slide-2'))
+    .map((slide) => {
+      let bg = slide.bgImage;
+      if (
+        !bg ||
+        bg.includes('/assets/') ||
+        bg.includes('oasis_gold_hero') ||
+        bg.includes('casino_table') ||
+        bg.includes('hero_bg')
+      ) {
+        bg = '/images/hero_bg.webp';
+      }
+      const title = slide.title || initialBannerSlides[0]?.title;
+      return { ...slide, bgImage: bg, title };
+    });
 };
 
 export const DEFAULT_CASINO_ORDER: Record<string, number> = {

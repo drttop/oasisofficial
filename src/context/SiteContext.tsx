@@ -251,9 +251,6 @@ export const getDeletedPostIds = (): Set<string> => {
       }
     } catch {}
   }
-  set.delete('post-1791721530607-ezpf');
-  set.delete('post-1791632332242-d7jn');
-  set.delete('post-1791626588192-hlsx');
   return set;
 };
 
@@ -543,23 +540,15 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { db, fs } = await loadFirebase();
       const { doc, collection, getDoc, getDocs } = fs;
 
-      // 1. Fetch Posts: On-demand only (when community view is opened, post is selected, or admin is open)
-      const isCommunityRequested =
-        force ||
-        isAdminOpen ||
-        activeInfoModal === 'community' ||
-        Boolean(selectedPost) ||
-        (typeof window !== 'undefined' && window.location.hash === '#community');
+      // 1. Fetch Posts: Always synchronize active posts from Firestore so all devices/tabs/AI Studio stay 100% in sync
+      try {
+        const snap = await getDocs(collection(db, 'posts'));
+        clearFirestoreQuotaExceeded();
+        setIsQuotaExceeded(false);
 
-      if (isCommunityRequested) {
-        try {
-          const snap = await getDocs(collection(db, 'posts'));
-          clearFirestoreQuotaExceeded();
-          setIsQuotaExceeded(false);
-
-          if (!snap.empty) {
-            // Also sync remote deleted tombstones so deleted posts are never resurrected
-            let allDeletedIds = getDeletedPostIds();
+        if (!snap.empty) {
+          // Also sync remote deleted tombstones so deleted posts are never resurrected
+          let allDeletedIds = getDeletedPostIds();
           try {
             const remoteDeletedSnap = await getDocs(collection(db, 'deleted_posts'));
             if (remoteDeletedSnap && !remoteDeletedSnap.empty) {
@@ -590,23 +579,13 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
             })
             .filter((p) => !(p as any).isDeleted && !allDeletedIds.has(p.id) && !p.id.startsWith('notice-'));
 
-          // Deduplicate by title to ensure clean unique articles without legacy duplicate IDs
-          const seenTitles = new Set<string>();
+          // Deduplicate strictly by unique document ID (Never drop posts with matching or similar titles)
+          const seenIds = new Set<string>();
           const uniqueItems: PostItem[] = [];
 
-          // Prioritize canonical IDs (post-*, promo-*) over legacy raw numeric IDs ('2', '3', etc.)
-          remoteItems.sort((a, b) => {
-            const aIsClean = /^(post-|promo-)/.test(a.id);
-            const bIsClean = /^(post-|promo-)/.test(b.id);
-            if (aIsClean && !bIsClean) return -1;
-            if (!aIsClean && bIsClean) return 1;
-            return 0;
-          });
-
           for (const item of remoteItems) {
-            const normTitle = (item.title || '').trim();
-            if (!seenTitles.has(normTitle)) {
-              seenTitles.add(normTitle);
+            if (item.id && !seenIds.has(item.id)) {
+              seenIds.add(item.id);
               uniqueItems.push(item);
             }
           }
@@ -623,17 +602,13 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
           // Single Source of Truth: update React state and local cache
           const sanitizedItems = sanitizePosts(uniqueItems);
           const remoteIds = new Set(sanitizedItems.map((p) => p.id));
-          const templateIds = new Set(initialPosts.map((p) => p.id));
 
-          // Preserve any local user-created posts that haven't synced yet
+          // Preserve any local user-created posts that haven't synced to Firestore yet
           setPostsState((currentPosts) => {
             const localCustom = currentPosts.filter(
-              (p) => !remoteIds.has(p.id) && !templateIds.has(p.id) && !allDeletedIds.has(p.id)
-            );
-            const missingFromRemote = sanitizePosts(initialPosts).filter(
               (p) => !remoteIds.has(p.id) && !allDeletedIds.has(p.id)
             );
-            const mergedRemote = [...sanitizedItems, ...localCustom, ...missingFromRemote];
+            const mergedRemote = [...sanitizedItems, ...localCustom];
 
             mergedRemote.sort((a, b) => {
               if (a.isPinned && !b.isPinned) return -1;
@@ -655,7 +630,6 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
           console.warn('[Firebase] Posts fetch warning:', err);
         }
       }
-    }
 
       // 2. Static & CMS content (casinos, spots, slides, faqs, config) reliably synchronized from Firestore
       if (!isQuotaExceededFlag) {
@@ -776,6 +750,13 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
       isCancelled = true;
     };
   }, [isAdminOpen]);
+
+  // 1-C. Real-time Refresh: Trigger fresh cloud fetch whenever Admin or Community modal is opened
+  useEffect(() => {
+    if (isAdminOpen || activeInfoModal === 'community') {
+      refreshCloudData(true);
+    }
+  }, [isAdminOpen, activeInfoModal]);
 
   // Safe storage helper to guarantee no QuotaExceededError crashes the React app
   const safeStorageSet = (key: string, value: string) => {

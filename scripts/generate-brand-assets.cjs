@@ -5,67 +5,42 @@ const path = require('path');
 async function generateBrandAssets() {
   console.log('🎨 Starting official brand assets & favicon generation...');
 
-  const svgFavicon = `<svg viewBox="0 0 500 500" width="512" height="512" xmlns="http://www.w3.org/2000/svg">
-  <rect width="500" height="500" rx="100" fill="#020617" />
-  <defs>
-    <linearGradient id="gold-base" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#C6934A" />
-      <stop offset="20%" stop-color="#E4BA69" />
-      <stop offset="40%" stop-color="#FFF2B2" />
-      <stop offset="60%" stop-color="#D4A053" />
-      <stop offset="80%" stop-color="#8A5A21" />
-      <stop offset="100%" stop-color="#E5B54F" />
-    </linearGradient>
-    <linearGradient id="gold-highlight" x1="100%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#E5B54F" />
-      <stop offset="50%" stop-color="#FFECA8" />
-      <stop offset="100%" stop-color="#9C6B26" />
-    </linearGradient>
-    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="2" dy="6" stdDeviation="6" flood-color="#000" flood-opacity="0.5" />
-    </filter>
-  </defs>
-  <g filter="url(#shadow)" transform="scale(1.22) translate(-45, -42)">
-    <path
-      d="M 250 120 C 160 120, 120 180, 120 240 C 120 300, 160 360, 230 360 C 240 360, 255 358, 265 355 C 255 340, 230 325, 205 320 C 155 310, 150 240, 150 240 C 150 240, 165 150, 250 150 C 330 150, 350 220, 350 240 C 350 255, 345 285, 325 305 C 345 300, 365 280, 375 255 C 385 220, 380 160, 350 135 C 320 115, 280 120, 250 120 Z"
-      fill="url(#gold-base)"
-    />
-    <path
-      d="M 180 325 C 230 310, 280 355, 360 330 C 345 345, 320 360, 290 360 C 240 360, 195 340, 180 325 Z"
-      fill="url(#gold-highlight)"
-    />
-    <path
-      d="M 230 365 C 280 355, 320 375, 365 350 C 345 375, 310 390, 270 385 C 250 380, 235 375, 230 365 Z"
-      fill="url(#gold-base)"
-    />
-  </g>
+  const masterPath = 'public/master_favicon_512.png';
+  if (!fs.existsSync(masterPath)) {
+    console.error('Master favicon not found:', masterPath);
+    return;
+  }
+  const masterBuf = fs.readFileSync(masterPath);
+
+  // 1. Write vector favicon.svg with embedded high-fidelity asset on pure black
+  const base64Png = masterBuf.toString('base64');
+  const svgContent = `<svg viewBox="0 0 512 512" width="512" height="512" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <rect width="512" height="512" fill="#000000" />
+  <image href="data:image/png;base64,${base64Png}" width="512" height="512" />
 </svg>`;
-
-  // 1. Write vector favicon.svg
-  fs.writeFileSync('public/favicon.svg', svgFavicon, 'utf8');
+  fs.writeFileSync('public/favicon.svg', svgContent, 'utf8');
   console.log('✅ Created public/favicon.svg');
-
-  const svgBuffer = Buffer.from(svgFavicon);
 
   // 2. Generate PNG favicon variants
   const pngSizes = [
-    { file: 'public/favicon-512x512.png', size: 512 },
-    { file: 'public/favicon-192x192.png', size: 192 },
-    { file: 'public/favicon-144x144.png', size: 144 },
-    { file: 'public/favicon-96x96.png', size: 96 },
-    { file: 'public/favicon-48x48.png', size: 48 },
-    { file: 'public/favicon-32x32.png', size: 32 },
-    { file: 'public/favicon-16x16.png', size: 16 },
-    { file: 'public/favicon.png', size: 96 },
-    { file: 'public/apple-touch-icon.png', size: 180 },
-    { file: 'public/ffaaa.png', size: 512 },
+    { file: 'public/favicon-512x512.png', size: 512, sharpen: false },
+    { file: 'public/favicon-192x192.png', size: 192, sharpen: false },
+    { file: 'public/favicon-144x144.png', size: 144, sharpen: false },
+    { file: 'public/favicon-96x96.png', size: 96, sharpen: false },
+    { file: 'public/favicon-48x48.png', size: 48, sharpen: true },
+    { file: 'public/favicon-32x32.png', size: 32, sharpen: true },
+    { file: 'public/favicon-16x16.png', size: 16, sharpen: true },
+    { file: 'public/favicon.png', size: 96, sharpen: false },
+    { file: 'public/apple-touch-icon.png', size: 180, sharpen: false },
+    { file: 'public/ffaaa.png', size: 512, sharpen: false },
   ];
 
   for (const item of pngSizes) {
-    await sharp(svgBuffer)
-      .resize(item.size, item.size)
-      .png({ quality: 100, compressionLevel: 9 })
-      .toFile(item.file);
+    let p = sharp(masterBuf).resize(item.size, item.size, { kernel: 'lanczos3' });
+    if (item.sharpen) {
+      p = p.sharpen();
+    }
+    await p.png({ quality: 100, compressionLevel: 9 }).toFile(item.file);
     console.log(`✅ Generated ${item.file} (${item.size}x${item.size})`);
   }
 
@@ -73,7 +48,7 @@ async function generateBrandAssets() {
   const icoSizes = [16, 32, 48];
   const pngBuffers = [];
   for (const s of icoSizes) {
-    const buf = await sharp(svgBuffer).resize(s, s).png().toBuffer();
+    const buf = await sharp(masterBuf).resize(s, s, { kernel: 'lanczos3' }).sharpen().png().toBuffer();
     pngBuffers.push({ size: s, buf });
   }
 

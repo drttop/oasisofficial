@@ -67,9 +67,9 @@ export const GoogleMapEmbed: React.FC<GoogleMapEmbedProps> = ({
   const displayTitle = title || query;
 
   return (
-    <div className={`rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-sm hover:shadow-md transition-shadow ${className}`}>
+    <div className={`rounded-2xl sm:rounded-3xl bg-white overflow-hidden shadow-xs hover:shadow-md transition-shadow ${className}`}>
       {/* Map Header */}
-      <div className="p-3.5 sm:p-4 bg-slate-50 border-b border-slate-200/80 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div className="p-3.5 sm:p-4 bg-slate-50/70 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div className="flex items-start gap-2.5 min-w-0">
           <div className="w-8 h-8 rounded-xl bg-[#30308A] text-white flex items-center justify-center shrink-0 shadow-sm mt-0.5">
             <MapPin className="w-4 h-4 text-[#E5B54F]" />
@@ -99,7 +99,7 @@ export const GoogleMapEmbed: React.FC<GoogleMapEmbedProps> = ({
               <button
                 type="button"
                 onClick={handleCopyAddress}
-                className="px-2.5 py-1.5 rounded-lg bg-white hover:bg-slate-100 text-slate-700 text-[11px] font-semibold border border-slate-200 shadow-xs flex items-center gap-1 transition-colors cursor-pointer"
+                className="px-2.5 py-1.5 rounded-lg bg-white hover:bg-slate-100 text-slate-700 text-[11px] font-semibold shadow-xs flex items-center gap-1 transition-colors cursor-pointer"
                 title="주소 복사"
               >
                 {copied ? (

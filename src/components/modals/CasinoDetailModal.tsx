@@ -127,26 +127,26 @@ export const CasinoDetailModal: React.FC = () => {
                 오아시스 전담 실장이 호텔 바우처 및 공항 의전을 원스톱 지원합니다.
               </p>
             </div>
-            <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+            <div className="grid grid-cols-2 gap-2 w-full sm:w-auto">
               <a
                 href={siteConfig.kakaoUrl}
                 target="_blank"
                 rel="noreferrer"
                 id="modal-casino-kakao-btn"
-                className="flex-1 sm:flex-initial px-4 py-2.5 rounded-lg text-slate-950 font-bold text-xs bg-[#FEE500] hover:bg-[#fae100] transition-all flex items-center justify-center gap-1.5 border border-amber-300"
+                className="w-full sm:w-auto px-3 sm:px-4 py-2.5 rounded-lg text-slate-950 font-bold text-xs bg-[#FEE500] hover:bg-[#fae100] transition-all flex items-center justify-center gap-1.5 border border-amber-300 whitespace-nowrap text-center"
               >
-                <MessageCircle className="w-3.5 h-3.5 fill-slate-900" />
-                <span>카카오톡 문의</span>
+                <MessageCircle className="w-3.5 h-3.5 fill-slate-900 shrink-0" />
+                <span className="truncate">카카오톡 상담</span>
               </a>
               <a
                 href={siteConfig.telegramUrl}
                 target="_blank"
                 rel="noreferrer"
                 id="modal-casino-telegram-btn"
-                className="flex-1 sm:flex-initial px-4 py-2.5 rounded-lg text-white font-bold text-xs bg-[#0274b3] hover:bg-[#026aa2] transition-all flex items-center justify-center gap-1.5 border border-sky-400/40"
+                className="w-full sm:w-auto px-3 sm:px-4 py-2.5 rounded-lg text-white font-bold text-xs bg-[#0274b3] hover:bg-[#026aa2] transition-all flex items-center justify-center gap-1.5 border border-sky-400/40 whitespace-nowrap text-center"
               >
-                <Send className="w-3.5 h-3.5" />
-                <span>텔레그램 문의</span>
+                <Send className="w-3.5 h-3.5 shrink-0" />
+                <span className="truncate">텔레그램 상담</span>
               </a>
             </div>
           </div>

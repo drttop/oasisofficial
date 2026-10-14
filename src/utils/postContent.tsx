@@ -406,46 +406,72 @@ export const FormattedPostContent: React.FC<{
   images = [],
   defaultMap,
   className = '',
-  onImageClick,
 }) => {
+  const containerRef = React.useRef<HTMLDivElement>(null);
   if (!content) return null;
 
   const html = postContentToHtml(content, images, defaultMap, false /* viewer mode */);
 
-  const handleClick = (e: React.MouseEvent) => {
-    const target = e.target as HTMLElement;
-    const zoomEl = target.closest('[data-zoom-src]') as HTMLElement;
-    if (zoomEl) {
-      const src = zoomEl.getAttribute('data-zoom-src');
-      if (src && onImageClick) onImageClick(src);
-      return;
-    }
-    if (target.tagName === 'IMG') {
-      const src = (target as HTMLImageElement).src;
-      if (src && !src.includes('google.com/maps') && onImageClick) {
-        onImageClick(src);
+  React.useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const imgs = el.querySelectorAll('img');
+    imgs.forEach((img) => {
+      if (img.src.includes('google.com/maps')) return;
+      const adjustImageSize = () => {
+        if (!img.naturalWidth || !img.naturalHeight) return;
+        const isPortrait = img.naturalHeight > img.naturalWidth;
+        img.classList.add('oasis-post-gallery-img');
+        if (isPortrait) {
+          img.classList.add('is-portrait');
+        } else {
+          img.classList.remove('is-portrait');
+        }
+
+        const fig = img.closest('figure');
+        if (fig) {
+          if (isPortrait) {
+            fig.classList.add('is-portrait');
+          } else {
+            fig.classList.remove('is-portrait');
+          }
+          fig.style.backgroundColor = 'transparent';
+        }
+        const p = img.closest('p');
+        if (p) {
+          p.style.textAlign = 'center';
+        }
+      };
+      if (img.complete && img.naturalWidth > 0) {
+        adjustImageSize();
+      } else {
+        img.addEventListener('load', adjustImageSize, { once: true });
       }
-    }
-  };
+    });
+  }, [html]);
 
   return (
     <div
+      ref={containerRef}
       className={`oasis-article-content oasis-post-body leading-relaxed text-slate-800 ${className}`}
       dangerouslySetInnerHTML={{ __html: html }}
-      onClick={handleClick}
     />
   );
 };
 
 /**
- * Creates clean viewer HTML for an inline photo in published posts with rich semantic ALT attributes
+ * Creates clean viewer HTML for an inline photo in published posts with rich semantic ALT attributes:
+ * - Mobile & Tablet: optimized to fill 100% width cleanly
+ * - PC body landscape images: standardized to max 760px width, center aligned
+ * - PC body portrait images: standardized to max 450px width, center aligned
+ * - Zero gray background, no zoom distortion, pure crisp rendering
  */
 export function createViewerPhotoHtml(photoIndex: number, imageUrl: string, caption?: string): string {
   const photoNum = photoIndex + 1;
   const cleanAlt = caption ? caption.trim() : `마닐라 오아시스 공식 VIP 매거진 상세 사진 ${photoNum}`;
-  return `<figure class="my-4 rounded-2xl overflow-hidden border border-slate-200/80 bg-slate-50/50 flex flex-col items-center justify-center p-1 sm:p-2">
-    <img src="${imageUrl}" alt="${cleanAlt}" class="w-full h-auto max-h-[640px] object-contain mx-auto rounded-xl pointer-events-none" loading="lazy" decoding="async" />
-    ${caption ? `<figcaption class="text-xs text-slate-500 mt-1.5 text-center font-medium">${caption}</figcaption>` : ''}
+  return `<figure class="oasis-viewer-photo my-4 sm:my-8 w-full max-w-full lg:max-w-[760px] mx-auto text-center flex flex-col items-center justify-center bg-transparent">
+    <img src="${imageUrl}" alt="${cleanAlt}" class="oasis-post-gallery-img h-auto max-h-none lg:max-h-[850px] object-contain mx-auto rounded-xl sm:rounded-2xl transition-all duration-300 w-full lg:w-auto max-w-full block bg-transparent" style="background-color: transparent;" loading="lazy" decoding="async" onload="if(this.naturalHeight>this.naturalWidth){this.classList.add('is-portrait');if(this.parentElement)this.parentElement.classList.add('is-portrait');}" />
+    ${caption ? `<figcaption class="text-xs sm:text-sm text-slate-500 mt-2 px-4 text-center font-medium">${caption}</figcaption>` : ''}
   </figure>`;
 }
 
@@ -455,7 +481,7 @@ export function createViewerPhotoHtml(photoIndex: number, imageUrl: string, capt
 export function createViewerMapHtml(title: string, address?: string, query?: string): string {
   const finalQuery = (query || (address ? `${title} ${address}` : title)).trim();
   const safeQuery = encodeURIComponent(finalQuery);
-  return `<div class="my-2.5 rounded-2xl overflow-hidden border border-indigo-200 shadow-sm bg-white p-3 space-y-2">
+  return `<div class="my-2.5 rounded-2xl overflow-hidden border border-indigo-200 shadow-sm bg-white p-3 space-y-2 max-w-[760px] mx-auto">
     <div class="flex items-center gap-2">
       <span class="w-6 h-6 rounded-lg bg-[#30308A] text-white flex items-center justify-center text-xs font-bold">📍</span>
       <div>
@@ -474,9 +500,9 @@ export function createViewerMapHtml(title: string, address?: string, query?: str
  */
 export function createVisualPhotoHtml(photoIndex: number, imageUrl: string): string {
   const photoNum = photoIndex + 1;
-  return `<div class="visual-photo-card my-3 p-2 bg-slate-50 rounded-2xl border border-slate-200 select-none relative group" contenteditable="false" data-photo-idx="${photoIndex}">
-    <div class="relative rounded-xl overflow-hidden max-h-[550px] bg-slate-100 flex items-center justify-center p-1">
-      <img src="${imageUrl}" alt="사진 ${photoNum}" class="w-full max-h-[530px] object-contain mx-auto rounded-lg pointer-events-none" />
+  return `<div class="visual-photo-card my-3 p-1 rounded-2xl select-none relative group w-full max-w-full lg:max-w-[760px] mx-auto" contenteditable="false" data-photo-idx="${photoIndex}">
+    <div class="relative rounded-xl overflow-hidden flex items-center justify-center p-0 bg-transparent">
+      <img src="${imageUrl}" alt="사진 ${photoNum}" class="w-full h-auto object-contain mx-auto rounded-lg pointer-events-none bg-transparent" />
       <button type="button" class="delete-photo-btn absolute top-2.5 right-2.5 px-3 py-1 rounded-lg bg-red-600/90 hover:bg-red-700 text-white text-xs font-bold flex items-center gap-1 shadow transition-all cursor-pointer">
         ✕ 사진 삭제
       </button>

@@ -380,12 +380,25 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
 
     setIsUploading(true);
 
+    const totalProjectedImages = Math.min(6, images.length + allowedFiles.length);
+    let uploadQuality = 0.90;
+    let uploadBudget = 340000;
+    if (totalProjectedImages === 2) {
+      uploadBudget = 260000;
+    } else if (totalProjectedImages === 3) {
+      uploadBudget = 200000;
+    } else if (totalProjectedImages === 4) {
+      uploadBudget = 160000;
+    } else if (totalProjectedImages >= 5) {
+      uploadBudget = 120000;
+    }
+
     try {
       const uploadPromises = allowedFiles.map(async (file) => {
         if (!file.type.startsWith('image/')) {
           throw new Error('이미지 파일만 업로드할 수 있습니다 (JPG, PNG, WEBP 등).');
         }
-        const compressed = await compressImageFile(file, 1600, 1600, 0.84, 250000);
+        const compressed = await compressImageFile(file, undefined, undefined, uploadQuality, uploadBudget);
         return compressed;
       });
 
@@ -2070,7 +2083,7 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
                     <span className="text-xs font-bold text-[#30308A]">클릭하여 사진 추가</span>
                     <span className="text-xs text-slate-500"> 또는 드래그 앤 드롭</span>
                   </div>
-                  <span className="text-[10px] text-slate-400">선명한 FHD/2K급 WebP 자동 최적화</span>
+                  <span className="text-[10px] text-slate-400">고화질 WebP 선명한 자동 최적화</span>
                 </div>
               </div>
 
@@ -2078,10 +2091,10 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
               <div className="p-2.5 rounded-2xl bg-gradient-to-r from-amber-50/60 to-indigo-50/50 border border-amber-200/60 text-slate-700 space-y-1">
                 <div className="flex items-center gap-1.5 font-bold text-xs text-slate-900">
                   <Sparkles className="w-3.5 h-3.5 text-[#b8860b]" />
-                  <span>원본급 선명도 보존 & 초고속 로딩</span>
+                  <span>원본 선명도 보존 & 초고속 최적화</span>
                 </div>
                 <p className="text-[10.5px] text-slate-500 leading-relaxed">
-                  2K급 고해상도(최대 1600px)와 모던 WebP 압축을 적용하여 원본 사진의 뭉개짐 없이 깨끗한 화질을 유지하며 사이트 용량 부담을 최소화합니다.
+                  본문 가로 760px(세로 사진 450px) 규격에 맞춰 과도한 확대나 화질 열화 없이 원본의 또렷한 화질을 보존합니다.
                 </p>
               </div>
 
@@ -2129,7 +2142,7 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
                           className="flex items-center justify-between p-2 rounded-xl border border-slate-200 bg-slate-50 gap-2.5 hover:border-slate-300 transition-colors"
                         >
                           <div className="flex items-center gap-2.5 min-w-0">
-                            <div className="w-11 h-11 rounded-lg overflow-hidden bg-slate-900 shrink-0 border border-slate-200 flex items-center justify-center p-0.5">
+                            <div className="w-11 h-11 rounded-lg overflow-hidden bg-slate-100 shrink-0 border border-slate-200 flex items-center justify-center p-0.5">
                               <img src={imgSrc} alt="" className="w-full h-full object-contain mx-auto" />
                             </div>
                             <div className="min-w-0">

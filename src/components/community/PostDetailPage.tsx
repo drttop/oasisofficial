@@ -124,16 +124,16 @@ export const PostDetailPage: React.FC<PostDetailPageProps> = ({
   const nextPost = currentIndex >= 0 && currentIndex < posts.length - 1 ? posts[currentIndex + 1] : null;
 
   return (
-    <div className="w-full bg-slate-50/70 min-h-screen py-6 sm:py-10 animate-in fade-in duration-200">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+    <div className="w-full bg-white sm:bg-slate-50/70 min-h-screen py-0 sm:py-10 animate-in fade-in duration-200">
+      <div className="max-w-5xl xl:max-w-6xl mx-auto px-0 sm:px-6 lg:px-8 space-y-0 sm:space-y-6">
 
         {/* Top Breadcrumb & Navigation Bar */}
-        <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200/80 shadow-2xs">
+        <div className="flex flex-wrap items-center justify-between gap-3 bg-white px-4 py-3 sm:p-4 rounded-none sm:rounded-3xl shadow-none sm:shadow-xs border-b border-slate-100 sm:border-0">
           <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
             <button
               type="button"
               onClick={onBack}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-[#30308A] hover:text-white text-slate-700 text-xs sm:text-sm font-bold transition-all cursor-pointer group shadow-2xs"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-[#30308A] hover:text-white text-slate-700 text-xs sm:text-sm font-bold transition-all cursor-pointer group"
               title={`${boardLabel} 게시글 목록으로 돌아가기`}
             >
               <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" />
@@ -155,10 +155,10 @@ export const PostDetailPage: React.FC<PostDetailPageProps> = ({
             <button
               type="button"
               onClick={handleCopyUrl}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer border shadow-2xs ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs ${
                 copied
-                  ? 'bg-emerald-50 text-emerald-600 border-emerald-200'
-                  : 'bg-white hover:bg-slate-50 text-slate-700 border-slate-200 hover:border-slate-300'
+                  ? 'bg-emerald-50 text-emerald-600'
+                  : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
               }`}
               title="게시글 고유 주소(URL) 복사"
             >
@@ -178,20 +178,20 @@ export const PostDetailPage: React.FC<PostDetailPageProps> = ({
         </div>
 
         {/* Main Article Document */}
-        <article className="bg-white rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden">
+        <article className="bg-white rounded-none sm:rounded-3xl shadow-none sm:shadow-sm overflow-hidden overflow-x-clip max-w-full">
           
           {/* Article Header */}
-          <div className="p-6 sm:p-10 border-b border-slate-100 bg-gradient-to-b from-slate-50/50 to-white space-y-4">
+          <div className="px-4 py-5 sm:p-10 bg-white sm:bg-gradient-to-b sm:from-slate-50/50 sm:to-white space-y-3 sm:space-y-4">
             <div className="flex items-center gap-2 flex-wrap">
               <span
-                className={`px-3 py-1 rounded-full text-xs font-bold border ${
+                className={`px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-[11px] sm:text-xs font-bold shadow-2xs ${
                   categoryColorMap[post.category] || 'bg-slate-100 text-slate-700'
                 }`}
               >
                 {post.category}
               </span>
               {post.isPinned && (
-                <span className="inline-flex items-center gap-1 text-xs font-bold text-red-600 bg-red-50 px-2.5 py-1 rounded-full border border-red-200">
+                <span className="inline-flex items-center gap-1 text-[11px] sm:text-xs font-bold text-red-600 bg-red-50 px-2.5 py-0.5 sm:py-1 rounded-full">
                   <Pin className="w-3 h-3 fill-red-500" />
                   중요 공지
                 </span>
@@ -204,7 +204,7 @@ export const PostDetailPage: React.FC<PostDetailPageProps> = ({
             </h1>
 
             {/* Article Meta Bar */}
-            <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-100 text-xs text-slate-500">
+            <div className="flex flex-wrap items-center justify-between gap-3 pt-3 text-xs text-slate-500 border-t border-slate-100">
               <div className="flex items-center gap-4 flex-wrap">
                 <div className="flex items-center gap-1.5 font-medium text-slate-700">
                   <div className="w-6 h-6 rounded-full bg-[#30308A]/10 text-[#30308A] flex items-center justify-center font-bold text-[11px]">
@@ -228,7 +228,7 @@ export const PostDetailPage: React.FC<PostDetailPageProps> = ({
               <button
                 type="button"
                 onClick={handleCopyUrl}
-                className="hidden sm:inline-flex items-center gap-1.5 text-[11px] text-[#30308A] bg-[#30308A]/5 hover:bg-[#30308A]/10 px-2.5 py-1 rounded-lg cursor-pointer transition-colors border border-[#30308A]/10"
+                className="hidden sm:inline-flex items-center gap-1.5 text-[11px] text-[#30308A] bg-[#30308A]/5 hover:bg-[#30308A]/10 px-2.5 py-1 rounded-lg cursor-pointer transition-colors"
                 title="클릭하여 고유 URL 복사"
               >
                 <LinkIcon className="w-3 h-3 text-[#30308A]" />
@@ -239,70 +239,50 @@ export const PostDetailPage: React.FC<PostDetailPageProps> = ({
           </div>
 
           {/* Article Body Container */}
-          <div className="p-6 sm:p-10 space-y-6 sm:space-y-8">
+          <div className="px-4 py-6 sm:p-10 space-y-6 sm:space-y-8">
 
             {/* Optional Summary Intro Callout */}
             {post.summary && (
-              <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-indigo-50/60 via-blue-50/40 to-slate-50 border-l-4 border-[#30308A] text-slate-700 text-sm sm:text-base leading-relaxed font-medium">
+              <div className="p-4 sm:p-6 rounded-2xl bg-gradient-to-r from-indigo-50/70 via-blue-50/40 to-slate-50 shadow-2xs text-slate-700 text-sm sm:text-base leading-relaxed font-medium">
                 {post.summary}
               </div>
             )}
 
             {/* Top Photo Gallery (Shown when photos are not placed inline in body) */}
             {showTopGallery && (
-              <div className="space-y-3">
-                {displayImages.length === 1 ? (
-                  <div className="relative rounded-2xl overflow-hidden bg-slate-50 border border-slate-200/70 flex items-center justify-center p-1 sm:p-2">
+              <div className="space-y-4 sm:space-y-6 w-full max-w-full lg:max-w-[760px] mx-auto">
+                {displayImages.map((imgSrc, idx) => (
+                  <div
+                    key={idx}
+                    className="oasis-post-gallery-wrap w-full flex items-center justify-center mx-auto"
+                  >
                     <img
-                      src={displayImages[0]}
-                      alt={post.title}
-                      className="w-full h-auto max-h-[620px] object-contain mx-auto rounded-xl"
+                      src={imgSrc}
+                      alt={`${post.title} - 사진 ${idx + 1}`}
+                      onLoad={(e) => {
+                        const target = e.currentTarget;
+                        if (target.naturalHeight > target.naturalWidth) {
+                          target.classList.add('is-portrait');
+                          if (target.parentElement) target.parentElement.classList.add('is-portrait');
+                        }
+                      }}
+                      className="oasis-post-gallery-img h-auto w-full lg:w-auto max-w-full lg:max-w-[760px] object-contain mx-auto rounded-xl sm:rounded-2xl block"
+                      style={{ backgroundColor: 'transparent' }}
                       referrerPolicy="no-referrer"
                       loading="lazy"
                       decoding="async"
                       onError={(e) => {
                         const target = e.currentTarget;
                         const fallback = initialPosts.find((p) => p.id === post.id);
-                        if (fallback?.images?.[0] && target.src !== fallback.images[0]) {
-                          target.src = fallback.images[0];
+                        if (fallback?.images?.[idx] && target.src !== fallback.images[idx]) {
+                          target.src = fallback.images[idx];
                         } else if (fallback?.thumbnail && target.src !== fallback.thumbnail) {
                           target.src = fallback.thumbnail;
                         }
                       }}
                     />
                   </div>
-                ) : (
-                  <div
-                    className={`grid gap-3 sm:gap-4 ${
-                      displayImages.length === 2
-                        ? 'grid-cols-1 sm:grid-cols-2'
-                        : 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3'
-                    }`}
-                  >
-                    {displayImages.map((imgSrc, idx) => (
-                      <div
-                        key={idx}
-                        className="relative rounded-2xl overflow-hidden bg-slate-50 border border-slate-200/70 aspect-video sm:aspect-[4/3] flex items-center justify-center"
-                      >
-                        <img
-                          src={imgSrc}
-                          alt={`${post.title} - 사진 ${idx + 1}`}
-                          className="w-full h-full object-cover rounded-2xl"
-                          referrerPolicy="no-referrer"
-                          loading="lazy"
-                          decoding="async"
-                          onError={(e) => {
-                            const target = e.currentTarget;
-                            const fallback = initialPosts.find((p) => p.id === post.id);
-                            if (fallback?.images?.[idx] && target.src !== fallback.images[idx]) {
-                              target.src = fallback.images[idx];
-                            }
-                          }}
-                        />
-                      </div>
-                    ))}
-                  </div>
-                )}
+                ))}
               </div>
             )}
 
@@ -333,27 +313,29 @@ export const PostDetailPage: React.FC<PostDetailPageProps> = ({
 
             {/* Unplaced Attached Photos */}
             {unplacedImages.length > 0 && !showTopGallery && (
-              <div className="pt-6 border-t border-slate-100 space-y-3">
-                <span className="text-xs font-bold text-slate-500 flex items-center gap-1.5">
+              <div className="pt-6 border-t border-slate-100 space-y-4 sm:space-y-6 w-full max-w-full lg:max-w-[760px] mx-auto">
+                <span className="text-xs font-bold text-slate-500 flex items-center justify-center gap-1.5">
                   <ImageIcon className="w-3.5 h-3.5 text-[#30308A]" />
                   추가 첨부 사진
                 </span>
-                <div
-                  className={`grid gap-3 ${
-                    unplacedImages.length === 2
-                      ? 'grid-cols-1 sm:grid-cols-2'
-                      : 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3'
-                  }`}
-                >
+                <div className="space-y-4 sm:space-y-6 w-full">
                   {unplacedImages.map((imgSrc, idx) => (
                     <div
                       key={idx}
-                      className="relative rounded-xl overflow-hidden bg-slate-50 border border-slate-200/70 aspect-video sm:aspect-[4/3] flex items-center justify-center"
+                      className="oasis-post-gallery-wrap w-full flex items-center justify-center mx-auto"
                     >
                       <img
                         src={imgSrc}
                         alt="첨부 사진"
-                        className="w-full h-full object-cover rounded-xl"
+                        onLoad={(e) => {
+                          const target = e.currentTarget;
+                          if (target.naturalHeight > target.naturalWidth) {
+                            target.classList.add('is-portrait');
+                            if (target.parentElement) target.parentElement.classList.add('is-portrait');
+                          }
+                        }}
+                        className="oasis-post-gallery-img h-auto w-full lg:w-auto max-w-full lg:max-w-[760px] object-contain mx-auto rounded-xl sm:rounded-2xl block"
+                        style={{ backgroundColor: 'transparent' }}
                         referrerPolicy="no-referrer"
                         loading="lazy"
                         decoding="async"
@@ -397,26 +379,26 @@ export const PostDetailPage: React.FC<PostDetailPageProps> = ({
               <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
                 본 게시글과 관련된 특급 호텔 스위트룸 예약, 롤링 1.5% 혜택 및 공항 리무진 의전 상담은 아래 공식 메신저로 24시간 언제든 편하게 문의해 주시기 바랍니다.
               </p>
-              <div className="flex flex-wrap gap-2.5 pt-1">
+              <div className="grid grid-cols-2 gap-2 sm:gap-3 pt-1 w-full">
                 <a
                   href={siteConfig.kakaoUrl}
                   target="_blank"
                   rel="noreferrer"
                   id="page-post-kakao-btn"
-                  className="py-2.5 px-4 sm:px-5 bg-[#FEE500] hover:bg-[#fae100] text-slate-950 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 border border-amber-300 transition-all hover:scale-105 active:scale-95 shadow-sm"
+                  className="w-full py-2.5 sm:py-3 px-2 sm:px-4 bg-[#FEE500] hover:bg-[#fae100] text-slate-950 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 sm:gap-2 border border-amber-300 transition-all hover:scale-[1.02] active:scale-95 shadow-sm whitespace-nowrap text-center"
                 >
-                  <MessageCircle className="w-4 h-4 fill-slate-900" />
-                  <span>카카오톡 1:1 상담</span>
+                  <MessageCircle className="w-4 h-4 fill-slate-900 shrink-0" />
+                  <span className="truncate">카카오톡 상담</span>
                 </a>
                 <a
                   href={siteConfig.telegramUrl}
                   target="_blank"
                   rel="noreferrer"
                   id="page-post-telegram-btn"
-                  className="py-2.5 px-4 sm:px-5 bg-[#0274b3] hover:bg-[#026aa2] text-white rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 border border-sky-400/40 transition-all hover:scale-105 active:scale-95 shadow-sm"
+                  className="w-full py-2.5 sm:py-3 px-2 sm:px-4 bg-[#0274b3] hover:bg-[#026aa2] text-white rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 sm:gap-2 border border-sky-400/40 transition-all hover:scale-[1.02] active:scale-95 shadow-sm whitespace-nowrap text-center"
                 >
-                  <Send className="w-4 h-4 text-white" />
-                  <span>텔레그램 1:1 상담</span>
+                  <Send className="w-4 h-4 text-white shrink-0" />
+                  <span className="truncate">텔레그램 상담</span>
                 </a>
               </div>
             </div>
@@ -437,7 +419,7 @@ export const PostDetailPage: React.FC<PostDetailPageProps> = ({
                     incrementPostView(prevPost.id);
                     window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
                   }}
-                  className="p-4 rounded-2xl bg-white border border-slate-200/80 hover:border-[#30308A]/40 hover:shadow-sm cursor-pointer transition-all flex items-center gap-3 group text-inherit no-underline"
+                  className="p-4 rounded-2xl bg-slate-50 hover:bg-slate-100 shadow-2xs hover:shadow-xs cursor-pointer transition-all flex items-center gap-3 group text-inherit no-underline"
                   title={`${prevPost.title} 이전 게시글 보기`}
                 >
                   <ChevronLeft className="w-5 h-5 text-slate-400 group-hover:text-[#30308A] shrink-0 transition-transform group-hover:-translate-x-1" />
@@ -449,7 +431,7 @@ export const PostDetailPage: React.FC<PostDetailPageProps> = ({
                   </div>
                 </a>
               ) : (
-                <div className="p-4 rounded-2xl bg-slate-100/50 border border-slate-200/40 text-slate-400 text-xs flex items-center gap-2">
+                <div className="p-4 rounded-2xl bg-slate-50 text-slate-400 text-xs flex items-center gap-2">
                   <ChevronLeft className="w-4 h-4 opacity-40" />
                   <span>이전 게시글이 없습니다</span>
                 </div>
@@ -464,7 +446,7 @@ export const PostDetailPage: React.FC<PostDetailPageProps> = ({
                     incrementPostView(nextPost.id);
                     window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
                   }}
-                  className="p-4 rounded-2xl bg-white border border-slate-200/80 hover:border-[#30308A]/40 hover:shadow-sm cursor-pointer transition-all flex items-center justify-between gap-3 text-right group text-inherit no-underline"
+                  className="p-4 rounded-2xl bg-slate-50 hover:bg-slate-100 shadow-2xs hover:shadow-xs cursor-pointer transition-all flex items-center justify-between gap-3 text-right group text-inherit no-underline"
                   title={`${nextPost.title} 다음 게시글 보기`}
                 >
                   <div className="min-w-0 flex-1">
@@ -476,7 +458,7 @@ export const PostDetailPage: React.FC<PostDetailPageProps> = ({
                   <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-[#30308A] shrink-0 transition-transform group-hover:translate-x-1" />
                 </a>
               ) : (
-                <div className="p-4 rounded-2xl bg-slate-100/50 border border-slate-200/40 text-slate-400 text-xs flex items-center justify-end gap-2 text-right">
+                <div className="p-4 rounded-2xl bg-slate-50 text-slate-400 text-xs flex items-center justify-end gap-2 text-right">
                   <span>다음 게시글이 없습니다</span>
                   <ChevronRight className="w-4 h-4 opacity-40" />
                 </div>
@@ -492,7 +474,7 @@ export const PostDetailPage: React.FC<PostDetailPageProps> = ({
                   .slice(0, 3);
                 if (relatedPosts.length === 0) return null;
                 return (
-                  <div className="pt-4 border-t border-slate-200/80 space-y-3">
+                  <div className="pt-6 space-y-3">
                     <div className="flex items-center justify-between">
                       <h3 className="text-xs sm:text-sm font-extrabold text-slate-800 flex items-center gap-1.5">
                         <Sparkles className="w-3.5 h-3.5 text-[#E5B54F]" />
@@ -511,11 +493,11 @@ export const PostDetailPage: React.FC<PostDetailPageProps> = ({
                             incrementPostView(rel.id);
                             window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
                           }}
-                          className="p-3 rounded-2xl bg-white border border-slate-200 hover:border-[#30308A]/40 hover:shadow-xs transition-all flex flex-col justify-between group cursor-pointer text-inherit no-underline"
+                          className="p-3.5 rounded-2xl bg-slate-50 hover:bg-slate-100 shadow-2xs hover:shadow-xs transition-all flex flex-col justify-between group cursor-pointer text-inherit no-underline"
                           title={`${rel.title} 읽어보기`}
                         >
                           <div className="space-y-1.5">
-                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 inline-block">
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-200/70 text-slate-600 inline-block">
                               {rel.category}
                             </span>
                             <h4 className="text-xs font-bold text-slate-900 group-hover:text-[#30308A] line-clamp-2 leading-snug transition-colors">

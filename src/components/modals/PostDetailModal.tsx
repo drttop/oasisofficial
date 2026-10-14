@@ -80,21 +80,21 @@ export const PostDetailModal: React.FC = () => {
   const unplacedImages = displayImages.filter((_, idx) => !inlineImageIndices.has(idx));
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden border border-slate-200 animate-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="bg-white rounded-3xl shadow-2xl max-w-4xl lg:max-w-5xl w-full max-h-[92vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
         
         {/* Header Bar */}
-        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+        <div className="px-6 py-4 flex items-center justify-between bg-white">
           <div className="flex items-center gap-2">
             <span
-              className={`px-2.5 py-0.5 rounded-full text-xs font-bold border ${
+              className={`px-3 py-1 rounded-full text-xs font-bold shadow-2xs ${
                 categoryColorMap[selectedPost.category] || 'bg-slate-100 text-slate-700'
               }`}
             >
               {selectedPost.category}
             </span>
             {selectedPost.isPinned && (
-              <span className="inline-flex items-center gap-1 text-[11px] font-bold text-red-500 bg-red-50 px-2 py-0.5 rounded-full border border-red-100">
+              <span className="inline-flex items-center gap-1 text-[11px] font-bold text-red-600 bg-red-50 px-2.5 py-0.5 rounded-full">
                 <Pin className="w-3 h-3" />
                 중요 공지
               </span>
@@ -105,10 +105,10 @@ export const PostDetailModal: React.FC = () => {
             {/* Share / Copy URL Button */}
             <button
               onClick={handleCopyUrl}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer border ${
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs ${
                 copied
-                  ? 'bg-emerald-50 text-emerald-600 border-emerald-200 shadow-sm'
-                  : 'bg-white hover:bg-slate-100 text-slate-700 border-slate-200 hover:border-slate-300'
+                  ? 'bg-emerald-50 text-emerald-600'
+                  : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
               }`}
               title="게시글 고유 주소(URL) 복사"
             >
@@ -127,7 +127,7 @@ export const PostDetailModal: React.FC = () => {
 
             <button
               onClick={() => setSelectedPost(null)}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200 transition-colors"
+              className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
@@ -138,11 +138,11 @@ export const PostDetailModal: React.FC = () => {
         <div className="p-6 sm:p-8 overflow-y-auto flex-1 space-y-6">
           {/* Post Title */}
           <div>
-            <h2 className="text-xl sm:text-2xl font-bold text-slate-900 leading-snug">
+            <h2 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-slate-900 leading-snug">
               {selectedPost.title}
             </h2>
             
-            <div className="flex flex-wrap items-center justify-between gap-4 text-xs text-slate-500 mt-3 pt-3 border-t border-slate-100">
+            <div className="flex flex-wrap items-center justify-between gap-4 text-xs text-slate-500 mt-3 pt-3">
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-1">
                   <User className="w-3.5 h-3.5 text-slate-400" />
@@ -157,7 +157,7 @@ export const PostDetailModal: React.FC = () => {
               {/* Dynamic Canonical URL preview badge */}
               <div
                 onClick={handleCopyUrl}
-                className="hidden sm:flex items-center gap-1.5 text-[11px] text-[#30308A] bg-[#30308A]/5 hover:bg-[#30308A]/10 px-2.5 py-1 rounded-md cursor-pointer transition-colors"
+                className="hidden sm:flex items-center gap-1.5 text-[11px] text-[#30308A] bg-[#30308A]/5 hover:bg-[#30308A]/10 px-2.5 py-1 rounded-lg cursor-pointer transition-colors"
                 title="클릭하여 고유 URL 복사"
               >
                 <LinkIcon className="w-3 h-3 text-[#30308A]" />
@@ -169,57 +169,39 @@ export const PostDetailModal: React.FC = () => {
 
           {/* Uploaded Photos Top Gallery (Shown only when photos are not placed inline in the body) */}
           {showTopGallery && (
-            <div className="space-y-2">
-              {displayImages.length === 1 ? (
-                // 1 Single Photo Banner
-                <div className="relative rounded-2xl overflow-hidden bg-slate-50 border border-slate-200/70 max-h-80 flex items-center justify-center p-1">
+            <div className="space-y-4 sm:space-y-6 w-full max-w-full lg:max-w-[760px] mx-auto">
+              {displayImages.map((imgSrc, idx) => (
+                <div
+                  key={idx}
+                  className="oasis-post-gallery-wrap w-full flex items-center justify-center mx-auto"
+                >
                   <img
-                    src={getOptimizedImageUrl(displayImages[0], 1000, 80)}
-                    alt={selectedPost.title}
-                    className="w-full h-auto max-h-80 object-contain rounded-xl"
+                    src={imgSrc}
+                    alt={`${selectedPost.title} - 사진 ${idx + 1}`}
+                    onLoad={(e) => {
+                      const target = e.currentTarget;
+                      if (target.naturalHeight > target.naturalWidth) {
+                        target.classList.add('is-portrait');
+                        if (target.parentElement) target.parentElement.classList.add('is-portrait');
+                      }
+                    }}
+                    className="oasis-post-gallery-img h-auto w-full lg:w-auto max-w-full lg:max-w-[760px] object-contain mx-auto rounded-xl sm:rounded-2xl block"
+                    style={{ backgroundColor: 'transparent' }}
                     referrerPolicy="no-referrer"
                     loading="lazy"
                     decoding="async"
                     onError={(e) => {
                       const target = e.currentTarget;
                       const fallback = initialPosts.find((p) => p.id === selectedPost.id);
-                      if (fallback?.images?.[0] && target.src !== fallback.images[0]) {
-                        target.src = fallback.images[0];
+                      if (fallback?.images?.[idx] && target.src !== fallback.images[idx]) {
+                        target.src = fallback.images[idx];
                       } else if (fallback?.thumbnail && target.src !== fallback.thumbnail) {
                         target.src = fallback.thumbnail;
                       }
                     }}
                   />
                 </div>
-              ) : (
-                // 2 to 6 Photos Grid
-                <div className={`grid gap-3 ${
-                  displayImages.length === 2 ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3'
-                }`}>
-                  {displayImages.map((imgSrc, idx) => (
-                    <div
-                      key={idx}
-                      className="relative rounded-2xl overflow-hidden bg-slate-50 border border-slate-200/70 h-44 sm:h-52 flex items-center justify-center"
-                    >
-                      <img
-                        src={getOptimizedImageUrl(imgSrc, 600, 75)}
-                        alt={`${selectedPost.title} - 사진 ${idx + 1}`}
-                        className="w-full h-full object-cover rounded-xl"
-                        referrerPolicy="no-referrer"
-                        loading="lazy"
-                        decoding="async"
-                        onError={(e) => {
-                          const target = e.currentTarget;
-                          const fallback = initialPosts.find((p) => p.id === selectedPost.id);
-                          if (fallback?.images?.[idx] && target.src !== fallback.images[idx]) {
-                            target.src = fallback.images[idx];
-                          }
-                        }}
-                      />
-                    </div>
-                  ))}
-                </div>
-              )}
+              ))}
             </div>
           )}
 
@@ -257,30 +239,36 @@ export const PostDetailModal: React.FC = () => {
 
           {/* Unplaced Photos (Uploaded by admin but not inserted into text body) */}
           {unplacedImages.length > 0 && !showTopGallery && (
-            <div className="pt-4 border-t border-slate-100 space-y-2">
-              <span className="text-xs font-bold text-slate-500 flex items-center gap-1.5">
+            <div className="pt-4 border-t border-slate-100 space-y-4 w-full max-w-full lg:max-w-[760px] mx-auto">
+              <span className="text-xs font-bold text-slate-500 flex items-center justify-center gap-1.5">
                 <ImageIcon className="w-3.5 h-3.5 text-[#30308A]" />
                 첨부 사진
               </span>
-              <div className={`grid gap-3 ${
-                unplacedImages.length === 2 ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3'
-              }`}>
+              <div className="space-y-4 w-full">
                 {unplacedImages.map((imgSrc, idx) => (
                   <div
                     key={idx}
-                    className="relative rounded-xl overflow-hidden bg-slate-50 border border-slate-200/70 h-36 sm:h-44 flex items-center justify-center"
+                    className="oasis-post-gallery-wrap w-full flex items-center justify-center mx-auto"
                   >
                     <img
-                      src={getOptimizedImageUrl(imgSrc, 600, 75)}
+                      src={imgSrc}
                       alt="첨부 사진"
-                      className="w-full h-full object-cover rounded-lg"
+                      onLoad={(e) => {
+                        const target = e.currentTarget;
+                        if (target.naturalHeight > target.naturalWidth) {
+                          target.classList.add('is-portrait');
+                          if (target.parentElement) target.parentElement.classList.add('is-portrait');
+                        }
+                      }}
+                      className="oasis-post-gallery-img h-auto w-full lg:w-auto max-w-full lg:max-w-[760px] object-contain mx-auto rounded-xl block"
+                      style={{ backgroundColor: 'transparent' }}
                       referrerPolicy="no-referrer"
                       loading="lazy"
                       decoding="async"
                       onError={(e) => {
                         const target = e.currentTarget;
                         const fallback = initialPosts.find((p) => p.id === selectedPost.id);
-                        if (fallback?.images?.[idx] && target.src !== fallback.images[idx]) {
+                        if (fallback?.images && fallback.images[idx] && target.src !== fallback.images[idx]) {
                           target.src = fallback.images[idx];
                         }
                       }}
@@ -314,26 +302,26 @@ export const PostDetailModal: React.FC = () => {
             <p className="text-xs text-slate-300">
               본 게시글과 관련된 세부 혜택 및 카지노 예약/의전은 아래 1:1 채널로 즉시 상담 가능합니다.
             </p>
-            <div className="flex flex-wrap gap-2 pt-1">
+            <div className="grid grid-cols-2 gap-2 sm:gap-3 pt-1 w-full">
               <a
                 href={siteConfig.kakaoUrl}
                 target="_blank"
                 rel="noreferrer"
                 id="modal-post-kakao-btn"
-                className="py-2.5 px-4 bg-[#FEE500] hover:bg-[#fae100] text-slate-950 rounded-xl text-xs font-bold flex items-center gap-1.5 border border-amber-300 transition-all hover:scale-105"
+                className="w-full py-2.5 sm:py-3 px-2 sm:px-4 bg-[#FEE500] hover:bg-[#fae100] text-slate-950 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 sm:gap-2 border border-amber-300 transition-all hover:scale-[1.02] active:scale-95 shadow-sm whitespace-nowrap text-center"
               >
-                <MessageCircle className="w-3.5 h-3.5 fill-slate-900" />
-                <span>카카오톡 문의</span>
+                <MessageCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-slate-900 shrink-0" />
+                <span className="truncate">카카오톡 상담</span>
               </a>
               <a
                 href={siteConfig.telegramUrl}
                 target="_blank"
                 rel="noreferrer"
                 id="modal-post-telegram-btn"
-                className="py-2.5 px-4 bg-[#0274b3] hover:bg-[#026aa2] text-white rounded-xl text-xs font-bold flex items-center gap-1.5 border border-sky-400/40 transition-all hover:scale-105"
+                className="w-full py-2.5 sm:py-3 px-2 sm:px-4 bg-[#0274b3] hover:bg-[#026aa2] text-white rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 sm:gap-2 border border-sky-400/40 transition-all hover:scale-[1.02] active:scale-95 shadow-sm whitespace-nowrap text-center"
               >
-                <Send className="w-3.5 h-3.5 text-white" />
-                <span>텔레그램 문의</span>
+                <Send className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white shrink-0" />
+                <span className="truncate">텔레그램 상담</span>
               </a>
             </div>
           </div>

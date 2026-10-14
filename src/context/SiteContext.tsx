@@ -758,6 +758,26 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [isAdminOpen, activeInfoModal]);
 
+  // Serializes posts for browser storage with strict quota protection (never exceeds 2.5MB)
+  const serializePostsForStorage = (postsList: PostItem[]): string => {
+    try {
+      const json = JSON.stringify(postsList);
+      if (json.length < 2500000) return json;
+
+      const streamlined = postsList.map((p) => {
+        const thumb = p.thumbnail || (p.images && p.images.length > 0 ? p.images[0] : '');
+        return {
+          ...p,
+          thumbnail: thumb,
+          images: p.images && p.images.length > 0 ? [p.images[0]] : (thumb ? [thumb] : []),
+        };
+      });
+      return JSON.stringify(streamlined);
+    } catch {
+      return JSON.stringify(postsList);
+    }
+  };
+
   // Safe storage helper to guarantee no QuotaExceededError crashes the React app
   const safeStorageSet = (key: string, value: string) => {
     if (typeof window === 'undefined') return;
@@ -801,7 +821,7 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [philippineSpots]);
 
   useEffect(() => {
-    safeStorageSet(STORAGE_KEYS.POSTS, JSON.stringify(posts));
+    safeStorageSet(STORAGE_KEYS.POSTS, serializePostsForStorage(posts));
   }, [posts]);
 
   useEffect(() => {

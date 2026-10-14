@@ -126,7 +126,7 @@ export const CommunitySection: React.FC = () => {
 
   return (
     <section id="community" className="py-10 sm:py-20 bg-white text-slate-900 scroll-mt-20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-2.5 sm:px-6 lg:px-8">
         
         {/* Back to Home Navigation Button */}
         <div className="mb-6 flex items-center justify-between">
@@ -183,14 +183,14 @@ export const CommunitySection: React.FC = () => {
                   onClick={() => handleCategoryChange(cat.id)}
                   className={`inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap cursor-pointer ${
                     isActive
-                      ? 'bg-[#30308A] text-white shadow-md shadow-[#30308A]/25 border border-[#30308A]'
-                      : 'bg-slate-50 hover:bg-slate-100 text-slate-700 hover:text-slate-900 border border-slate-200/90'
+                      ? 'bg-[#30308A] text-white shadow-md shadow-[#30308A]/25'
+                      : 'bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900'
                   }`}
                 >
                   <span>{cat.label}</span>
                   <span
                     className={`text-[10px] sm:text-[11px] px-1.5 py-0.2 rounded-full font-semibold ${
-                      isActive ? 'bg-white/20 text-white' : 'bg-slate-200/70 text-slate-600'
+                      isActive ? 'bg-white/20 text-white' : 'bg-slate-200/80 text-slate-600'
                     }`}
                   >
                     {count}
@@ -208,14 +208,14 @@ export const CommunitySection: React.FC = () => {
               placeholder="게시글 검색..."
               value={searchQuery}
               onChange={(e) => handleSearchChange(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 text-xs sm:text-sm bg-slate-50 border border-slate-200/90 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#30308A] focus:bg-white transition-all placeholder:text-slate-400"
+              className="w-full pl-9 pr-4 py-2 text-xs sm:text-sm bg-slate-100 focus:bg-white rounded-xl focus:outline-none focus:ring-2 focus:ring-[#30308A] transition-all placeholder:text-slate-400"
             />
           </div>
         </div>
 
         {/* Posts List / Magazine Cards */}
         {filteredPosts.length === 0 ? (
-          <div className="py-20 text-center text-slate-500 bg-slate-50 rounded-2xl border border-dashed border-slate-200 space-y-3">
+          <div className="py-20 text-center text-slate-500 bg-slate-50 rounded-3xl space-y-3">
             <FileText className="w-10 h-10 mx-auto text-slate-400" />
             <p className="text-sm font-semibold text-slate-700">
               {searchQuery
@@ -249,7 +249,7 @@ export const CommunitySection: React.FC = () => {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-6">
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
             {paginatedPosts.map((post, postIdx) => {
               const cardImage = post.thumbnail || (post.images && post.images.length > 0 ? post.images[0] : '');
               const hasMultiplePhotos = (post.images && post.images.length > 1);
@@ -264,12 +264,12 @@ export const CommunitySection: React.FC = () => {
                     e.preventDefault();
                     handleOpenPost(post);
                   }}
-                  className="bg-slate-50 hover:bg-white rounded-xl sm:rounded-2xl border border-slate-200/80 hover:border-[#30308A]/40 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col cursor-pointer group no-underline text-inherit block"
+                  className="bg-white rounded-2xl sm:rounded-3xl shadow-xs hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col cursor-pointer group no-underline text-inherit block"
                   title={`${post.title} 자세히 보기`}
                 >
                   {/* Thumbnail if present */}
                   {cardImage && (
-                    <div className="relative h-28 min-[420px]:h-36 sm:h-48 w-full overflow-hidden bg-slate-900">
+                    <div className="relative aspect-[16/10] sm:aspect-[16/9] w-full overflow-hidden bg-slate-900">
                       <img
                         {...getResponsiveImageProps(cardImage, 600, '(max-width: 640px) 380px, (max-width: 1024px) 50vw, 380px')}
                         alt={post.title}
@@ -290,22 +290,22 @@ export const CommunitySection: React.FC = () => {
                           }
                         }}
                       />
-                      <div className="absolute top-1.5 sm:top-3 left-1.5 sm:left-3 flex items-center gap-1 sm:gap-1.5 flex-wrap">
+                      <div className="absolute top-2 sm:top-3 left-2 sm:left-3 flex items-center gap-1 sm:gap-1.5 flex-wrap">
                         <span
-                          className={`px-1.5 sm:px-2.5 py-0.5 rounded-full text-[9px] min-[400px]:text-[10px] sm:text-[11px] font-bold border ${
+                          className={`px-2 sm:px-2.5 py-0.5 rounded-full text-[10px] sm:text-[11px] font-bold shadow-xs ${
                             categoryColorMap[post.category] || 'bg-slate-100 text-slate-700'
                           }`}
                         >
                           {post.category}
                         </span>
                         {post.isPinned && (
-                          <span className="inline-flex items-center gap-0.5 sm:gap-1 text-[9px] min-[400px]:text-[10px] sm:text-[11px] font-bold text-white bg-red-600 px-1.5 sm:px-2 py-0.5 rounded-full shadow">
+                          <span className="inline-flex items-center gap-0.5 sm:gap-1 text-[10px] sm:text-[11px] font-bold text-white bg-red-600 px-2 py-0.5 rounded-full shadow">
                             <Pin className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                             <span className="hidden min-[380px]:inline">중요</span>
                           </span>
                         )}
                         {hasMap && (
-                          <span className="inline-flex items-center gap-0.5 text-[9px] sm:text-[10px] font-bold text-white bg-[#30308A]/90 backdrop-blur-sm px-1.5 py-0.5 rounded-full shadow border border-white/20">
+                          <span className="inline-flex items-center gap-0.5 text-[10px] sm:text-[11px] font-bold text-white bg-[#30308A]/95 backdrop-blur-sm px-2 py-0.5 rounded-full shadow">
                             <MapPin className="w-2.5 h-2.5 text-[#E5B54F]" />
                             <span>지도</span>
                           </span>
@@ -314,8 +314,8 @@ export const CommunitySection: React.FC = () => {
 
                       {/* Multiple Photos Indicator Badge */}
                       {hasMultiplePhotos && (
-                        <div className="absolute bottom-1.5 sm:bottom-3 right-1.5 sm:right-3">
-                          <span className="inline-flex items-center gap-0.5 sm:gap-1 text-[9px] sm:text-[10px] font-bold text-white bg-slate-900/80 backdrop-blur-sm px-1.5 sm:px-2 py-0.5 rounded-full shadow">
+                        <div className="absolute bottom-2 sm:bottom-3 right-2 sm:right-3">
+                          <span className="inline-flex items-center gap-0.5 sm:gap-1 text-[10px] sm:text-[11px] font-bold text-white bg-slate-950/80 backdrop-blur-sm px-2 py-0.5 rounded-full shadow">
                             <Camera className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-[#E5B54F]" />
                             <span>사진 {post.images!.length}장</span>
                           </span>
@@ -361,13 +361,13 @@ export const CommunitySection: React.FC = () => {
                     </div>
 
                     {/* Meta footer */}
-                    <div className="pt-1.5 sm:pt-3 border-t border-slate-200/80 flex items-center justify-between text-[10px] sm:text-xs text-slate-600 font-medium">
+                    <div className="pt-2 sm:pt-3 flex items-center justify-between text-[10px] sm:text-xs text-slate-500 font-medium">
                       <div className="flex items-center gap-1 sm:gap-3 truncate">
                         <span className="flex items-center gap-0.5 sm:gap-1">
-                          <Eye className="w-3 h-3 text-slate-500" />
+                          <Eye className="w-3 h-3 text-slate-400" />
                           <span>{post.viewCount}</span>
                         </span>
-                        <span className="hidden min-[400px]:inline text-slate-400">·</span>
+                        <span className="hidden min-[400px]:inline text-slate-300">·</span>
                         <span className="hidden min-[400px]:inline truncate max-w-[60px] sm:max-w-[90px]">
                           {post.author}
                         </span>
@@ -391,7 +391,7 @@ export const CommunitySection: React.FC = () => {
               <button
                 onClick={() => handlePageChange(Math.max(1, validCurrentPage - 1))}
                 disabled={validCurrentPage === 1}
-                className="p-2 sm:px-3.5 sm:py-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 disabled:opacity-30 disabled:pointer-events-none transition-all flex items-center gap-1 text-xs sm:text-sm font-semibold cursor-pointer"
+                className="p-2 sm:px-3.5 sm:py-2 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 disabled:opacity-30 disabled:pointer-events-none transition-all flex items-center gap-1 text-xs sm:text-sm font-semibold cursor-pointer shadow-2xs"
                 aria-label="이전 페이지"
               >
                 <ChevronLeft className="w-4 h-4" />
@@ -406,7 +406,7 @@ export const CommunitySection: React.FC = () => {
                   className={`min-w-[36px] sm:min-w-[42px] h-9 sm:h-10 px-2 sm:px-3 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
                     validCurrentPage === pageNum
                       ? 'bg-[#30308A] text-white shadow-md shadow-[#30308A]/20 scale-105'
-                      : 'bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-900 border border-slate-200/80'
+                      : 'bg-slate-100 text-slate-700 hover:bg-slate-200 hover:text-slate-900'
                   }`}
                 >
                   {pageNum}
@@ -417,7 +417,7 @@ export const CommunitySection: React.FC = () => {
               <button
                 onClick={() => handlePageChange(Math.min(totalPages, validCurrentPage + 1))}
                 disabled={validCurrentPage === totalPages}
-                className="p-2 sm:px-3.5 sm:py-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 disabled:opacity-30 disabled:pointer-events-none transition-all flex items-center gap-1 text-xs sm:text-sm font-semibold cursor-pointer"
+                className="p-2 sm:px-3.5 sm:py-2 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 disabled:opacity-30 disabled:pointer-events-none transition-all flex items-center gap-1 text-xs sm:text-sm font-semibold cursor-pointer shadow-2xs"
                 aria-label="다음 페이지"
               >
                 <span className="hidden sm:inline">다음</span>

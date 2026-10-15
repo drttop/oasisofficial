@@ -408,13 +408,15 @@ export const FormattedPostContent: React.FC<{
   className = '',
 }) => {
   const containerRef = React.useRef<HTMLDivElement>(null);
-  if (!content) return null;
 
-  const html = postContentToHtml(content, images, defaultMap, false /* viewer mode */);
+  const html = React.useMemo(() => {
+    if (!content) return '';
+    return postContentToHtml(content, images, defaultMap, false /* viewer mode */);
+  }, [content, images, defaultMap]);
 
   React.useEffect(() => {
     const el = containerRef.current;
-    if (!el) return;
+    if (!el || !html) return;
     const imgs = el.querySelectorAll('img');
     imgs.forEach((img) => {
       if (img.src.includes('google.com/maps')) return;
@@ -449,6 +451,8 @@ export const FormattedPostContent: React.FC<{
       }
     });
   }, [html]);
+
+  if (!content) return null;
 
   return (
     <div
@@ -897,88 +901,99 @@ export function htmlToPostContent(htmlOrElement: HTMLElement | string): string {
     return typeof htmlOrElement === 'string' ? htmlOrElement : '';
   }
 
-  let container: HTMLElement;
+  try {
+    let container: HTMLElement;
 
-  if (typeof htmlOrElement === 'string') {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(`<div>${htmlOrElement}</div>`, 'text/html');
-    container = (doc.body.firstElementChild || doc.body) as HTMLElement;
-  } else {
-    // Clone node so we never mutate the live visual editor DOM
-    container = htmlOrElement.cloneNode(true) as HTMLElement;
-  }
-
-  // 1. Convert visual photo cards back to portable [사진N] shortcodes
-  const photoCards = container.querySelectorAll('.visual-photo-card, [data-photo-idx]');
-  photoCards.forEach((card) => {
-    const idx = card.getAttribute('data-photo-idx');
-    const photoNum = idx !== null ? Number(idx) + 1 : 1;
-    const p = document.createElement('p');
-    p.textContent = `[사진${photoNum}]`;
-
-    // Remove immediately following empty spacer paragraph if present
-    const nextEl = card.nextElementSibling;
-    if (nextEl && nextEl.tagName === 'P' && (nextEl.innerHTML === '<br>' || nextEl.innerHTML.trim() === '')) {
-      nextEl.remove();
-    }
-    const prevEl = card.previousElementSibling;
-    if (prevEl && prevEl.tagName === 'P' && (prevEl.innerHTML === '<br>' || prevEl.innerHTML.trim() === '')) {
-      prevEl.remove();
-    }
-
-    card.parentNode?.replaceChild(p, card);
-  });
-
-  // 2. Convert visual map cards back to portable [지도:...] shortcodes
-  const mapCards = container.querySelectorAll('.visual-map-card, [data-map-title]');
-  mapCards.forEach((card) => {
-    const title = card.getAttribute('data-map-title') || card.getAttribute('data-map-query') || '';
-    const address = card.getAttribute('data-map-address') || '';
-
-    const nextEl = card.nextElementSibling;
-    if (nextEl && nextEl.tagName === 'P' && (nextEl.innerHTML === '<br>' || nextEl.innerHTML.trim() === '')) {
-      nextEl.remove();
-    }
-    const prevEl = card.previousElementSibling;
-    if (prevEl && prevEl.tagName === 'P' && (prevEl.innerHTML === '<br>' || prevEl.innerHTML.trim() === '')) {
-      prevEl.remove();
-    }
-
-    if (title) {
-      const p = document.createElement('p');
-      p.textContent = `[지도:${title}${address ? `|${address}` : ''}]`;
-      card.parentNode?.replaceChild(p, card);
+    if (typeof htmlOrElement === 'string') {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(`<div>${htmlOrElement}</div>`, 'text/html');
+      container = (doc.body.firstElementChild || doc.body) as HTMLElement;
     } else {
-      card.remove();
+      // Clone node so we never mutate the live visual editor DOM
+      container = htmlOrElement.cloneNode(true) as HTMLElement;
     }
-  });
 
-  // 3. Remove internal editor buttons or UI helpers if any slipped in
-  container.querySelectorAll('.delete-photo-btn, .delete-map-btn').forEach((btn) => btn.remove());
+    // 1. Convert visual photo cards back to portable [사진N] shortcodes
+    const photoCards = container.querySelectorAll('.visual-photo-card, [data-photo-idx]');
+    photoCards.forEach((card) => {
+      const idx = card.getAttribute('data-photo-idx');
+      const photoNum = idx !== null ? Number(idx) + 1 : 1;
+      const p = document.createElement('p');
+      p.textContent = `[사진${photoNum}]`;
 
-  // 4. Remove internal decorative heading point bars so they never duplicate or stack on edits!
-  container.querySelectorAll('span.w-1\\.5.h-5, span.w-1\\.5.h-4, span[class*="rounded-full"][class*="shrink-0"]').forEach((el) => {
-    if (el.parentElement?.tagName === 'H2' || el.parentElement?.tagName === 'H3') {
-      el.remove();
-    }
-  });
+      // Remove immediately following empty spacer paragraph if present
+      const nextEl = card.nextElementSibling;
+      if (nextEl && nextEl.tagName === 'P' && (nextEl.innerHTML === '<br>' || nextEl.innerHTML.trim() === '')) {
+        nextEl.remove();
+      }
+      const prevEl = card.previousElementSibling;
+      if (prevEl && prevEl.tagName === 'P' && (prevEl.innerHTML === '<br>' || prevEl.innerHTML.trim() === '')) {
+        prevEl.remove();
+      }
 
-  // 5. Clean up any trailing/leading empty paragraph artifacts & normalize browser-generated divs
-  let html = container.innerHTML;
+      card.parentNode?.replaceChild(p, card);
+    });
 
-  // Normalize browser-generated <div><br></div> to clean <p><br></p>
-  html = html.replace(/<div><br\s*\/?><\/div>/gi, '<p><br></p>');
-  html = html.replace(/<p[^>]*>\s*<\/p>/gi, '<p><br></p>');
-  html = html.replace(/<div>\s*<\/div>/gi, '');
+    // 2. Convert visual map cards back to portable [지도:...] shortcodes
+    const mapCards = container.querySelectorAll('.visual-map-card, [data-map-title]');
+    mapCards.forEach((card) => {
+      const title = card.getAttribute('data-map-title') || card.getAttribute('data-map-query') || '';
+      const address = card.getAttribute('data-map-address') || '';
 
-  // Normalize excessive <p><br></p> occurrences (collapse 4 or more into at most 2)
-  html = html.replace(/(?:<p[^>]*>\s*(?:<br\s*\/?>|&nbsp;|\s*)\s*<\/p>\s*){4,}/gi, '<p><br></p><p><br></p>');
+      const nextEl = card.nextElementSibling;
+      if (nextEl && nextEl.tagName === 'P' && (nextEl.innerHTML === '<br>' || nextEl.innerHTML.trim() === '')) {
+        nextEl.remove();
+      }
+      const prevEl = card.previousElementSibling;
+      if (prevEl && prevEl.tagName === 'P' && (prevEl.innerHTML === '<br>' || prevEl.innerHTML.trim() === '')) {
+        prevEl.remove();
+      }
 
-  // Strip empty paragraphs from very beginning and very end of post
-  html = html.replace(/^(?:\s*<p[^>]*>\s*(?:<br\s*\/?>|&nbsp;|\s*)\s*<\/p>\s*)+/i, '');
-  html = html.replace(/(?:\s*<p[^>]*>\s*(?:<br\s*\/?>|&nbsp;|\s*)\s*<\/p>\s*)+$/i, '');
+      if (title) {
+        const p = document.createElement('p');
+        p.textContent = `[지도:${title}${address ? `|${address}` : ''}]`;
+        card.parentNode?.replaceChild(p, card);
+      } else {
+        card.remove();
+      }
+    });
 
-  return html.trim();
+    // 3. Remove internal editor buttons or UI helpers if any slipped in
+    container.querySelectorAll('.delete-photo-btn, .delete-map-btn').forEach((btn) => btn.remove());
+
+    // 4. Safe removal of internal decorative heading point bars without throwing invalid selector errors
+    try {
+      container.querySelectorAll('span').forEach((el) => {
+        const cls = el.className || '';
+        if (
+          (cls.includes('w-1.5') || cls.includes('rounded-full')) &&
+          (el.parentElement?.tagName === 'H2' || el.parentElement?.tagName === 'H3')
+        ) {
+          el.remove();
+        }
+      });
+    } catch {}
+
+    // 5. Clean up any trailing/leading empty paragraph artifacts & normalize browser-generated divs
+    let html = container.innerHTML;
+
+    // Normalize browser-generated <div><br></div> to clean <p><br></p>
+    html = html.replace(/<div><br\s*\/?><\/div>/gi, '<p><br></p>');
+    html = html.replace(/<p[^>]*>\s*<\/p>/gi, '<p><br></p>');
+    html = html.replace(/<div>\s*<\/div>/gi, '');
+
+    // Normalize excessive <p><br></p> occurrences (collapse 4 or more into at most 2)
+    html = html.replace(/(?:<p[^>]*>\s*(?:<br\s*\/?>|&nbsp;|\s*)\s*<\/p>\s*){4,}/gi, '<p><br></p><p><br></p>');
+
+    // Strip empty paragraphs from very beginning and very end of post
+    html = html.replace(/^(?:\s*<p[^>]*>\s*(?:<br\s*\/?>|&nbsp;|\s*)\s*<\/p>\s*)+/i, '');
+    html = html.replace(/(?:\s*<p[^>]*>\s*(?:<br\s*\/?>|&nbsp;|\s*)\s*<\/p>\s*)+$/i, '');
+
+    return html.trim();
+  } catch (err) {
+    console.warn('[htmlToPostContent] Fallback triggered:', err);
+    return typeof htmlOrElement === 'string' ? htmlOrElement : (htmlOrElement as HTMLElement)?.innerHTML || '';
+  }
 }
 
 /**

@@ -248,8 +248,12 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
   // Sync content state from visual editor
   const syncContentFromVisual = () => {
     if (editorRef.current) {
-      const serialized = htmlToPostContent(editorRef.current);
-      setContent(serialized);
+      try {
+        const serialized = htmlToPostContent(editorRef.current);
+        setContent(serialized);
+      } catch (err) {
+        console.warn('syncContentFromVisual notice:', err);
+      }
     }
   };
 
@@ -1765,8 +1769,8 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
               </div>
 
               {/* 3. FULL ARTICLE PREVIEW (Simulates public post detail layout) */}
-              <div className={editorMode === 'preview' ? 'block' : 'hidden'}>
-                <div className="w-full min-h-[360px] p-4 sm:p-6 rounded-2xl bg-white border border-slate-200 space-y-6">
+              {editorMode === 'preview' && (
+                <div className="w-full min-h-[360px] p-4 sm:p-6 rounded-2xl bg-white border border-slate-200 space-y-6 animate-in fade-in duration-150">
                   <div className="border-b border-slate-100 pb-4">
                     <span className="inline-block px-2.5 py-1 rounded-full text-xs font-bold bg-[#30308A]/10 text-[#30308A] mb-2">
                       {category}
@@ -1789,7 +1793,7 @@ export const PostEditorPage: React.FC<PostEditorPageProps> = ({
                     />
                   </div>
                 </div>
-              </div>
+              )}
             </div>
 
             {/* Bottom Quick Tips (Fixed at bottom of left canvas) */}

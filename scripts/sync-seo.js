@@ -108,15 +108,30 @@ async function syncSEO() {
     }
     const cleanDesc = rawSummary.slice(0, 160).replace(/'/g, "\\'");
     
-    // Resolve full image URL
+    // Resolve full image URL (Must be a clean HTTP/HTTPS URL, never embed base64 into index.html)
     let postImg = post.thumbnail;
-    if (postImg && postImg.startsWith('/')) {
-      postImg = 'https://oasis46.com' + postImg;
-    } else if (!postImg || !postImg.startsWith('http')) {
-      if (post.images && post.images.length > 0 && typeof post.images[0] === 'string') {
-        postImg = post.images[0].startsWith('/') ? 'https://oasis46.com' + post.images[0] : post.images[0];
+    if (postImg && postImg.startsWith('data:')) {
+      const thumbFile = `post_${post.id}_thumb.webp`;
+      const directThumb = `${post.id}_thumb.webp`;
+      if (existsSync(resolve(rootDir, `public/images/posts/${thumbFile}`))) {
+        postImg = `https://oasis46.com/images/posts/${thumbFile}`;
+      } else if (existsSync(resolve(rootDir, `public/images/posts/${directThumb}`))) {
+        postImg = `https://oasis46.com/images/posts/${directThumb}`;
       } else {
         postImg = 'https://oasis46.com/logo.jpg';
+      }
+    } else if (postImg && postImg.startsWith('/')) {
+      postImg = 'https://oasis46.com' + postImg;
+    } else if (!postImg || !postImg.startsWith('http')) {
+      if (post.images && post.images.length > 0 && typeof post.images[0] === 'string' && !post.images[0].startsWith('data:')) {
+        postImg = post.images[0].startsWith('/') ? 'https://oasis46.com' + post.images[0] : post.images[0];
+      } else {
+        const thumbFile = `post_${post.id}_thumb.webp`;
+        if (existsSync(resolve(rootDir, `public/images/posts/${thumbFile}`))) {
+          postImg = `https://oasis46.com/images/posts/${thumbFile}`;
+        } else {
+          postImg = 'https://oasis46.com/logo.jpg';
+        }
       }
     }
 

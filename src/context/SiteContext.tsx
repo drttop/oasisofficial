@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { loadFirebase } from '../lib/firebase';
-import firebaseConfig from '../../firebase-applet-config.json';
+const ACTIVE_FIRESTORE_DB_ID = 'app-database';
 import {
   SiteConfig,
   BannerSlide,
@@ -146,7 +146,7 @@ if (typeof window !== 'undefined') {
 
   // Auto-detect Database ID change and reset any stale Quota Exceeded locks from previous database
   try {
-    const activeDbId = (firebaseConfig as any).firestoreDatabaseId || '(default)';
+    const activeDbId = ACTIVE_FIRESTORE_DB_ID;
     const storedDbId = localStorage.getItem(`${APP_STORAGE_PREFIX}_connected_db_id`);
     if (storedDbId !== activeDbId) {
       localStorage.setItem(`${APP_STORAGE_PREFIX}_connected_db_id`, activeDbId);
@@ -1471,7 +1471,7 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setActiveInfoModal,
         activeSection,
         setActiveSection,
-        connectedDatabaseId: (firebaseConfig as any).firestoreDatabaseId || 'app-database',
+        connectedDatabaseId: ACTIVE_FIRESTORE_DB_ID,
         isCloudSynced,
         isQuotaExceeded,
         refreshCloudData,

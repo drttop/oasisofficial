@@ -31,11 +31,11 @@ function optimizeDist() {
 
   let html = readFileSync(distHtmlPath, 'utf8');
 
-  // Convert render-blocking compiled CSS to high-performance non-blocking preload
+  // Convert render-blocking compiled CSS to high-performance non-blocking preload with noscript fallback
   const cssRegex = /<link rel="stylesheet"[^>]*href="(\/assets\/index-[^"]+\.css)"[^>]*>/g;
   if (cssRegex.test(html)) {
     html = html.replace(cssRegex, (_match, cssPath) => {
-      return `<link rel="preload" href="${cssPath}" as="style" onload="this.onload=null;this.rel='stylesheet'">`;
+      return `<link rel="preload" href="${cssPath}" as="style" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="${cssPath}"></noscript>`;
     });
     console.log('✅ Successfully transformed compiled CSS to non-render-blocking in dist/index.html');
   }

@@ -102,7 +102,7 @@ interface SiteContextType {
 
 const SiteContext = createContext<SiteContextType | undefined>(undefined);
 
-export const APP_DATA_VERSION = 'oasis_v2026_v9_hero_thumb_final';
+export const APP_DATA_VERSION = 'oasis_v2026_v10_fresh_sync';
 const APP_STORAGE_PREFIX = 'oasis_v2026';
 
 export const STORAGE_KEYS = {

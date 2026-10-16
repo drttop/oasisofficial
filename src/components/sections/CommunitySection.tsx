@@ -283,7 +283,9 @@ export const CommunitySection: React.FC = () => {
                         onError={(e) => {
                           const target = e.currentTarget;
                           const fallback = initialPosts.find((p) => p.id === post.id);
-                          if (fallback && fallback.thumbnail && target.src !== fallback.thumbnail) {
+                          if (post.images && post.images.length > 0 && target.src !== post.images[0]) {
+                            target.src = post.images[0];
+                          } else if (fallback && fallback.thumbnail && target.src !== fallback.thumbnail) {
                             target.src = fallback.thumbnail;
                           } else if (!target.src.includes('post_0_thumb.webp')) {
                             target.src = '/images/posts/post_0_thumb.webp';

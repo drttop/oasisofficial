@@ -18,6 +18,7 @@ import {
   RotateCcw,
   Download,
   Upload,
+  Image as ImageIcon,
   Plus,
   Trash2,
   Edit2,
@@ -959,24 +960,125 @@ export const AdminDashboard: React.FC = () => {
                 </div>
               </div>
 
-              {/* Image and Floating Badge Info */}
+              {/* 16:9 Official About Banner Image Management */}
               <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-                <h3 className="text-base font-bold text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-3">
-                  <Shield className="w-4 h-4 text-emerald-600" />
-                  대표 이미지 및 공인 엠블럼 배지 문구
-                </h3>
+                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                  <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                    <ImageIcon className="w-4 h-4 text-[#30308A]" />
+                    오아시스 소개 16:9 대표 이미지 직접 첨부
+                  </h3>
+                  <span className="text-[11px] font-bold text-amber-600 bg-amber-50 border border-amber-200 px-2.5 py-0.5 rounded-full">
+                    16:9 가로 비율 권장
+                  </span>
+                </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="sm:col-span-2">
-                    <label className="block text-xs font-bold text-slate-700 mb-1">대표 이미지 URL</label>
+                <p className="text-xs text-slate-500 leading-relaxed">
+                  'About Oasis' 카테고리 메인 타이틀(&quot;필리핀 공인 13년 현지 직영 공식 에이전트&quot;) 바로 아래 표시되는 대표 이미지입니다.
+                </p>
+
+                {/* 16:9 Live Preview Box */}
+                <div className="relative aspect-video w-full max-w-xl mx-auto rounded-xl sm:rounded-2xl overflow-hidden border border-slate-200 bg-slate-950 flex items-center justify-center group shadow-md">
+                  {siteConfig.aboutImageUrl ? (
+                    <>
+                      <img
+                        src={siteConfig.aboutImageUrl}
+                        alt="About Section Banner Preview"
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            updateSiteConfig({ aboutImageUrl: '' });
+                            showToast('대표 이미지가 삭제되었습니다.');
+                          }}
+                          className="px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs font-bold shadow-md transition-colors flex items-center gap-1.5 cursor-pointer"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                          <span>이미지 삭제</span>
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center text-slate-400 p-6 text-center space-y-2">
+                      <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-[#E5B54F]">
+                        <ImageIcon className="w-6 h-6" />
+                      </div>
+                      <p className="text-xs font-bold text-slate-300">현재 등록된 16:9 대표 이미지가 없습니다.</p>
+                      <p className="text-[11px] text-slate-500">아래 [파일 선택] 버튼을 눌러 이미지를 직접 첨부해 주세요.</p>
+                    </div>
+                  )}
+                  <span className="absolute bottom-2 right-2 text-[10px] font-bold px-2 py-0.5 rounded bg-black/70 text-white/80">
+                    16:9 미리보기
+                  </span>
+                </div>
+
+                {/* File Attachment & URL Input */}
+                <div className="space-y-3 pt-2">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                      이미지 파일 직접 첨부 (PC / 모바일)
+                    </label>
                     <input
-                      type="url"
-                      value={siteConfig.aboutImageUrl || ''}
-                      onChange={(e) => updateSiteConfig({ aboutImageUrl: e.target.value })}
-                      className="w-full px-3.5 py-2 text-xs border border-slate-300 rounded-lg"
+                      type="file"
+                      accept="image/*"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          showToast('이미지 압축 및 16:9 최적화 처리 중...');
+                          try {
+                            const compressed = await compressImageFile(file, 1920, 1080, 0.88, 450000);
+                            await updateSiteConfig({ aboutImageUrl: compressed });
+                            showToast('16:9 대표 이미지가 성공적으로 등록되었습니다.');
+                          } catch {
+                            showToast('이미지 업로드 및 처리에 실패하였습니다.');
+                          }
+                        }
+                      }}
+                      className="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-[#30308A] file:text-white hover:file:bg-[#25256e] cursor-pointer border border-slate-200 rounded-lg p-1.5 bg-slate-50"
                     />
                   </div>
 
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">
+                      또는 이미지 웹 주소(URL) 직접 입력
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="https://... (직접 파일 첨부 시 자동 입력됩니다)"
+                      value={siteConfig.aboutImageUrl?.startsWith('data:') ? '직접 첨부된 고화질 최적화 이미지' : (siteConfig.aboutImageUrl || '')}
+                      onChange={(e) => updateSiteConfig({ aboutImageUrl: e.target.value })}
+                      disabled={siteConfig.aboutImageUrl?.startsWith('data:')}
+                      className="w-full px-3.5 py-2 text-xs border border-slate-300 rounded-lg disabled:bg-slate-100 disabled:text-slate-500"
+                    />
+                  </div>
+
+                  {siteConfig.aboutImageUrl && (
+                    <div className="flex justify-end pt-1">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          updateSiteConfig({ aboutImageUrl: '' });
+                          showToast('대표 이미지가 삭제되었습니다.');
+                        }}
+                        className="px-3 py-1.5 text-xs text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg font-bold border border-red-200 inline-flex items-center gap-1.5 cursor-pointer transition-colors"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        <span>이미지 초기화 (미등록 상태로 복원)</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Floating Badge Info */}
+              <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                <h3 className="text-base font-bold text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-3">
+                  <Shield className="w-4 h-4 text-emerald-600" />
+                  공인 엠블럼 배지 문구 설정
+                </h3>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-bold text-slate-700 mb-1">플로팅 배지 상단 텍스트</label>
                     <input

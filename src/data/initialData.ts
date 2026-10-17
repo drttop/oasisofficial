@@ -52,7 +52,7 @@ export const initialSiteConfig: SiteConfig = {
   "aboutSubtitle": " ",
   "aboutStat1Num": "13+",
   "telegramId": "@oasis46",
-  "aboutImageUrl": "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fm=webp&fit=crop&w=600&q=75&ext=.webp",
+  "aboutImageUrl": "",
   "aboutYearsExperience": "13년 현지 직영",
   "bannerTitle": "필리핀 공식 오아시스 VIP 에이전시",
   "adminPassword": "1020",

@@ -844,7 +844,11 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // ===================== CRUD ACTIONS WITH FIRESTORE SYNC =====================
 
   const updateSiteConfig = async (partial: Partial<SiteConfig>) => {
-    setSiteConfigState((prev) => ({ ...prev, ...partial }));
+    setSiteConfigState((prev) => {
+      const updated = { ...prev, ...partial };
+      safeStorageSet(STORAGE_KEYS.CONFIG, JSON.stringify(updated));
+      return updated;
+    });
     try {
       const { db, fs } = await loadFirebase();
       const configDocRef = fs.doc(db, 'site_config', 'main');

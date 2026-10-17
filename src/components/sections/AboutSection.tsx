@@ -1,12 +1,9 @@
-import React, { useRef, useState } from 'react';
+import React from 'react';
 import { useSite } from '../../context/SiteContext';
-import { ShieldCheck, Sparkles, Award, CheckCircle2, ChevronLeft, Landmark, Image as ImageIcon, Upload, RefreshCw } from 'lucide-react';
-import { compressImageFile } from '../../utils/imageUpload';
+import { ShieldCheck, Sparkles, Award, CheckCircle2, ChevronLeft, Landmark, Image as ImageIcon } from 'lucide-react';
 
 export const AboutSection: React.FC = () => {
-  const { siteConfig, updateSiteConfig, activeInfoModal, setActiveInfoModal } = useSite();
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
+  const { siteConfig, activeInfoModal, setActiveInfoModal } = useSite();
 
   const title = siteConfig.aboutTitle || 'PAGCOR · GAB · PCSO 필리핀 정부 공인\n13년 현지 직영 VIP 공식 에이전트';
   const subtitle = siteConfig.aboutSubtitle || '오아시스는 필리핀 정부 산하 PAGCOR, GAB, PCSO 정식 공인 에이전트로서 마닐라 및 클락 메이저 카지노 복합리조트와 직통 파트너십을 맺고 13년간 축적된 압도적인 현지 직영 케어 솔루션을 제공합니다.';
@@ -21,39 +18,6 @@ export const AboutSection: React.FC = () => {
     { number: siteConfig.aboutStat3Num || '20,000+', label: siteConfig.aboutStat3Label || '누적 VIP 고객 현지 케어' },
     { number: siteConfig.aboutStat4Num || '24 / 7', label: siteConfig.aboutStat4Label || '한국인 베테랑 현지 상주' },
   ];
-
-  const handleDirectImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setIsUploading(true);
-    try {
-      const compressed = await compressImageFile(file, 1920, 1080, 0.88, 450000);
-      await updateSiteConfig({ aboutImageUrl: compressed });
-    } catch (err) {
-      console.error('Failed to process image:', err);
-    } finally {
-      setIsUploading(false);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
-    }
-  };
-
-  const handleDrop = async (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    const file = e.dataTransfer.files?.[0];
-    if (!file || !file.type.startsWith('image/')) return;
-    setIsUploading(true);
-    try {
-      const compressed = await compressImageFile(file, 1920, 1080, 0.88, 450000);
-      await updateSiteConfig({ aboutImageUrl: compressed });
-    } catch (err) {
-      console.error('Failed to process image:', err);
-    } finally {
-      setIsUploading(false);
-    }
-  };
 
   return (
     <section id="about" className="py-12 sm:py-20 min-h-[100dvh] flex flex-col justify-center bg-white text-slate-900 scroll-mt-20">
@@ -96,84 +60,30 @@ export const AboutSection: React.FC = () => {
           </h2>
         </div>
 
-        {/* 16:9 Banner Image Container (Directly under Title) */}
+        {/* 16:9 Banner Image Container (Directly under Title - Read Only Display) */}
         <div className="max-w-5xl mx-auto mb-8 sm:mb-12 w-full">
-          <input
-            type="file"
-            ref={fileInputRef}
-            onChange={handleDirectImageUpload}
-            accept="image/*"
-            className="hidden"
-          />
-
-          <div
-            onDragOver={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-            }}
-            onDrop={handleDrop}
-            className="relative aspect-video w-full rounded-2xl sm:rounded-3xl overflow-hidden shadow-xl sm:shadow-2xl border border-slate-200/80 bg-slate-950 group"
-          >
+          <div className="relative aspect-video w-full rounded-2xl sm:rounded-3xl overflow-hidden shadow-xl sm:shadow-2xl border border-slate-200/80 bg-slate-950">
             {siteConfig.aboutImageUrl ? (
-              <>
-                <img
-                  src={siteConfig.aboutImageUrl}
-                  alt={title.replace(/\n/g, ' ')}
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.02]"
-                  loading="lazy"
-                  decoding="async"
-                />
-                {/* Overlay actions to change or delete image */}
-                <div className="absolute inset-0 bg-black/45 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3 backdrop-blur-[2px]">
-                  <button
-                    type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={isUploading}
-                    className="px-4 py-2.5 rounded-xl bg-white hover:bg-slate-100 text-slate-900 font-bold text-xs sm:text-sm shadow-xl flex items-center gap-2 transition-transform hover:scale-105 active:scale-95 cursor-pointer"
-                  >
-                    {isUploading ? (
-                      <RefreshCw className="w-4 h-4 animate-spin text-[#30308A]" />
-                    ) : (
-                      <Upload className="w-4 h-4 text-[#30308A]" />
-                    )}
-                    <span>{isUploading ? '압축 처리 중...' : '이미지 변경'}</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => updateSiteConfig({ aboutImageUrl: '' })}
-                    className="px-3.5 py-2.5 rounded-xl bg-red-600/90 hover:bg-red-600 text-white font-bold text-xs sm:text-sm shadow-xl transition-transform hover:scale-105 active:scale-95 cursor-pointer"
-                  >
-                    이미지 삭제
-                  </button>
-                </div>
-              </>
+              <img
+                src={siteConfig.aboutImageUrl}
+                alt={title.replace(/\n/g, ' ')}
+                className="w-full h-full object-cover transition-transform duration-700 hover:scale-[1.01]"
+                loading="lazy"
+                decoding="async"
+              />
             ) : (
-              <div
-                onClick={() => fileInputRef.current?.click()}
-                className="w-full h-full flex flex-col items-center justify-center p-6 text-center space-y-3.5 bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 cursor-pointer hover:bg-slate-900 transition-all select-none"
-              >
-                <div className="w-16 h-16 rounded-2xl bg-white/5 border border-amber-400/30 flex items-center justify-center text-[#E5B54F] shadow-lg group-hover:scale-110 group-hover:border-amber-400 transition-transform">
-                  {isUploading ? (
-                    <RefreshCw className="w-8 h-8 animate-spin" />
-                  ) : (
-                    <ImageIcon className="w-8 h-8" />
-                  )}
+              <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center space-y-3 bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 select-none">
+                <div className="w-16 h-16 rounded-2xl bg-white/5 border border-amber-400/30 flex items-center justify-center text-[#E5B54F] shadow-lg">
+                  <ImageIcon className="w-8 h-8" />
                 </div>
                 <div className="space-y-1">
                   <p className="text-base sm:text-lg font-bold text-white tracking-wide">
                     필리핀 공인 13년 현지 직영 공식 에이전트
                   </p>
                   <p className="text-xs sm:text-sm text-slate-400">
-                    16:9 비율의 공식 대표 이미지가 들어갈 자리입니다. (클릭하여 이미지 직접 첨부)
+                    PAGCOR · GAB · PCSO 정식 라이센스 공인 파트너십
                   </p>
                 </div>
-                <div className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#E5B54F] to-[#C99836] text-slate-950 font-bold text-xs sm:text-sm shadow-md group-hover:shadow-amber-500/20 transition-all">
-                  <Upload className="w-4 h-4 text-slate-950" />
-                  <span>{isUploading ? '고화질 최적화 처리 중...' : '16:9 이미지 직접 첨부하기'}</span>
-                </div>
-                <span className="text-[11px] text-slate-500">
-                  드래그 앤 드롭 또는 클릭하여 파일을 선택해 주세요 (16:9 권장)
-                </span>
               </div>
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-slate-950/20 via-transparent to-transparent pointer-events-none" />
